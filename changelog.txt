@@ -1,3 +1,8 @@
+Revision 201 (Iter Lite):
+- removed pathfinding code (navigation manager, AI pathing hooks, nav-data patches) since Diesel 3.0 rewrote pathfinding
+- kept all level and mission fixes, drill, menu, localization, and the navlink-vector data they rely on
+- client MissionScript:load now chains the original (preserves other mods' wrappers) and guards uninitialized elements
+
 Revision 200:
 - [Escape: Park] moved useless navmesh far away to prevent Z confusion
 
