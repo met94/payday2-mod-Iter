@@ -75,6 +75,7 @@ local function _add_forbid_custom(data, id, navsegs)
 end
 
 if Network:is_client() then
+	local itr_original_missionscript_load = MissionScript.load
 	function MissionScript:load(data)
 		local state = data[self._name]
 		if data.iter then
@@ -84,23 +85,15 @@ if Network:is_client() then
 			data.iter = nil
 		end
 
-		if self._element_groups.ElementInstancePoint then
-			for _, element in ipairs(self._element_groups.ElementInstancePoint) do
-				local id = element:id()
-				if state[id] then
-					self._elements[id]:load(state[id])
-					state[id] = nil
-				end
+		-- there can be uninitialized elements when host doesn't use Iter
+		for id in pairs(state) do
+			local element = self._elements[id]
+			if not element or type(element.load) ~= 'function' then
+				state[id] = nil
 			end
 		end
 
-		for id, mission_state in pairs(state) do
-			-- there can be uninitialized elements when host doesn't use Iter
-			local element = self._elements[id]
-			if element and type(element.load) == 'function' then
-				element:load(mission_state)
-			end
-		end
+		itr_original_missionscript_load(self, data)
 	end
 else
 	local itr_original_missionscript_save = MissionScript.save
