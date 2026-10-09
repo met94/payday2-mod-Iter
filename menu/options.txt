@@ -7,14 +7,6 @@
 	"items" : [
 		{
 			"type" : "toggle",
-			"id" : "streamline_path",
-			"title" : "itr_options_streamline_path_title",
-			"description" : "itr_options_streamline_path_desc",
-			"callback" : "IterMenuCheckboxClbk",
-			"value" : "streamline_path"
-		},
-		{
-			"type" : "toggle",
 			"id" : "rebuild_navlinks",
 			"title" : "itr_options_rebuild_navlinks_title",
 			"description" : "itr_options_rebuild_navlinks_desc",
@@ -32,14 +24,6 @@
 			"description" : "itr_options_map_change_generic_desc",
 			"callback" : "IterMenuCheckboxClbk",
 			"value" : "map_change_alex_1"
-		},
-		{
-			"type" : "toggle",
-			"id" : "map_change_alex_2",
-			"title" : "itr_options_map_change_alex_2_title",
-			"description" : "itr_options_map_change_generic_desc",
-			"callback" : "IterMenuCheckboxClbk",
-			"value" : "map_change_alex_2"
 		},
 		{
 			"type" : "toggle",
@@ -115,14 +99,6 @@
 		},
 		{
 			"type" : "toggle",
-			"id" : "map_change_chas",
-			"title" : "itr_options_map_change_chas_title",
-			"description" : "itr_options_map_change_generic_desc",
-			"callback" : "IterMenuCheckboxClbk",
-			"value" : "map_change_chas"
-		},
-		{
-			"type" : "toggle",
 			"id" : "map_change_chew",
 			"title" : "itr_options_map_change_chew_title",
 			"description" : "itr_options_map_change_generic_desc",
@@ -136,14 +112,6 @@
 			"description" : "itr_options_map_change_generic_desc",
 			"callback" : "IterMenuCheckboxClbk",
 			"value" : "map_change_chill_combat"
-		},
-		{
-			"type" : "toggle",
-			"id" : "map_change_crojob2",
-			"title" : "itr_options_map_change_crojob2_title",
-			"description" : "itr_options_map_change_generic_desc",
-			"callback" : "IterMenuCheckboxClbk",
-			"value" : "map_change_crojob2"
 		},
 		{
 			"type" : "toggle",
@@ -168,14 +136,6 @@
 			"description" : "itr_options_map_change_generic_desc",
 			"callback" : "IterMenuCheckboxClbk",
 			"value" : "map_change_escape_garage"
-		},
-		{
-			"type" : "toggle",
-			"id" : "map_change_escape_park",
-			"title" : "itr_options_map_change_escape_park_title",
-			"description" : "itr_options_map_change_generic_desc",
-			"callback" : "IterMenuCheckboxClbk",
-			"value" : "map_change_escape_park"
 		},
 		{
 			"type" : "toggle",
@@ -275,14 +235,6 @@
 		},
 		{
 			"type" : "toggle",
-			"id" : "map_change_jewelry_store",
-			"title" : "itr_options_map_change_jewelry_store_title",
-			"description" : "itr_options_map_change_generic_desc",
-			"callback" : "IterMenuCheckboxClbk",
-			"value" : "map_change_jewelry_store"
-		},
-		{
-			"type" : "toggle",
 			"id" : "map_change_jolly",
 			"title" : "itr_options_map_change_jolly_title",
 			"description" : "itr_options_map_change_generic_desc",
@@ -347,14 +299,6 @@
 		},
 		{
 			"type" : "toggle",
-			"id" : "map_change_pbr",
-			"title" : "itr_options_map_change_pbr_title",
-			"description" : "itr_options_map_change_generic_desc",
-			"callback" : "IterMenuCheckboxClbk",
-			"value" : "map_change_pbr"
-		},
-		{
-			"type" : "toggle",
 			"id" : "map_change_pbr2",
 			"title" : "itr_options_map_change_pbr2_title",
 			"description" : "itr_options_map_change_generic_desc",
@@ -403,14 +347,6 @@
 		},
 		{
 			"type" : "toggle",
-			"id" : "map_change_roberts",
-			"title" : "itr_options_map_change_roberts_title",
-			"description" : "itr_options_map_change_generic_desc",
-			"callback" : "IterMenuCheckboxClbk",
-			"value" : "map_change_roberts"
-		},
-		{
-			"type" : "toggle",
 			"id" : "map_change_rvd1",
 			"title" : "itr_options_map_change_rvd1_title",
 			"description" : "itr_options_map_change_generic_desc",
@@ -440,14 +376,6 @@
 			"description" : "itr_options_map_change_generic_desc",
 			"callback" : "IterMenuCheckboxClbk",
 			"value" : "map_change_skm_mallcrasher"
-		},
-		{
-			"type" : "toggle",
-			"id" : "map_change_watchdogs_1",
-			"title" : "itr_options_map_change_watchdogs_1_title",
-			"description" : "itr_options_map_change_generic_desc",
-			"callback" : "IterMenuCheckboxClbk",
-			"value" : "map_change_watchdogs_1"
 		},
 		{
 			"type" : "toggle",
