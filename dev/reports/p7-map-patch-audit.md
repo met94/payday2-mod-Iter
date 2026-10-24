@@ -73,6 +73,9 @@ Consolidated verdicts:
 | DEAD_ONLY (1) | skm_mallcrasher |
 | no nav-data ops | dinner, flat (obstacle wrappers only) |
 
+`crojob2` = The Bomb: Dockyard (level id; job id is `crojob1`).
+The Bomb: Forest is level `crojob3` and has no r200 patch.
+
 `arm_for` was verified by T6: the room transfers already leave doors 5188,
 5205/5210 and 5195/5206 between the segments; the old neighbour writes were
 redundant. `crojob2`, `escape_street`, `jolly`, `moon`, `peta` are logged as

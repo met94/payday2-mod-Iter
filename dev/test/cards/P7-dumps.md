@@ -14,7 +14,7 @@ Requirements:
 | Heist (level id) | Commands |
 |---|---|
 | Transport: Train Heist (`arm_for`) | `!iter navdump 56` `!iter navdump 57` `!iter navdump 58` `!iter navdump 59` `!iter navdump 60` `!iter navdoors 56 57` `!iter navdoors 59 60` `!iter navdoors 58 59` |
-| The Bomb: Forest (`crojob2`) | `!iter navdump 28` `!iter navdump 52` `!iter navdump 74` `!iter navdoors 28 52` `!iter navdoors 28 74` `!iter navdoors 52 74` |
+| The Bomb: Dockyard (`crojob2`; job id `crojob1`) | `!iter navdump 28` `!iter navdump 52` `!iter navdump 74` `!iter navdoors 28 52` `!iter navdoors 28 74` `!iter navdoors 52 74` |
 | Escape: Street (`escape_street`) | `!iter navdump 48` `!iter navdump 63` `!iter navdoors 48 63` |
 | Aftershock (`jolly`) | `!iter navdump 87` `!iter navdump 141` `!iter navdoors 87 141` |
 | Stealing Xmas (`moon`) | `!iter navdump 22` `!iter navdump 23` `!iter navdoors 22 23` |
