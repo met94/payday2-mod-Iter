@@ -68,7 +68,13 @@ Target: `e3a8b616` (248.2).
   AI diagnostic read the wrong enemy table and no heartbeat existed.
   Fixes: unit:brain diagnostic, 30 s heartbeat, boot flag logging, search
   and nav-link counters, cache clears.
-- Next: combined T3+T4 run (AI + navlink queue + search + direct-to-pos).
+- Combined T3/T4 run: Hotline D1 PASS (47 cops, 20 travelling, 27 coarse,
+  prepare=514, reserve=2, search 133 ok/2 fail, cache 33); Jewelry stealth
+  PASS (direct_to_pos=2, search 3/4). Big Bank `!iter probe 20` crashed:
+  nav-link userdata passed to `mvector3` in `itr_get_closest_door_to_pos`.
+  Fixed with `is_vec3` numeric x/y/z validation and position guards.
+  Harness global `ITER` -> `Iter` fixed (`!iter dump/setting`).
+- Next: verify Big Bank probe; then P7 map patches.
 
 ## Rulings
 

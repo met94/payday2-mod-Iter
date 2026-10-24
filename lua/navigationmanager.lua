@@ -81,6 +81,18 @@ local table_remove = table.remove
 
 local tmp_vec1 = Vector3()
 
+-- Distinguish engine Vector3 userdata from nav-link userdata without calling
+-- vector math on the latter (248.2 access violation in itr_get_closest_door_to_pos).
+local function is_vec3(value)
+	if type(value) ~= 'userdata' then
+		return false
+	end
+
+	local x, y, z = value.x, value.y, value.z
+
+	return type(x) == 'number' and type(y) == 'number' and type(z) == 'number'
+end
+
 local _navlink_elements = {}
 local _navlink_planned_use = {}
 
@@ -796,6 +808,15 @@ local function itr_get_navlink_usage(navlink, t)
 end
 
 function NavigationManager:itr_get_closest_door_to_pos(all_doors, door_list, pos_from, pos_to, access_pos, navlink_accounting)
+	if not is_vec3(pos_to) then
+		Iter.diag.count('door_bad_pos_to')
+		return
+	end
+
+	if pos_from and not is_vec3(pos_from) then
+		pos_from = nil
+	end
+
 	local best_pos, best_pos_with_delay, t, min_congestion_risk
 	local best_dis = 1000000000
 	local is_direct, through_navlink, through_navlink_with_delay
@@ -824,7 +845,7 @@ function NavigationManager:itr_get_closest_door_to_pos(all_doors, door_list, pos
 				end
 			end
 
-		elseif i_door and i_door.x then
+		elseif is_vec3(i_door) then
 			local dis = (pos_from and mvec3_dis(pos_from, i_door) or 0) + mvec3_dis(i_door, pos_to)
 
 			if dis <= best_dis then
@@ -980,7 +1001,7 @@ local function itr_get_door_in_alignment(all_doors, door_list, from, to)
 		if type(i_door) == 'number' then
 			local door = all_doors[i_door]
 			door_pos = door and door.center
-		elseif i_door and i_door.x then
+		elseif is_vec3(i_door) then
 			door_pos = i_door
 		end
 
@@ -999,6 +1020,10 @@ local function itr_get_door_in_alignment(all_doors, door_list, from, to)
 end
 
 function NavigationManager:itr_get_coarse_pos_between(segment1_id, segment2_id, near_pos, access_pos)
+	if near_pos and not is_vec3(near_pos) then
+		near_pos = nil
+	end
+
 	local doors = self._nav_segments[segment1_id].neighbours[segment2_id]
 	if not doors then
 		return false
@@ -1033,7 +1058,7 @@ function NavigationManager:itr_streamline(path, access_pos)
 	local step1 = path[1]
 	local step2
 
-	if not step1[2] then
+	if not is_vec3(step1[2]) then
 		step1[2] = all_segs[step1[1]].pos
 	end
 
@@ -1086,7 +1111,7 @@ function NavigationManager:itr_get_accessibility(door_list, access_pos, access_n
 		local i_door = door_list[i]
 		if type(i_door) == 'number' then
 			return 0
-		elseif i_door and i_door.x then
+		elseif is_vec3(i_door) then
 			return 0
 		elseif alive(i_door) and not i_door:is_obstructed() and i_door:check_access(access_pos, access_neg) then
 			local element = _navlink_elements[i_door:key()]

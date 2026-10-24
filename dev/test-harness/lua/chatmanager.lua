@@ -21,7 +21,7 @@ local function nav_manager()
 end
 
 local function iter_settings()
-	return ITER and ITER.settings or {}
+	return Iter and Iter.settings or {}
 end
 
 function TH.parse_command(message)
@@ -176,7 +176,7 @@ function TH.dump_nav()
 end
 
 function TH.dump_patch()
-	local status = ITER and ITER.nav_patch_status
+	local status = Iter and Iter.nav_patch_status
 
 	if not status then
 		say('patch: no patch status recorded yet (load a heist first)')
@@ -496,8 +496,8 @@ function TH.dump_links()
 end
 
 function TH.set_setting(key, value)
-	if not ITER or not ITER.settings then
-		say('setting: ITER not loaded')
+	if not Iter or not Iter.settings then
+		say('setting: Iter not loaded')
 		return
 	end
 
@@ -518,7 +518,7 @@ function TH.set_setting(key, value)
 		end
 	end
 
-	ITER.settings[key] = parsed
+	Iter.settings[key] = parsed
 	say(string.format('setting %s=%s', tostring(key), tostring(parsed)))
 end
 
@@ -587,14 +587,14 @@ function TH.dump_state()
 end
 
 function TH.dump()
-	if not ITER or not ITER.settings then
-		say('dump: ITER settings unavailable')
+	if not Iter or not Iter.settings then
+		say('dump: Iter settings unavailable')
 		return
 	end
 
 	say('dump: settings')
 
-	for key, value in pairs(ITER.settings or {}) do
+	for key, value in pairs(Iter.settings or {}) do
 		log(string.format('%s  %s=%s', PREFIX, tostring(key), tostring(value)))
 	end
 
@@ -603,15 +603,15 @@ function TH.dump()
 
 	say(string.format(
 		'dump: overlay=%s streamline=%s search=%s ai=%s path=%s navlink_queue=%s extender=%s direct=%s debug_log=%s segments=%d rooms=%d room_doors=%d navlink_elements=%d',
-		tostring(ITER.settings.nav_overlay),
-		tostring(ITER.settings.nav_streamline),
-		tostring(ITER.settings.nav_search),
-		tostring(ITER.settings.nav_ai),
-		tostring(ITER.settings.streamline_path),
-		tostring(ITER.settings.navlink_queue),
-		tostring(ITER.settings.path_extender),
-		tostring(ITER.settings.direct_to_pos),
-		tostring(ITER.settings.debug_log),
+		tostring(Iter.settings.nav_overlay),
+		tostring(Iter.settings.nav_streamline),
+		tostring(Iter.settings.nav_search),
+		tostring(Iter.settings.nav_ai),
+		tostring(Iter.settings.streamline_path),
+		tostring(Iter.settings.navlink_queue),
+		tostring(Iter.settings.path_extender),
+		tostring(Iter.settings.direct_to_pos),
+		tostring(Iter.settings.debug_log),
 		stats.segments,
 		stats.rooms,
 		stats.room_doors,

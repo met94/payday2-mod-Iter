@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-24T12:23:55.307Z
+Generated: 2026-10-24T12:31:36.464Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -13,7 +13,7 @@ Scope: top-level function definitions only. Nested helpers are folded into their
 |---|---:|
 | MOD_EDIT_VANILLA_CHANGED | 6 |
 | MOD_ONLY_HOOK | 7 |
-| MOD_ONLY | 54 |
+| MOD_ONLY | 55 |
 | MOD_EDIT_CLEAN | 32 |
 
 ## lua/coreworldinstancemanager.lua
@@ -81,6 +81,7 @@ No function definitions (hook/overlay file).
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.set_load_data:Iter_nav_heist` | 31 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.update:Iter_nav_heartbeat` | 35 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit | `get_coarse_dis` | 8 | 0 | 0 |  |
+| [ ] | audit | `is_vec3` | 9 | 0 | 0 |  |
 | [ ] | audit | `itr_add_door_pos_to` | 10 | 0 | 0 |  |
 | [ ] | audit | `itr_get_door_in_alignment` | 31 | 0 | 0 |  |
 | [ ] | audit | `itr_get_navlink_usage` | 17 | 0 | 0 |  |
@@ -94,8 +95,8 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `NavigationManager.itr_flood` | 50 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_get_accessibility` | 34 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_get_all_doors_of_segment` | 30 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_get_closest_door_to_pos` | 89 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_get_coarse_pos_between` | 27 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_get_closest_door_to_pos` | 98 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_get_coarse_pos_between` | 31 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_get_door_between` | 31 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_get_room_to_doors` | 16 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_is_contiguous` | 41 | 0 | 0 |  |

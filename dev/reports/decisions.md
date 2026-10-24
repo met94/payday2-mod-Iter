@@ -113,5 +113,18 @@ Every AI file now checks `nav_overlay` as well as its own flag
 
 Cost if wrong: a test that enables only `nav_ai` behaves as vanilla; no crash.
 
+## R12. Vector checks require numeric x/y/z
+
+248.2 neighbour lists mix engine Vector3 userdata with nav-link userdata.
+`i_door.x` alone is not enough to prove a Vector3; passing a nav-link object
+to `mvector3` caused an access violation on Big Bank (probe path). `is_vec3`
+now requires userdata with numeric `x`, `y`, `z`, and all position arguments
+are validated before vector math.
+
+Cost if wrong: a legitimate Vector3 whose components are not exposed as
+numbers would be treated as a nav-link and skipped; paths fall back to
+distance-only picks. No crash.
+
+
 
 

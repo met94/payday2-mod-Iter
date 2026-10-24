@@ -48,7 +48,7 @@ assert(cmd and cmd.command == 'help', 'bare !iter should map to help')
 assert(parse('hello') == nil, 'non-command should return nil')
 assert(parse('!other nav') == nil, 'other prefix should return nil')
 
-ITER = {}
+Iter = {}
 log = function() end
 local ok, err = pcall(Iter_TestHarness.dump)
 assert(ok, 'dump with nil settings should not error: ' .. tostring(err))
