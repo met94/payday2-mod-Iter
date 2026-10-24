@@ -10,13 +10,13 @@ Iter.settings = {
 	-- test card passes. `streamline_path` remains the future user-facing toggle.
 	-- See dev/plans/full-nav-port.md.
 	nav_overlay = true,
-	nav_streamline = false,
-	nav_search = false,
-	nav_ai = false,
+	nav_streamline = true,
+	nav_search = true,
+	nav_ai = true,
 	streamline_path = false,
-	navlink_queue = false,
+	navlink_queue = true,
 	path_extender = false,
-	direct_to_pos = false,
+	direct_to_pos = true,
 	map_patches = false,
 	cop_idle_fix = false,
 	debug_log = 1,

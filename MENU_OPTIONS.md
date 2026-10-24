@@ -22,7 +22,7 @@ from the v5 load data and installs the guarded bookkeeping wrappers.
 Computes choke-point proxies and applies the path streamliner to coarse
 paths.
 
-- Default: **OFF** until T2. Enable to test.
+- Default: **ON**.
 - Requires the overlay.
 - Heist restart required.
 
@@ -30,8 +30,8 @@ paths.
 
 Replaces vanilla's coarse search with Iter's weighted search and cache.
 
-- Default: **OFF** until T4.
-- Requires the overlay and streamline.
+- Default: **ON**.
+- Requires the overlay.
 - Heist restart required.
 
 ### Dev: nav-link queue tracking (`navlink_queue`)
@@ -39,7 +39,7 @@ Replaces vanilla's coarse search with Iter's weighted search and cache.
 Tracks nav-link intervals, reservations and queue lengths, and lets units
 switch to a sibling link when one is busy.
 
-- Default: **OFF** until T3.
+- Default: **ON**.
 - Diagnostics work alone; reservation/switch needs the AI cluster.
 - Heist restart required.
 
@@ -48,7 +48,7 @@ switch to a sibling link when one is busy.
 Installs the Iter AI wrappers: nav-link animations, path extender hooks,
 direct-to-pos plumbing, follow-unit updates.
 
-- Default: **OFF** until T3.
+- Default: **ON**.
 - Requires the overlay.
 - Heist restart required.
 
@@ -57,13 +57,14 @@ direct-to-pos plumbing, follow-unit updates.
 Precomputes the next detailed path and appends it to the live walk action.
 
 - Default: **OFF** until T5.
+- Requires the overlay **and** the AI cluster.
 - Heist restart required.
 
 ### Dev: direct-to-pos (`direct_to_pos`)
 
 In whisper mode, walk straight to the objective position.
 
-- Default: **OFF** until T4.
+- Default: **ON**.
 - Heist restart required.
 
 ### Dev: v6 map patches (`map_patches`)

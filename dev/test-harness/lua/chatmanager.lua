@@ -276,6 +276,18 @@ local function path_length(path)
 	return total
 end
 
+local function path_positions(path)
+	local count = 0
+
+	for _, step in ipairs(path or {}) do
+		if step[2] and step[2].x then
+			count = count + 1
+		end
+	end
+
+	return count
+end
+
 function TH.probe(args)
 	local nav = nav_manager()
 
@@ -302,6 +314,8 @@ function TH.probe(args)
 	local stream_points = 0
 	local raw_len = 0
 	local stream_len = 0
+	local raw_positions = 0
+	local stream_positions = 0
 	local first_fail_from, first_fail_to
 
 	for _, pair in ipairs(pairs_to_test) do
@@ -321,6 +335,7 @@ function TH.probe(args)
 			ok_search = ok_search + 1
 			raw_points = raw_points + #path
 			raw_len = raw_len + path_length(path)
+			raw_positions = raw_positions + path_positions(path)
 
 			if nav.itr_streamline then
 				local stream_ok, streamlined = pcall(function()
@@ -331,6 +346,7 @@ function TH.probe(args)
 					ok_stream = ok_stream + 1
 					stream_points = stream_points + #streamlined
 					stream_len = stream_len + path_length(streamlined)
+					stream_positions = stream_positions + path_positions(streamlined)
 				else
 					fail_stream = fail_stream + 1
 					say(string.format('probe: streamline failed %s->%s err=%s', tostring(from_seg), tostring(to_seg), tostring(streamlined)))
@@ -364,6 +380,8 @@ function TH.probe(args)
 			stream_fail = fail_stream,
 			raw_points = raw_points,
 			stream_points = stream_points,
+			raw_positions = raw_positions,
+			stream_positions = stream_positions,
 			fail_from = first_fail_from or 'none',
 			fail_to = first_fail_to or 'none'
 		})

@@ -18,7 +18,7 @@
 	"itr_options_navlink_queue_desc" : "Tracks nav-link intervals, reservations and queue lengths for the congestion work. Diagnostics only until the AI cluster is enabled.\nChange will be effective after a heist restart.",
 
 	"itr_options_path_extender_title" : "Dev: path extender",
-	"itr_options_path_extender_desc" : "Precomputes the next detailed path and appends it to the live walk action to remove pauses at segment changes.\nChange will be effective after a heist restart.",
+	"itr_options_path_extender_desc" : "Precomputes the next detailed path and appends it to the live walk action to remove pauses at segment changes. Requires the AI cluster.\nChange will be effective after a heist restart.",
 
 	"itr_options_direct_to_pos_title" : "Dev: direct-to-pos",
 	"itr_options_direct_to_pos_desc" : "In whisper mode, walk straight to the objective position instead of following the coarse path.\nChange will be effective after a heist restart.",

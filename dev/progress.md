@@ -86,7 +86,13 @@ Target: `e3a8b616` (248.2).
   helper prep, `evt=patch` with applied/mismatch/skip. Offline wrapper test
   (12 checks). Runtime CRC/apply status still to sample on Big Bank/Golden
   Grin.
-- Next: T6 map-patch sample; then release candidate hardening.
+- RC batch PASS: Biker D1 (`born` patch applied, 42 cops/16 travelling/23
+  coarse, probe 13/13, no heist-end error) and Golden Grin (`kenaz` patch
+  applied, 160 segments). No Iter errors.
+- RC defaults set: overlay/streamline/search/AI/navlink-queue/direct on;
+  path extender and map patches off. `202-dev`.
+- Open: T5 path extender needs a converted/chase run; six P7 levels need
+  rewrites; probe length metric needs a steps-with-pos counter.
 
 ## Rulings
 
