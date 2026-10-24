@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-24T11:53:09.427Z
+Generated: 2026-10-24T11:54:09.365Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -80,19 +80,19 @@ No function definitions (hook/overlay file).
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.set_load_data:Iter_nav_heist` | 31 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit | `get_coarse_dis` | 8 | 0 | 0 |  |
 | [ ] | audit | `itr_add_door_pos_to` | 10 | 0 | 0 |  |
-| [ ] | audit | `itr_get_door_in_alignment` | 22 | 0 | 0 |  |
-| [ ] | audit | `itr_get_navlink_usage` | 16 | 0 | 0 |  |
+| [ ] | audit | `itr_get_door_in_alignment` | 31 | 0 | 0 |  |
+| [ ] | audit | `itr_get_navlink_usage` | 17 | 0 | 0 |  |
 | [ ] | audit | `itr_get_rooms_having_access_to_next_level` | 16 | 0 | 0 |  |
 | [ ] | audit | `itr_log_navlink_usage` | 12 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_copy_door_data` | 11 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_execute_coarce_search` | 192 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_find_best_navlink` | 46 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_find_best_navlink` | 47 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_find_choke_point` | 24 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_find_proxies` | 152 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_flood` | 50 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_get_accessibility` | 30 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_get_accessibility` | 34 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_get_all_doors_of_segment` | 30 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_get_closest_door_to_pos` | 78 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_get_closest_door_to_pos` | 89 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_get_coarse_pos_between` | 27 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_get_door_between` | 31 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_get_room_to_doors` | 16 | 0 | 0 |  |

@@ -1,7 +1,7 @@
 {
   "oldRev": "a3180fc",
   "newRev": "e3a8b616",
-  "generated": "2026-10-24T11:53:09.428Z",
+  "generated": "2026-10-24T11:54:09.366Z",
   "files": [
     {
       "file": "lua/coreworldinstancemanager.lua",
@@ -379,7 +379,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 1043
+          "startLine": 1069
         },
         {
           "name": "Hooks.PostHook:NavigationManager._clear:Iter_nav_shim_clear",
@@ -474,7 +474,7 @@
         {
           "name": "itr_get_door_in_alignment",
           "category": "MOD_ONLY",
-          "modLines": 22,
+          "modLines": 31,
           "oldLines": 0,
           "newLines": 0,
           "modParams": "all_doors, door_list, from, to",
@@ -484,12 +484,12 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 894
+          "startLine": 907
         },
         {
           "name": "itr_get_navlink_usage",
           "category": "MOD_ONLY",
-          "modLines": 16,
+          "modLines": 17,
           "oldLines": 0,
           "newLines": 0,
           "modParams": "navlink, t",
@@ -574,12 +574,12 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 1057
+          "startLine": 1083
         },
         {
           "name": "NavigationManager.itr_find_best_navlink",
           "category": "MOD_ONLY",
-          "modLines": 46,
+          "modLines": 47,
           "oldLines": 0,
           "newLines": 0,
           "modParams": "segment1_id, segment2_id, access_pos, near_pos, current_navlink_element",
@@ -589,7 +589,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 846
+          "startLine": 858
         },
         {
           "name": "NavigationManager.itr_find_choke_point",
@@ -639,7 +639,7 @@
         {
           "name": "NavigationManager.itr_get_accessibility",
           "category": "MOD_ONLY",
-          "modLines": 30,
+          "modLines": 34,
           "oldLines": 0,
           "newLines": 0,
           "modParams": "door_list, access_pos, access_neg",
@@ -649,7 +649,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 999
+          "startLine": 1021
         },
         {
           "name": "NavigationManager.itr_get_all_doors_of_segment",
@@ -669,7 +669,7 @@
         {
           "name": "NavigationManager.itr_get_closest_door_to_pos",
           "category": "MOD_ONLY",
-          "modLines": 78,
+          "modLines": 89,
           "oldLines": 0,
           "newLines": 0,
           "modParams": "all_doors, door_list, pos_from, pos_to, access_pos, navlink_accounting",
@@ -679,7 +679,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 735
+          "startLine": 736
         },
         {
           "name": "NavigationManager.itr_get_coarse_pos_between",
@@ -694,7 +694,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 917
+          "startLine": 939
         },
         {
           "name": "NavigationManager.itr_get_door_between",
@@ -709,7 +709,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 814
+          "startLine": 826
         },
         {
           "name": "NavigationManager.itr_get_room_to_doors",
@@ -799,7 +799,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 945
+          "startLine": 967
         },
         {
           "name": "NavigationManager.register_anim_nav_link",
@@ -874,7 +874,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 1030
+          "startLine": 1056
         }
       ],
       "errors": [],

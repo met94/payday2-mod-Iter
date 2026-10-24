@@ -724,7 +724,8 @@ local function itr_get_navlink_usage(navlink, t)
 	end
 
 	local nu = navlink_usage[1]
-	local threshold = t - _navlink_elements[n_key]._values.itr_interval
+	local element = _navlink_elements[n_key]
+	local threshold = t - ((element and element._values.itr_interval) or 0)
 	while nu and nu < threshold do
 		table_remove(navlink_usage, 1)
 		nu = navlink_usage[1]
@@ -740,18 +741,24 @@ function NavigationManager:itr_get_closest_door_to_pos(all_doors, door_list, pos
 	for i = #door_list, 1, -1 do
 		local i_door = door_list[i]
 		if type(i_door) == 'number' then
-			for _, door_pos in ipairs(self.itr_room_doors[i_door]) do
+			local door = self.itr_room_doors and self.itr_room_doors[i_door]
+
+			for _, door_pos in ipairs(door or {}) do
 				local nav_tracker = self._quad_field:create_nav_tracker(door_pos, true)
-				local obstructed = nav_tracker:obstructed()
-				self._quad_field:destroy_nav_tracker(nav_tracker)
-				if not obstructed then
-					local dis = (pos_from and mvec3_dis(pos_from, door_pos) or 0) + mvec3_dis(door_pos, pos_to)
-					if dis <= best_dis then
-						best_pos = door_pos
-						best_dis = dis
-						is_direct = true
+
+				if nav_tracker then
+					local obstructed = nav_tracker:obstructed()
+					self._quad_field:destroy_nav_tracker(nav_tracker)
+
+					if not obstructed then
+						local dis = (pos_from and mvec3_dis(pos_from, door_pos) or 0) + mvec3_dis(door_pos, pos_to)
+						if dis <= best_dis then
+							best_pos = door_pos
+							best_dis = dis
+							is_direct = true
+						end
+						break
 					end
-					break
 				end
 			end
 
@@ -767,34 +774,39 @@ function NavigationManager:itr_get_closest_door_to_pos(all_doors, door_list, pos
 		elseif is_direct then
 			-- qued
 
-		elseif i_door and i_door:alive() and not i_door:is_obstructed() and i_door:check_access(access_pos) then
+		elseif alive(i_door) and not i_door:is_obstructed() and i_door:check_access(access_pos) then
 			local element = _navlink_elements[i_door:key()]
-			local start_pos = element:value('position')
-			local end_pos = element:nav_link_end_pos()
-			local dis = (pos_from and mvec3_dis(pos_from, start_pos) or 0) + mvec3_dis(start_pos, end_pos) + mvec3_dis(end_pos, pos_to)
-			local nav_link_delay = element._values.itr_interval
-			local congestion_risk = 0
-			if nav_link_delay > 0 then
-				t = t or TimerManager:game():time()
-				local user = element.itr_reserved_by_unit
-				congestion_risk = math_max(0, i_door:delay_time() - t)
-					+ (
-						(alive(user) and user:id() ~= -1 and 0 or 1)
-						+ (element.itr_navlink_queue_length or 0)
-						+ itr_get_navlink_usage(i_door, t)
-					) * nav_link_delay
-			end
-			if congestion_risk == 0 then
-				if dis * 1.4 < best_dis then
-					is_direct = false
-					best_pos = end_pos
-					best_dis = dis * 1.4
-					through_navlink = i_door
+
+			if element then
+				local start_pos = element:value('position')
+				local end_pos = element:nav_link_end_pos()
+				local dis = (pos_from and mvec3_dis(pos_from, start_pos) or 0) + mvec3_dis(start_pos, end_pos) + mvec3_dis(end_pos, pos_to)
+				local nav_link_delay = element._values.itr_interval or 0
+				local congestion_risk = 0
+
+				if nav_link_delay > 0 then
+					t = t or TimerManager:game():time()
+					local user = element.itr_reserved_by_unit
+					congestion_risk = math_max(0, i_door:delay_time() - t)
+						+ (
+							(alive(user) and user:id() ~= -1 and 0 or 1)
+							+ (element.itr_navlink_queue_length or 0)
+							+ itr_get_navlink_usage(i_door, t)
+						) * nav_link_delay
 				end
-			elseif not min_congestion_risk or congestion_risk < min_congestion_risk then
-				min_congestion_risk = congestion_risk
-				best_pos_with_delay = end_pos
-				through_navlink_with_delay = i_door
+
+				if congestion_risk == 0 then
+					if dis * 1.4 < best_dis then
+						is_direct = false
+						best_pos = end_pos
+						best_dis = dis * 1.4
+						through_navlink = i_door
+					end
+				elseif not min_congestion_risk or congestion_risk < min_congestion_risk then
+					min_congestion_risk = congestion_risk
+					best_pos_with_delay = end_pos
+					through_navlink_with_delay = i_door
+				end
 			end
 		end
 	end
@@ -854,35 +866,36 @@ function NavigationManager:itr_find_best_navlink(segment1_id, segment2_id, acces
 	local best_navlink, best_navlink_element
 	for i = #door_list, 1, -1 do
 		local navlink = door_list[i]
-		if type(navlink) == 'userdata' and navlink:alive() and not navlink:is_obstructed() and navlink:check_access(access_pos) then
+		if type(navlink) == 'userdata' and alive(navlink) and not navlink:is_obstructed() and navlink:check_access(access_pos) then
 			local navlink_element = _navlink_elements[navlink:key()]
 
-			local interval = navlink_element._values.itr_interval
-			local extra_time_to_go = math_max(0, 1.5 - interval)
-			local navpos = navlink_element:value('position')
+			if navlink_element then
+				local interval = navlink_element._values.itr_interval or 0
+				local extra_time_to_go = math_max(0, 1.5 - interval)
+				local navpos = navlink_element:value('position')
 
-			local queue_length = navlink_element.itr_navlink_queue_length or 0
-			if navlink_element == current_navlink_element then
-				queue_length = queue_length - 1
-			end
+				local queue_length = navlink_element.itr_navlink_queue_length or 0
+				if navlink_element == current_navlink_element then
+					queue_length = queue_length - 1
+				end
 
-			local time_to_wait = queue_length * (interval + extra_time_to_go)
+				local time_to_wait = queue_length * (interval + extra_time_to_go)
 
-			if near_pos then
-				local my_time_to_go = mvec3_dis(near_pos, navpos) / (self.itr_navlink_coef * 0.7)
-				time_to_wait = time_to_wait - extra_time_to_go + math_max(0, my_time_to_go - interval)
-			end
+				if near_pos then
+					local my_time_to_go = mvec3_dis(near_pos, navpos) / (self.itr_navlink_coef * 0.7)
+					time_to_wait = time_to_wait - extra_time_to_go + math_max(0, my_time_to_go - interval)
+				end
 
-			local user = navlink_element.itr_reserved_by_unit
-			if alive(user) and user:id() ~= -1 then
-				time_to_wait = time_to_wait + interval + math_max(0, mvec3_dis(user:position(), navpos) / self.itr_navlink_coef - interval)
-			end
+				local user = navlink_element.itr_reserved_by_unit
+				if alive(user) and user:id() ~= -1 then
+					time_to_wait = time_to_wait + interval + math_max(0, mvec3_dis(user:position(), navpos) / self.itr_navlink_coef - interval)
+				end
 
-			if time_to_wait < best_time_to_wait then
-				best_time_to_wait = time_to_wait
-				best_dis = dis
-				best_navlink = navlink
-				best_navlink_element = navlink_element
+				if time_to_wait < best_time_to_wait then
+					best_time_to_wait = time_to_wait
+					best_navlink = navlink
+					best_navlink_element = navlink_element
+				end
 			end
 		end
 	end
@@ -900,11 +913,20 @@ local function itr_get_door_in_alignment(all_doors, door_list, from, to)
 	mvec3_sub(axis, from)
 	for i = #door_list, 1, -1 do
 		local i_door = door_list[i]
+		local door_pos
+
 		if type(i_door) == 'number' then
-			local door_pos = all_doors[i_door].center
+			local door = all_doors[i_door]
+			door_pos = door and door.center
+		elseif i_door and i_door.x then
+			door_pos = i_door
+		end
+
+		if door_pos then
 			mvec3_set(tmp_vec1, door_pos)
 			mvec3_sub(tmp_vec1, from)
 			local angle = mvec3_ang(axis, tmp_vec1)
+
 			if not best_angle or angle < best_angle then
 				best_angle = angle
 				best_pos = door_pos
@@ -1004,22 +1026,26 @@ function NavigationManager:itr_get_accessibility(door_list, access_pos, access_n
 			return 0
 		elseif i_door and i_door.x then
 			return 0
-		elseif i_door and i_door:alive() and not i_door:is_obstructed() and i_door:check_access(access_pos, access_neg) then
-			t = t or TimerManager:game():time()
+		elseif alive(i_door) and not i_door:is_obstructed() and i_door:check_access(access_pos, access_neg) then
 			local element = _navlink_elements[i_door:key()]
-			local nav_link_delay = element._values.itr_interval
-			if nav_link_delay > 0 then
-				local user = element.itr_reserved_by_unit
-				congestion_risk = math_max(0, i_door:delay_time() - t)
-					+ (
-						(alive(user) and user:id() ~= -1 and 0 or 1)
-						+ (element.itr_navlink_queue_length or 0)
-						+ itr_get_navlink_usage(i_door, t)
-					) * nav_link_delay
-				if congestion_risk == 0 then
-					return 0.1
-				elseif not min_congestion_risk or congestion_risk < min_congestion_risk then
-					min_congestion_risk = congestion_risk
+
+			if element then
+				t = t or TimerManager:game():time()
+				local nav_link_delay = element._values.itr_interval or 0
+
+				if nav_link_delay > 0 then
+					local user = element.itr_reserved_by_unit
+					congestion_risk = math_max(0, i_door:delay_time() - t)
+						+ (
+							(alive(user) and user:id() ~= -1 and 0 or 1)
+							+ (element.itr_navlink_queue_length or 0)
+							+ itr_get_navlink_usage(i_door, t)
+						) * nav_link_delay
+					if congestion_risk == 0 then
+						return 0.1
+					elseif not min_congestion_risk or congestion_risk < min_congestion_risk then
+						min_congestion_risk = congestion_risk
+					end
 				end
 			end
 		end

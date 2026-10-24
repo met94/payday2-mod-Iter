@@ -51,8 +51,10 @@ Target: `e3a8b616` (248.2).
 - L-01/L-02 implemented: nav-link element map registration/cleanup, interval
   derivation, interval buckets, `evt=navlink` end-of-simulation summary,
   nav-link queue dev toggle. Diagnostics only.
-- Next: P1 dossier annotations (nav + AI) in parallel; S-03/S-04 door
-  selection; runtime T1/T2 data pending.
+- S-04 implemented: Vector3-aware door alignment/closest-door selection,
+  nav-link `alive()`/map guards, undefined `dis` removed.
+- Next: T1/T2 runtime data; P4 L-03/L-04 (reservation/queue and
+  CopActionWalk) once T2 passes; P6 AI remainder; P7 map patches.
 
 ## Rulings
 
