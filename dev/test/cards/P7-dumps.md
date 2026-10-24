@@ -27,13 +27,27 @@ The header records the live master gate: `p7auto level=… patches=on|off`.
 `!iter p7` forces a re-run in the current heist; `!iter p7 auto off` disables
 the automatic run.
 
+### Escape: Street is not in Crime.net
+
+It only appears as a random escape. Load any heist (host/solo), then type:
+
+```
+!iter force escape_street
+```
+
+This reuses the current network session and calls the game's level jump with
+`tweak_data.levels.escape_street.world_name`. The escape loads, the auto dump
+fires as usual, then quit to menu. Host only.
+
 ## Run order
 
 One pass per level, then a baseline pass:
 
 1. Menu: **Dev: v6 map patches** ON. Load the heist. Wait ~2 s for the
    `p7auto` block. Quit to menu.
-2. Repeat for all five levels.
+2. Repeat for the four Crime.net levels. For Escape: Street, load any heist
+   and run `!iter force escape_street` in chat; the dump fires on the escape
+   start. Then quit to menu.
 3. Menu: **Dev: v6 map patches** OFF. Reload the four partial levels
    (Mallcrasher has no path A/B). Wait for the block. Quit.
 

@@ -24,6 +24,7 @@ One command per chat line.
 | `!iter navpath <from> <to>` | Coarse search between two segments; logs level, live `map_patches`, ok/steps/length, direct door count, segment ids. |
 | `!iter p7` | Force the P7 dump for the current level (same output as the auto run). |
 | `!iter p7 auto on\|off` | Enable/disable the auto P7 dump on heist start. Default: on for the five pending levels. |
+| `!iter force <level_id>` | Host-only level jump (uses the tweak-data world name). Used for `escape_street`, which is not in Crime.net. |
 | `!iter probe [n]` | Random coarse-search + streamline probe. |
 | `!iter path` | Player walk action and next nav-link. |
 | `!iter ai` | Travelling cops, coarse paths, direct-to-pos, path extender counters. |

@@ -1,5 +1,5 @@
 -- Iter full-nav port test harness. Dev-only; not shipped.
--- Chat commands: !iter help | nav | patch | navdump | navdoors | navpath | p7 | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset
+-- Chat commands: !iter help | nav | patch | navdump | navdoors | navpath | p7 | force | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset
 
 Iter_TestHarness = Iter_TestHarness or {}
 local TH = Iter_TestHarness
@@ -807,6 +807,61 @@ if log then
 	log(PREFIX .. 'harness loaded (p7auto + navpath)')
 end
 
+-- Force-load a level from the current session. Used for escape levels, which
+-- are not selectable in Crime.net. Host-only; mirrors the game's debug level
+-- jump (GameSetup:load_level with the tweak-data world name).
+function TH.force_level(args)
+	local level_id = args[1]
+
+	if not level_id then
+		say('force: usage !iter force <level_id>')
+		return
+	end
+
+	local level_data = tweak_data and tweak_data.levels and tweak_data.levels[level_id]
+
+	if not level_data or not level_data.world_name then
+		say('force: unknown level ' .. tostring(level_id))
+		return
+	end
+
+	if not (managers and managers.network) or not Network then
+		say('force: network manager unavailable')
+		return
+	end
+
+	if not Network:is_server() then
+		say('force: host only')
+		return
+	end
+
+	Global.game_settings.level_id = level_id
+	Global.game_settings.mission = 'none'
+	Global.game_settings.world_setting = nil
+
+	local session = managers.network:session()
+
+	if not session then
+		managers.network:host_game()
+		session = managers.network:session()
+	end
+
+	if not session then
+		say('force: no network session')
+		return
+	end
+
+	say(string.format('force: loading %s from %s', level_id, level_data.world_name))
+
+	local ok, err = pcall(function()
+		session:load_level(level_data.world_name, nil, nil, nil, level_id)
+	end)
+
+	if not ok then
+		say('force: load failed ' .. tostring(err))
+	end
+end
+
 function TH.dump_path()
 	local nav = nav_manager()
 	local player = managers and managers.player and managers.player:player_unit()
@@ -1070,7 +1125,7 @@ function TH.reset()
 end
 
 function TH.help()
-	say('commands: nav | patch | navdump <seg> | navdoors <a> <b> | navpath <from> <to> | p7 [auto on|off] | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset | help')
+	say('commands: nav | patch | navdump <seg> | navdoors <a> <b> | navpath <from> <to> | p7 [auto on|off] | force <level> | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset | help')
 end
 
 function TH.execute_string(message)
@@ -1107,6 +1162,8 @@ function TH.execute(command)
 		else
 			TH.p7_dump(true)
 		end
+	elseif name == 'force' then
+		TH.force_level(args)
 	elseif name == 'probe' then
 		TH.probe(args)
 	elseif name == 'path' then

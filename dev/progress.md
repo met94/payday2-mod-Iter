@@ -115,6 +115,9 @@ Target: `e3a8b616` (248.2).
   `skm_mallcrasher` (alias added in `_navdatapatches.lua`, still `skip_dead`).
 - First runtime pass (jolly/moon/peta/mallcrasher) produced patch/heist events
   but no dumps; needs a rerun with the redeployed harness.
+- Escape: Street is a random escape, not selectable in Crime.net. Added
+  host-only `!iter force <level_id>` (tweak-data world name via
+  `session():load_level`) so `escape_street` can be loaded from any heist.
 - Path-extender observability: `path_extend_ok` / `path_extend_skip` counters
   in `CopBrain:clbk_pathing_results`; `!iter ai` prints `extend(ok, skip)`.
 - Cards: new `dev/test/cards/T5-extender.{md,json}`; `P7-dumps.md` rewritten

@@ -198,4 +198,39 @@ Iter_TestHarness.p7_auto_enabled = true
 assert(parse('!iter p7').command == 'p7', 'p7 command not parsed')
 assert(parse('!iter p7 auto off').args[2] == 'off', 'p7 auto toggle args wrong')
 
+-- force level: host-only level jump for the escape narratives.
+local loaded
+local fake_session = {
+  load_level = function(self, level, mission, world_setting, level_class_name, level_id)
+    loaded = { level, mission, world_setting, level_class_name, level_id }
+  end
+}
+
+tweak_data = {
+  levels = {
+    escape_street = { world_name = 'narratives/escapes/escape_street' }
+  }
+}
+Global = { game_settings = {} }
+Network = { is_server = function() return true end }
+managers = {
+  network = {
+    session = function() return fake_session end,
+    host_game = function() error('force should reuse an existing session') end
+  }
+}
+
+lines = {}
+Iter_TestHarness.force_level({ 'escape_street' })
+assert(Global.game_settings.level_id == 'escape_street', 'force did not set level_id')
+assert(Global.game_settings.mission == 'none', 'force did not set mission')
+assert(loaded and loaded[1] == 'narratives/escapes/escape_street' and loaded[5] == 'escape_street', 'force load_level args wrong')
+assert(table.concat(lines, '\n'):find('force: loading escape_street', 1, true), 'force did not log the load')
+
+lines = {}
+Iter_TestHarness.force_level({ 'nope' })
+assert(table.concat(lines, '\n'):find('force: unknown level nope', 1, true), 'force unknown level message wrong')
+
+assert(parse('!iter force escape_street').args[1] == 'escape_street', 'force args wrong')
+
 print('ok: Iter test-harness parser')
