@@ -150,6 +150,49 @@ function TH.nav_stats()
 	return stats
 end
 
+function TH.dump_doors(args)
+	local nav = nav_manager()
+	local seg_a = args[1] and tostring(args[1])
+	local seg_b = args[2] and tostring(args[2])
+
+	if not nav or not seg_a or not seg_b then
+		say('navdoors: usage !iter navdoors <seg_a> <seg_b>')
+		return
+	end
+
+	local function seg_of_quad(quad_id)
+		local room = nav._rooms and nav._rooms[quad_id]
+		local vis_group_id = room and room.vis_group
+		local group = vis_group_id and nav._visibility_groups and nav._visibility_groups[vis_group_id]
+
+		return group and group.seg
+	end
+
+	local shown = 0
+
+	for door_id, door in pairs(nav._room_doors or {}) do
+		local a = seg_of_quad(door.rooms[1])
+		local b = seg_of_quad(door.rooms[2])
+
+		if (a == seg_a and b == seg_b) or (a == seg_b and b == seg_a) then
+			shown = shown + 1
+			say(string.format(
+				'navdoors %s<->%s id=%s quads=%s,%s pos=%s pos1=%s center=%s',
+				seg_a,
+				seg_b,
+				tostring(door_id),
+				tostring(door.rooms[1]),
+				tostring(door.rooms[2]),
+				tostring(door.pos),
+				tostring(door.pos1),
+				tostring(door.center)
+			))
+		end
+	end
+
+	say(string.format('navdoors %s<->%s total=%d', seg_a, seg_b, shown))
+end
+
 function TH.dump_nav()
 	local stats = TH.nav_stats()
 	say(string.format(
@@ -713,7 +756,7 @@ function TH.reset()
 end
 
 function TH.help()
-	say('commands: nav | patch | navdump <seg> | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset | help')
+	say('commands: nav | patch | navdump <seg> | navdoors <a> <b> | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset | help')
 end
 
 function TH.execute_string(message)
@@ -740,6 +783,8 @@ function TH.execute(command)
 		TH.dump_patch()
 	elseif name == 'navdump' then
 		TH.dump_segment(args)
+	elseif name == 'navdoors' then
+		TH.dump_doors(args)
 	elseif name == 'probe' then
 		TH.probe(args)
 	elseif name == 'path' then

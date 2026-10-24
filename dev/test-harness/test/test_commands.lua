@@ -41,6 +41,8 @@ assert(parse('!iter alarm').command == 'alarm', 'alarm command not parsed')
 assert(parse('!iter state').command == 'state', 'state command not parsed')
 assert(parse('!iter patch').command == 'patch', 'patch command not parsed')
 assert(parse('!iter links').command == 'links', 'links command not parsed')
+assert(parse('!iter navdump 56').command == 'navdump', 'navdump command not parsed')
+assert(parse('!iter navdoors 56 57').command == 'navdoors', 'navdoors command not parsed')
 
 cmd = parse('!iter')
 assert(cmd and cmd.command == 'help', 'bare !iter should map to help')
