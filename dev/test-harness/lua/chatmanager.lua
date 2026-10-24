@@ -1,0 +1,639 @@
+-- Iter full-nav port test harness. Dev-only; not shipped.
+-- Chat commands: !iter help | nav | patch | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset
+
+Iter_TestHarness = Iter_TestHarness or {}
+local TH = Iter_TestHarness
+local PREFIX = '[ITER-TEST] '
+
+local function say(message)
+	message = tostring(message)
+	log(PREFIX .. message)
+
+	if managers and managers.chat and ChatManager then
+		pcall(function()
+			managers.chat:_receive_message(ChatManager.GAME, 'ITER-TEST', message, tweak_data and tweak_data.system_chat_color)
+		end)
+	end
+end
+
+local function nav_manager()
+	return managers and managers.navigation
+end
+
+local function iter_settings()
+	return ITER and ITER.settings or {}
+end
+
+function TH.parse_command(message)
+	if type(message) ~= 'string' then
+		return nil
+	end
+
+	local body = message:match('^%s*!iter%s*(.*)$')
+	if not body then
+		return nil
+	end
+
+	body = body:gsub('%s+$', '')
+	if body == '' then
+		return { command = 'help', args = {} }
+	end
+
+	local args = {}
+	for word in body:gmatch('%S+') do
+		args[#args + 1] = word
+	end
+
+	local command = table.remove(args, 1)
+	return { command = command, args = args }
+end
+
+local function door_kind(door)
+	if type(door) == 'number' then
+		return 'numeric'
+	elseif type(door) == 'table' and door.x then
+		return 'vector'
+	elseif type(door) == 'userdata' then
+		local ok, x = pcall(function()
+			return door.x
+		end)
+
+		if ok and x then
+			return 'vector'
+		end
+
+		return 'navlink'
+	end
+
+	return 'unknown'
+end
+
+function TH.nav_stats()
+	local nav = nav_manager()
+	local segments = nav and nav._nav_segments or {}
+	local stats = {
+		segments = 0,
+		string_keys = 0,
+		numeric_keys = 0,
+		missing_neighbours = 0,
+		numeric_doors = 0,
+		vector_doors = 0,
+		nav_links = 0,
+		unknown_doors = 0,
+		rooms = 0,
+		room_doors = 0,
+		vis_groups = 0,
+		proxy_segments = 0,
+		choke_points = 0,
+		in_proxies = 0,
+		out_proxies = 0,
+		navlink_elements = 0,
+		covers = 0,
+		bad_covers = 0
+	}
+
+	for key, segment in pairs(segments) do
+		stats.segments = stats.segments + 1
+
+		if type(key) == 'string' then
+			stats.string_keys = stats.string_keys + 1
+		else
+			stats.numeric_keys = stats.numeric_keys + 1
+		end
+
+		local neighbours = segment.neighbours or {}
+
+		for neighbour_id, doors in pairs(neighbours) do
+			if not segments[neighbour_id] then
+				stats.missing_neighbours = stats.missing_neighbours + 1
+			end
+
+			if type(doors) == 'table' then
+				for _, door in ipairs(doors) do
+					local kind = door_kind(door)
+
+					if kind == 'numeric' then
+						stats.numeric_doors = stats.numeric_doors + 1
+					elseif kind == 'vector' then
+						stats.vector_doors = stats.vector_doors + 1
+					elseif kind == 'navlink' then
+						stats.nav_links = stats.nav_links + 1
+					else
+						stats.unknown_doors = stats.unknown_doors + 1
+					end
+				end
+			end
+		end
+
+		if segment.choke_points or segment.choke_point_proxies then
+			stats.proxy_segments = stats.proxy_segments + 1
+			stats.choke_points = stats.choke_points + table.size(segment.choke_points or {})
+			stats.in_proxies = stats.in_proxies + table.size(segment.in_proxies or {})
+			stats.out_proxies = stats.out_proxies + table.size(segment.out_proxies or {})
+		end
+	end
+
+	stats.rooms = table.size(nav and nav._rooms or {})
+	stats.room_doors = table.size(nav and nav._room_doors or {})
+	stats.vis_groups = table.size(nav and nav._visibility_groups or {})
+	stats.navlink_elements = table.size(nav and (nav.itr_navlink_elements or nav._navlink_elements) or {})
+
+	local covers = nav and nav._covers or {}
+	stats.covers = #covers
+
+	for _, cover in ipairs(covers) do
+		if type(cover) ~= 'table' or not cover[1] or not cover[2] then
+			stats.bad_covers = stats.bad_covers + 1
+		end
+	end
+
+	return stats
+end
+
+function TH.dump_nav()
+	local stats = TH.nav_stats()
+	say(string.format(
+		'nav segments=%d keys(string=%d numeric=%d) missing_neighbours=%d doors(vector=%d numeric=%d links=%d unknown=%d) shim(rooms=%d room_doors=%d vis_groups=%d) proxies(segments=%d choke=%d in=%d out=%d) navlink_elements=%d covers=%d bad_covers=%d',
+		stats.segments,
+		stats.string_keys,
+		stats.numeric_keys,
+		stats.missing_neighbours,
+		stats.vector_doors,
+		stats.numeric_doors,
+		stats.nav_links,
+		stats.unknown_doors,
+		stats.rooms,
+		stats.room_doors,
+		stats.vis_groups,
+		stats.proxy_segments,
+		stats.choke_points,
+		stats.in_proxies,
+		stats.out_proxies,
+		stats.navlink_elements,
+		stats.covers,
+		stats.bad_covers
+	))
+end
+
+function TH.dump_patch()
+	local status = ITER and ITER.nav_patch_status
+
+	if not status then
+		say('patch: no patch status recorded yet (load a heist first)')
+		return
+	end
+
+	say(string.format(
+		'patch level=%s result=%s expected=%s actual=%s rooms=%s doors=%s segments=%s dead_neighbours=%s',
+		tostring(status.level_id),
+		tostring(status.result),
+		tostring(status.expected),
+		tostring(status.actual),
+		tostring(status.rooms),
+		tostring(status.doors),
+		tostring(status.segments),
+		tostring(status.dead_neighbours)
+	))
+end
+
+local function random_segment_pairs(count)
+	local nav = nav_manager()
+	local segments = nav and nav._nav_segments or {}
+	local usable = {}
+
+	for key, segment in pairs(segments) do
+		if next(segment.neighbours or {}) then
+			usable[#usable + 1] = key
+		end
+	end
+
+	if #usable < 2 then
+		return {}
+	end
+
+	local pairs_out = {}
+	local rng = math.random
+
+	for _ = 1, count do
+		local from = usable[rng(#usable)]
+		local to = usable[rng(#usable)]
+
+		if from ~= to then
+			pairs_out[#pairs_out + 1] = { from, to }
+		end
+	end
+
+	return pairs_out
+end
+
+local function path_length(path)
+	local total = 0
+	local prev
+
+	for _, step in ipairs(path or {}) do
+		local pos = step[2]
+
+		if pos and pos.x then
+			if prev then
+				total = total + mvector3.distance(prev, pos)
+			end
+
+			prev = pos
+		end
+	end
+
+	return total
+end
+
+function TH.probe(args)
+	local nav = nav_manager()
+
+	if not nav then
+		say('probe: no navigation manager')
+		return
+	end
+
+	local count = tonumber(args[1]) or 10
+	count = math.max(1, math.min(count, 100))
+
+	local pairs_to_test = random_segment_pairs(count)
+
+	if #pairs_to_test == 0 then
+		say('probe: not enough connected segments')
+		return
+	end
+
+	local ok_search = 0
+	local ok_stream = 0
+	local fail_search = 0
+	local fail_stream = 0
+	local raw_points = 0
+	local stream_points = 0
+	local raw_len = 0
+	local stream_len = 0
+
+	for _, pair in ipairs(pairs_to_test) do
+		local from_seg, to_seg = pair[1], pair[2]
+		local search_ok, path = pcall(function()
+			return nav:search_coarse({ from_seg = from_seg, to_seg = to_seg })
+		end)
+
+		if not search_ok or not path then
+			fail_search = fail_search + 1
+		else
+			ok_search = ok_search + 1
+			raw_points = raw_points + #path
+			raw_len = raw_len + path_length(path)
+
+			if nav.itr_streamline then
+				local stream_ok, streamlined = pcall(function()
+					return nav:itr_streamline(path, nil)
+				end)
+
+				if stream_ok and streamlined then
+					ok_stream = ok_stream + 1
+					stream_points = stream_points + #streamlined
+					stream_len = stream_len + path_length(streamlined)
+				else
+					fail_stream = fail_stream + 1
+					say(string.format('probe: streamline failed %s->%s err=%s', tostring(from_seg), tostring(to_seg), tostring(streamlined)))
+				end
+			end
+		end
+	end
+
+	local avg_raw = ok_search > 0 and raw_len / ok_search or 0
+	local avg_stream = ok_stream > 0 and stream_len / ok_stream or 0
+
+	say(string.format(
+		'probe pairs=%d search(ok=%d fail=%d) streamline(ok=%d fail=%d) points(raw=%d stream=%d) avg_len(raw=%.1f stream=%.1f)',
+		#pairs_to_test,
+		ok_search,
+		fail_search,
+		ok_stream,
+		fail_stream,
+		raw_points,
+		stream_points,
+		avg_raw,
+		avg_stream
+	))
+end
+
+function TH.dump_path()
+	local nav = nav_manager()
+	local player = managers and managers.player and managers.player:player_unit()
+
+	if not nav then
+		say('path: no navigation manager')
+		return
+	end
+
+	if not player then
+		say('path: no player unit')
+		return
+	end
+
+	local tracker = player:movement():nav_tracker()
+	local seg = tracker and tracker:nav_segment()
+	local action = player:movement()._active_actions and player:movement()._active_actions.walk
+	local parts = {}
+
+	if action and action._simplified_path then
+		for i, point in ipairs(action._simplified_path) do
+			local pos = point.x or (point.element and point.element:value('position'))
+			local kind = point.x and 'pos' or 'navlink'
+
+			parts[#parts + 1] = string.format('%d:%s', i, kind)
+
+			if pos and i > 6 then
+				break
+			end
+		end
+	end
+
+	say(string.format(
+		'path player_seg=%s pos=%s action=%s points=%s next_navlink=%s',
+		tostring(seg),
+		tostring(player:position()),
+		action and tostring(action:type()) or 'none',
+		table.concat(parts, ','),
+		action and action._next_is_nav_link and 'yes' or 'no'
+	))
+end
+
+function TH.dump_ai()
+	local enemies = managers and managers.enemy and managers.enemy:all_enemies() or {}
+	local total = 0
+	local travelling = 0
+	local with_coarse = 0
+	local with_direct = 0
+	local with_path_ahead = 0
+	local waiting_navlink = 0
+
+	for _, data in pairs(enemies) do
+		total = total + 1
+
+		local brain = data.brain
+		local logic_data = brain and brain._logic_data
+		local my_data = logic_data and logic_data.internal_data
+
+		if my_data then
+			if my_data.coarse_path then
+				with_coarse = with_coarse + 1
+			end
+
+			if my_data.itr_direct_to_pos then
+				with_direct = with_direct + 1
+			end
+
+			if my_data.advancing and my_data.advancing.itr_path_ahead then
+				with_path_ahead = with_path_ahead + 1
+			end
+
+			if my_data.itr_want_path_ahead then
+				waiting_navlink = waiting_navlink + 1
+			end
+
+			if my_data.advancing then
+				travelling = travelling + 1
+			end
+		end
+	end
+
+	say(string.format(
+		'ai total=%d travelling=%d coarse_path=%d direct_to_pos=%d path_ahead=%d pending_path_ahead=%d',
+		total,
+		travelling,
+		with_coarse,
+		with_direct,
+		with_path_ahead,
+		waiting_navlink
+	))
+end
+
+function TH.dump_links()
+	local nav = nav_manager()
+	local elements = nav and (nav.itr_navlink_elements or nav._navlink_elements) or {}
+	local shown = 0
+	local queued = 0
+
+	for key, element in pairs(elements) do
+		local values = element._values or {}
+		local queue = element.itr_navlink_queue_length or 0
+		local reserved = element.itr_reserved_by_unit
+		local interval = values.itr_interval or values.interval or 0
+
+		if queue > 0 then
+			queued = queued + 1
+		end
+
+		if shown < 20 then
+			shown = shown + 1
+			say(string.format(
+				'link key=%s action=%s interval=%.2f queue=%d reserved=%s',
+				tostring(key),
+				tostring(values.so_action),
+				interval,
+				queue,
+				tostring(reserved and alive(reserved) and reserved:key() or 'none')
+			))
+		end
+	end
+
+	say(string.format('links total=%d queued=%d shown=%d', table.size(elements), queued, shown))
+end
+
+function TH.set_setting(key, value)
+	if not ITER or not ITER.settings then
+		say('setting: ITER not loaded')
+		return
+	end
+
+	if not key then
+		say('setting: usage !iter setting <key> <value>')
+		return
+	end
+
+	local parsed = tonumber(value)
+
+	if parsed == nil then
+		if value == 'true' then
+			parsed = true
+		elseif value == 'false' then
+			parsed = false
+		else
+			parsed = value
+		end
+	end
+
+	ITER.settings[key] = parsed
+	say(string.format('setting %s=%s', tostring(key), tostring(parsed)))
+end
+
+function TH.force_assault()
+	local state = managers and managers.groupai and managers.groupai:state()
+
+	if not state or not state.set_assault_mode then
+		say('assault: group AI state unavailable')
+		return
+	end
+
+	state:set_assault_mode(true)
+	say('assault: set_assault_mode(true)')
+end
+
+function TH.force_alarm()
+	local state = managers and managers.groupai and managers.groupai:state()
+
+	if not state then
+		say('alarm: group AI state unavailable')
+		return
+	end
+
+	if state.on_police_called then
+		state:on_police_called('civ_alarm')
+	end
+
+	if state.on_police_weapons_hot then
+		state:on_police_weapons_hot('civ_alarm')
+	end
+
+	if state.set_assault_mode then
+		state:set_assault_mode(true)
+	end
+
+	say('alarm: on_police_called + on_police_weapons_hot + set_assault_mode')
+end
+
+function TH.dump_state()
+	local state = managers and managers.groupai and managers.groupai:state()
+
+	if not state then
+		say('state: group AI state unavailable')
+		return
+	end
+
+	local groups = state._groups or {}
+	local spawning = state._spawning_groups or {}
+	local cops = managers.enemy and managers.enemy:all_enemies() or {}
+	local assault = state._task_data and state._task_data.assault or {}
+
+	say(string.format(
+		'state=%s is_server=%s police_called=%s weapons_hot=%s assault_mode=%s assault_active=%s queued=%s(%s) groups=%d spawning=%d cops=%d',
+		tostring(state),
+		tostring(state._is_server),
+		tostring(state.is_police_called and state:is_police_called()),
+		tostring(state._enemy_weapons_hot),
+		tostring(state._assault_mode),
+		tostring(assault.active),
+		tostring(state._police_upd_task_queued),
+		type(state._police_upd_task_queued),
+		table.size(groups),
+		table.size(spawning),
+		table.size(cops)
+	))
+end
+
+function TH.dump()
+	if not ITER or not ITER.settings then
+		say('dump: ITER settings unavailable')
+		return
+	end
+
+	say('dump: settings')
+
+	for key, value in pairs(ITER.settings or {}) do
+		log(string.format('%s  %s=%s', PREFIX, tostring(key), tostring(value)))
+	end
+
+	local nav = nav_manager()
+	local stats = TH.nav_stats()
+
+	say(string.format(
+		'dump: streamline_path=%s navlink_queue=%s path_extender=%s direct_to_pos=%s debug_log=%s segments=%d rooms=%d room_doors=%d navlink_elements=%d',
+		tostring(ITER.settings.streamline_path),
+		tostring(ITER.settings.navlink_queue),
+		tostring(ITER.settings.path_extender),
+		tostring(ITER.settings.direct_to_pos),
+		tostring(ITER.settings.debug_log),
+		stats.segments,
+		stats.rooms,
+		stats.room_doors,
+		stats.navlink_elements
+	))
+end
+
+function TH.reset()
+	local nav = nav_manager()
+
+	if nav and nav.itr_counters then
+		nav.itr_counters = {}
+	end
+
+	say('reset: nav counters cleared')
+end
+
+function TH.help()
+	say('commands: nav | patch | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset | help')
+end
+
+function TH.execute_string(message)
+	local command = TH.parse_command(message)
+
+	if not command then
+		return false
+	end
+
+	TH.execute(command)
+
+	return true
+end
+
+function TH.execute(command)
+	local name = command.command
+	local args = command.args
+
+	if name == 'help' then
+		TH.help()
+	elseif name == 'nav' then
+		TH.dump_nav()
+	elseif name == 'patch' then
+		TH.dump_patch()
+	elseif name == 'probe' then
+		TH.probe(args)
+	elseif name == 'path' then
+		TH.dump_path()
+	elseif name == 'ai' then
+		TH.dump_ai()
+	elseif name == 'links' then
+		TH.dump_links()
+	elseif name == 'alarm' then
+		TH.force_alarm()
+	elseif name == 'assault' then
+		TH.force_assault()
+	elseif name == 'state' then
+		TH.dump_state()
+	elseif name == 'setting' then
+		TH.set_setting(args[1], args[2])
+	elseif name == 'dump' then
+		TH.dump()
+	elseif name == 'reset' then
+		TH.reset()
+	else
+		say('unknown command: ' .. tostring(name))
+	end
+end
+
+Hooks:Add('ChatManagerOnSendMessage', 'Iter_TestHarness_Chat', function(_, _, message)
+	local command = TH.parse_command(message)
+
+	if not command then
+		return
+	end
+
+	local ok, err = pcall(TH.execute, command)
+
+	if not ok then
+		say('ERROR ' .. tostring(err))
+	end
+end)

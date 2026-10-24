@@ -1,0 +1,19 @@
+{
+  "id": "T1",
+  "name": "nav graph",
+  "description": "v6 nav data is present with string keys, no missing neighbours, and the shim rebuilt rooms/doors/vis groups.",
+  "maps": ["jewelry_store", "big", "kosugi", "mex", "mia_1"],
+  "commands": ["!iter nav"],
+  "expect": {
+    "setup": true,
+    "fatal": 0,
+    "iterErrors": 0,
+    "fallback": 0,
+    "navdata.segments": ">0",
+    "navdata.string_keys": ">0",
+    "navdata.missing_neighbours": 0,
+    "navdata.rooms": ">0",
+    "navdata.room_doors": ">0",
+    "navdata.vis_groups": ">0"
+  }
+}

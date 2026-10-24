@@ -1,0 +1,18 @@
+{
+  "id": "T2",
+  "name": "streamline probe",
+  "description": "Synthetic coarse searches succeed and the streamliner rewrites paths without failures.",
+  "maps": ["jewelry_store"],
+  "commands": ["!iter probe 20", "!iter nav"],
+  "expect": {
+    "setup": true,
+    "fatal": 0,
+    "iterErrors": 0,
+    "fallback": 0,
+    "probe.pairs": ">0",
+    "probe.search_ok": ">0",
+    "probe.search_fail": 0,
+    "probe.stream_ok": ">0",
+    "probe.stream_fail": 0
+  }
+}

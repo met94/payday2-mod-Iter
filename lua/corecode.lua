@@ -5,7 +5,17 @@ _G.Iter = _G.Iter or {}
 Iter._path = ModPath
 Iter._data_path = SavePath .. 'iter.txt'
 Iter.settings = {
-	streamline_path = true,
+	-- Dev scaffold: r200 nav code is being ported to nav v6. `nav_overlay` is
+	-- the internal master gate for the restored port and stays off until its
+	-- test card passes. `streamline_path` remains the future user-facing toggle.
+	-- See dev/plans/full-nav-port.md.
+	nav_overlay = false,
+	streamline_path = false,
+	navlink_queue = false,
+	path_extender = false,
+	direct_to_pos = false,
+	map_patches = false,
+	debug_log = 1,
 	rebuild_navlinks = true,
 	map_change_alex_1 = true,
 	map_change_alex_2 = true,
@@ -89,3 +99,12 @@ function Iter:get_level_id()
 end
 
 Iter:load()
+
+dofile(Iter._path .. 'lua/iter_diag.lua')
+
+Iter.diag.event('boot', {
+	diag_version = Iter.diag.version,
+	nav_overlay = tostring(Iter.settings.nav_overlay),
+	streamline_path = tostring(Iter.settings.streamline_path),
+	debug_log = Iter.settings.debug_log
+})
