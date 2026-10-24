@@ -626,6 +626,7 @@ function NavigationManager:itr_find_proxies(segment_id)
 
 	if proxy_no_doors > 0 then
 		Iter.diag.count('proxy_no_doors', proxy_no_doors)
+		self.itr_proxy_no_doors_total = (self.itr_proxy_no_doors_total or 0) + proxy_no_doors
 	end
 
 	return choke_points, choke_point_proxies, in_proxies, out_proxies
@@ -671,6 +672,7 @@ function NavigationManager:itr_prepare_nav_data()
 
 	local t0 = Iter.diag.now()
 	self:itr_copy_door_data()
+	self.itr_proxy_no_doors_total = 0
 
 	for navseg_id in pairs(self._nav_segments) do
 		self:itr_make_neighbours_list(navseg_id)
@@ -695,6 +697,7 @@ function NavigationManager:itr_prepare_nav_data()
 		choke = choke_points,
 		in_proxies = in_proxies,
 		out_proxies = out_proxies,
+		no_doors = self.itr_proxy_no_doors_total or 0,
 		ms = Iter.diag.span_ms(t0)
 	})
 end

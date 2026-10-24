@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-24T11:54:43.101Z
+Generated: 2026-10-24T12:07:42.418Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -88,7 +88,7 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `NavigationManager.itr_execute_coarce_search` | 192 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_find_best_navlink` | 47 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_find_choke_point` | 24 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_find_proxies` | 152 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_find_proxies` | 153 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_flood` | 50 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_get_accessibility` | 34 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_get_all_doors_of_segment` | 30 | 0 | 0 |  |
@@ -98,7 +98,7 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `NavigationManager.itr_get_room_to_doors` | 16 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_is_contiguous` | 41 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_make_neighbours_list` | 16 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_prepare_nav_data` | 34 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_prepare_nav_data` | 36 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_prepare_streamline_data` | 18 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_streamline` | 53 | 0 | 0 |  |
 | [ ] | audit | `path_copy` | 12 | 0 | 0 |  |

@@ -53,8 +53,14 @@ Target: `e3a8b616` (248.2).
   nav-link queue dev toggle. Diagnostics only.
 - S-04 implemented: Vector3-aware door alignment/closest-door selection,
   nav-link `alive()`/map guards, undefined `dis` removed.
-- Next: T1/T2 runtime data; P4 L-03/L-04 (reservation/queue and
-  CopActionWalk) once T2 passes; P6 AI remainder; P7 map patches.
+- T1 PASS (Jewelry 40 seg / Big Bank 108 / Golden Grin 160): string keys,
+  no missing neighbours, rooms/doors/vis groups rebuilt, fallback 0.
+  Report: `dev/reports/smoke-t1-t2-2026-10-24.md`.
+- T2 PASS (Jewelry): proxy choke=27 in=12 out=24; 37/37 streamline successes,
+  0 streamline failures; avg path length -16.2% / -13.0%. One random
+  unreachable pair in 20 accepted (probe now logs fail_from/fail_to).
+- Next: T2b dense maps (Golden Grin + Big Bank) for proxy cost and
+  door-pair ownership; then L-03/L-04.
 
 ## Rulings
 

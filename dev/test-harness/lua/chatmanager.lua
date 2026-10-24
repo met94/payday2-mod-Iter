@@ -271,6 +271,7 @@ function TH.probe(args)
 	local stream_points = 0
 	local raw_len = 0
 	local stream_len = 0
+	local first_fail_from, first_fail_to
 
 	for _, pair in ipairs(pairs_to_test) do
 		local from_seg, to_seg = pair[1], pair[2]
@@ -280,6 +281,11 @@ function TH.probe(args)
 
 		if not search_ok or not path then
 			fail_search = fail_search + 1
+
+			if not first_fail_from then
+				first_fail_from = from_seg
+				first_fail_to = to_seg
+			end
 		else
 			ok_search = ok_search + 1
 			raw_points = raw_points + #path
@@ -326,7 +332,9 @@ function TH.probe(args)
 			stream_ok = ok_stream,
 			stream_fail = fail_stream,
 			raw_points = raw_points,
-			stream_points = stream_points
+			stream_points = stream_points,
+			fail_from = first_fail_from or 'none',
+			fail_to = first_fail_to or 'none'
 		})
 	end
 end
