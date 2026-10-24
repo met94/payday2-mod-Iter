@@ -47,11 +47,11 @@ all reach the v6 converter.
 
 ## Follow-up
 
-1. `skm_mallcrasher` is a no-op at 248.2: rewrite as a door/quad change or
-   drop it (candidate for `drop-log.md`). Runtime: the standard Vlad job
-   reports level id `mallcrasher`, not `skm_mallcrasher`; the patch now
-   resolves through `level_aliases` and logs `skip_dead` instead of
-   `skip_setting`.
+1. `skm_mallcrasher` rewrite is in test: `transfer_room(943, 8, 11)` makes
+   door 1526 intra-segment so the 8<->11 link disappears. Pass = `navpath
+   8->11 direct=0`; if it fails, retire the block to `drop-log.md`.
+   Runtime: the standard Vlad job reports level id `mallcrasher`, not
+   `skm_mallcrasher`; the patch resolves through `level_aliases`.
 2. `dinner` and `flat` have no nav-data operations; their `add_obstacle`
    side effects now live in a per-call wrapper (not file-load overrides).
 3. PARTIAL levels need a per-level in-game check (T6): if the added doors
@@ -75,8 +75,7 @@ Consolidated verdicts:
 | Verdict | Levels |
 |---|---|
 | SURVIVES_AS_IS (18) | alex_2, arm_fac, arm_for, born, branchbank, chas, crojob2, escape_street, firestarter_1, framing_frame_1, jolly, jewelry_store, kenaz, kosugi, mex, mia_1, pbr, roberts, watchdogs_1 |
-| NEEDS_REWRITE (2) | moon, peta |
-| DEAD_ONLY (1) | skm_mallcrasher |
+| NEEDS_REWRITE (3, under test) | moon, peta, skm_mallcrasher |
 | no nav-data ops | dinner, flat (obstacle wrappers only) |
 
 `crojob2` = The Bomb: Dockyard (level id; job id is `crojob1`).

@@ -67,12 +67,13 @@ Patch-on dumps are done for all five pending levels:
 
 - `escape_street`, `jolly`: verified, dead writes removed, now log `applied`.
 - `moon`: appended door 4983 does not link segment 23; it stays isolated.
-  Needs a rewrite (door geometry or a different expression).
+  Geometry is exactly on the shared edge, so candidate fix is a visibility
+  cross-link (`seg2vg[22]`/`seg2vg[23]`); A/B pending.
 - `peta`: the new 47<->91 door works and segment 91's seal is inherent, but
-  segment 53 (hat shop) stays isolated; the 53<->47 link is missing.
-- `skm_mallcrasher`: `skip_dead`; the 8<->11 link comes from door 1526.
-  Candidate rewrite: transfer quad 943 from 8 to 11 so the door becomes
-  intra-segment; otherwise retire the block.
+  segment 53 (hat shop) stays isolated. Door 201 geometry is correct; same
+  visibility cross-link candidate (`seg2vg[47]`/`seg2vg[53]`); A/B pending.
+- `skm_mallcrasher`: rewrite in test. `transfer_room(943, 8, 11)` makes door
+  1526 intra-segment; pass = `navpath 8->11 direct=0`. Otherwise retire.
 
 Still useful: the patch-off baseline for `moon`/`peta` (confirms the patch is
 the only attempted link, not a vanilla topology change). Optional for

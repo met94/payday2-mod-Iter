@@ -435,6 +435,34 @@ function TH.dump_quad(args)
 				height.xp_yn or 0,
 				height.xp_yp or 0
 			))
+
+			local doors = {}
+
+			for door_id, door in pairs(nav._room_doors or {}) do
+				if type(door) == 'table' and door.rooms then
+					local other_quad
+
+					if door.rooms[1] == quad_id then
+						other_quad = door.rooms[2]
+					elseif door.rooms[2] == quad_id then
+						other_quad = door.rooms[1]
+					end
+
+					if other_quad then
+						local other_room = nav._rooms[other_quad]
+						local other_group = other_room and other_room.vis_group and nav._visibility_groups[other_room.vis_group]
+
+						doors[#doors + 1] = string.format(
+							'%s:%s@%s',
+							tostring(door_id),
+							tostring(other_quad),
+							tostring(other_group and other_group.seg)
+						)
+					end
+				end
+			end
+
+			say(string.format('navquad id=%d doors=%s', quad_id, #doors > 0 and table.concat(doors, ',') or 'none'))
 		end
 	end
 end
@@ -711,13 +739,14 @@ local P7_PLANS = {
 	peta = {
 		dumps = { 47, 53, 91 },
 		doors = { { 47, 91 }, { 47, 53 } },
-		paths = { { 47, 91 } },
+		paths = { { 47, 91 }, { 47, 53 } },
 		quads = { 121, 126 },
 		seal = { 91, 47 }
 	},
 	skm_mallcrasher = {
 		dumps = { 8, 11 },
 		doors = { { 8, 11 } },
+		paths = { { 8, 11 } },
 		quads = { 943, 61 }
 	},
 	-- The standard Vlad job reports level_id "mallcrasher"; skm_mallcrasher is
@@ -725,6 +754,7 @@ local P7_PLANS = {
 	mallcrasher = {
 		dumps = { 8, 11 },
 		doors = { { 8, 11 } },
+		paths = { { 8, 11 } },
 		quads = { 943, 61 }
 	}
 }

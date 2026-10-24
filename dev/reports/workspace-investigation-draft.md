@@ -27,7 +27,7 @@ coarse-search plumbing) were used as reference only.
   caused an access violation. `is_vec3` requires userdata + numeric x/y/z.
 - v6 discards explicit neighbour writes; a map patch survives only if its
   rooms/doors/quads express the connection. Static audit:
-  18 levels survive, 2 need rewrites, `skm_mallcrasher` is a no-op.
+  18 levels survive, 3 are being rewritten (moon, peta, Mallcrasher).
 
 ## Evidence
 

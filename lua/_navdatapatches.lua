@@ -569,6 +569,18 @@ elseif level_id == 'peta' then
 		data.nav_segments[53].neighbours[47] = {201}
 		data.nav_segments[47].neighbours[53] = {201}
 
+		-- v6: door 201 quads 126/121 sit exactly on the shared edge
+		-- (y=-9725), but 53 can only link to 47 if their visibility groups
+		-- see each other; cross-link as the candidate gate (T6 navquad).
+		local vg47 = seg2vg[47]
+		local vg53 = seg2vg[53]
+
+		if vg47 and vg53 and data.vis_groups[vg47] and data.vis_groups[vg53]
+			and data.vis_groups[vg47].vis_groups and data.vis_groups[vg53].vis_groups then
+			data.vis_groups[vg47].vis_groups[vg53] = true
+			data.vis_groups[vg53].vis_groups[vg47] = true
+		end
+
 		local pos = mvec3_cpy(data.door_high_pos[11860])
 		mvector3.set_y(pos, pos.y + 4)
 		local pos1 = mvec3_cpy(pos)
@@ -596,9 +608,11 @@ elseif level_id == 'roberts' then
 elseif level_id == 'skm_mallcrasher' then
 
 	return function(self, data)
-		-- prevent cops going through banditbarrier of vase store
-		data.nav_segments[8].neighbours[11] = {}
-		data.nav_segments[11].neighbours[8] = {}
+		-- v6: the r200 neighbour seal is discarded. Door 1526 joins quad 943
+		-- (segment 8) to quad 61 (segment 11) on their shared edge. Move
+		-- quad 943 into segment 11 so the door becomes intra-segment and the
+		-- 8<->11 link disappears (T6 navquad).
+		transfer_room(943, 8, 11)
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
@@ -747,9 +761,7 @@ local patch_cache = {}
 
 -- v6 cannot honour neighbour writes; these blocks have no surviving effect
 -- until rewritten as doors/quads. See dev/reports/p7-map-patch-audit.md.
-local dead_patches = {
-	skm_mallcrasher = true
-}
+local dead_patches = {}
 
 -- Geometry survives, but the block also relies on explicit neighbour writes
 -- that v6 discards. Logged as applied_partial until rewritten.

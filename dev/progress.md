@@ -123,9 +123,12 @@ Target: `e3a8b616` (248.2).
   is `skip_dead`; door 1526 carries 8<->11.
 - Harness fix: Mallcrasher's plan has no `paths`, so `ipairs(nil)` ended the
   block with `p7auto ERROR nil`; defaults added.
-- `!iter navquad <id...>` added (borders in world units, heights, vis group,
-  segment) and included in the P7 plans for the quads involved in the
-  `moon`/`peta`/`mallcrasher` rewrites.
+- Peta/mallcrasher geometry checked: both doors sit exactly on the shared
+  quad edge (`peta` 126/121 at y=-9725; `mallcrasher` 943/61 at x=-2450). Peta
+  got the same visibility cross-link candidate as moon. Mallcrasher rewrite
+  implemented: `transfer_room(943, 8, 11)` makes door 1526 intra-segment;
+  removed from `dead_patches`. `navquad` now lists doors per quad.
+- Next: A/B the three rewrites with the same `!iter p7` blocks.
 - Escape: Street is a random escape, not selectable in Crime.net. Added
   host-only `!iter force <level_id>` (tweak-data world name via
   `session():load_level`) so `escape_street` can be loaded from any heist.

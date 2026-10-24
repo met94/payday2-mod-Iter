@@ -43,12 +43,13 @@ const CLEAN = [
   'mia_1',
   'pbr',
   'roberts',
+  'skm_mallcrasher',
   'watchdogs_1',
   'dinner',
   'flat'
 ];
 
-const PENDING = ['moon', 'peta', 'skm_mallcrasher'];
+const PENDING = ['moon', 'peta'];
 
 function blockFor(level) {
   const start = lines.findIndex(line => line.includes(`level_id == '${level}'`));

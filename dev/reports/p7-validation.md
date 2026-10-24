@@ -43,7 +43,7 @@ failures, a Border Crossing patch removed for a crash).
 | SURVIVES_AS_IS static audit | geometry edits reach the v6 converter | MEDIUM: mechanism survives, intent unproven |
 | `big` applied | `evt=patch applied`, data values changed | MEDIUM: mechanism, not behaviour |
 | `applied_partial` (`moon`, `peta`) | geometry applies, but the intended cross-segment link is absent at runtime (`navpath` fails / segment isolated) | LOW until rewritten and tested |
-| `skm_mallcrasher` | patch was neighbour-only | NONE: dead |
+| `skm_mallcrasher` | rewrite in test: `transfer_room(943, 8, 11)` makes door 1526 intra-segment | pending A/B (`navpath 8->11 direct=0`) |
 
 Runtime evidence for the four dumped levels:
 `dev/reports/p7-runtime-2026-10-24.md`.

@@ -106,14 +106,14 @@ check(find_event('patch').fields.result == 'skip_setting', 'disabled map logs sk
 Iter.settings.map_change_unknown = true
 
 -- Level alias: the standard job reports `mallcrasher`, the patch is keyed
--- `skm_mallcrasher` and is in dead_patches.
+-- `skm_mallcrasher`. With fake data the CRC gate must skip it safely.
 current_level = 'mallcrasher'
 Iter.settings.map_change_skm_mallcrasher = true
 vanilla_calls = 0
 events = {}
 NavigationManager.set_load_data(nav, { version = 5, door_low_rooms = {} })
 check(vanilla_calls == 1, 'aliased map calls vanilla once')
-check(find_event('patch').fields.result == 'skip_dead', 'aliased map logs skip_dead')
+check(find_event('patch').fields.result == 'mismatch', 'aliased map logs mismatch on fake data')
 check(find_event('patch').fields.level == 'skm_mallcrasher', 'aliased map logs the stage id')
 
 -- v5 data, level with a patch but CRC data mismatch: mismatch and vanilla.

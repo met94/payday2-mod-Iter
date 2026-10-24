@@ -73,8 +73,8 @@ Applies the r200 per-level nav fixes after a version/CRC check.
 
 - Default: **OFF**.
 - Logs `applied`, `applied_partial`, `mismatch` or `skip_*` per level.
-- 18 levels survive as-is; 2 need a v6 rewrite and Mallcrasher's patch is
-  dead (see `dev/reports/p7-map-patch-audit.md`).
+- 18 levels survive as-is; 3 are being rewritten for v6 (moon, peta,
+  Mallcrasher).
 - Heist restart required.
 
 ### Rebuild NavLinks (`rebuild_navlinks`)
