@@ -198,6 +198,21 @@ Iter_TestHarness.p7_auto_enabled = true
 assert(parse('!iter p7').command == 'p7', 'p7 command not parsed')
 assert(parse('!iter p7 auto off').args[2] == 'off', 'p7 auto toggle args wrong')
 
+-- Auto tick: a nav load bumps the generation; the first update frame after
+-- the settle delay dumps exactly once.
+p7_nav._rooms = { [1] = true }
+current_level = 'escape_street'
+Iter_TestHarness.p7_auto_enabled = true
+Iter_TestHarness.p7_note_load()
+lines = {}
+Iter_TestHarness.p7_tick(10)
+assert(#lines == 0, 'p7 tick should wait for the settle delay')
+Iter_TestHarness.p7_tick(12)
+assert(table.concat(lines, '\n'):find('p7auto level=escape_street', 1, true), 'p7 tick did not dump')
+lines = {}
+Iter_TestHarness.p7_tick(20)
+assert(#lines == 0, 'p7 tick should dump only once per load')
+
 -- force level: host-only level jump for the escape narratives.
 local loaded
 local fake_session = {

@@ -655,7 +655,10 @@ local P7_PLANS = {
 }
 
 TH.p7_auto_enabled = true
-local p7_last_dump_t = 0
+local p7_last_dump_t = nil
+local p7_generation = 0
+local p7_dumped_generation = -1
+local p7_ready_t = nil
 
 local function first_other_neighbour(seg_id, exclude_id)
 	local nav = nav_manager()
@@ -715,13 +718,14 @@ function TH.p7_dump(force)
 			end
 		end
 
-		if now - p7_last_dump_t < 5 then
+		if p7_last_dump_t and now - p7_last_dump_t < 5 then
 			return
 		end
 
 		p7_last_dump_t = now
 	end
 
+	p7_dumped_generation = p7_generation
 	quiet_log = not force
 
 	local ok, err = pcall(function()
@@ -778,20 +782,52 @@ function TH.p7_auto_toggle(args)
 	say(string.format('p7auto enabled=%s (levels: escape_street, jolly, moon, peta, mallcrasher)', tostring(TH.p7_auto_enabled)))
 end
 
--- on_simulation_started fires after nav data, shim and proxies are ready.
--- The harness loads before NavigationManager exists (mod priority 999), so the
--- class hook is registered at GameSetup, when every game file is loaded.
+-- Nav data is loaded by NavigationManager:set_load_data; sim start may not run
+-- a Lua-callable hook. Bump a generation there, then dump from the first
+-- update frame after the shim has rooms (plus a 1 s settle delay).
+function TH.p7_note_load()
+	p7_generation = p7_generation + 1
+	p7_ready_t = nil
+end
+
+function TH.p7_tick(t)
+	if p7_generation == p7_dumped_generation then
+		return
+	end
+
+	local nav = nav_manager()
+
+	if not nav or not nav._rooms or not next(nav._rooms) then
+		return
+	end
+
+	if not p7_ready_t then
+		p7_ready_t = (t or 0) + 1
+		return
+	end
+
+	if (t or 0) < p7_ready_t then
+		return
+	end
+
+	p7_dumped_generation = p7_generation
+	TH.p7_dump()
+end
+
 local function register_p7_autodump()
 	if TH._p7_hook_registered then
 		return
 	end
 
-	if not (NavigationManager and NavigationManager.on_simulation_started) then
+	if not (NavigationManager and NavigationManager.update and NavigationManager.set_load_data) then
 		return
 	end
 
-	Hooks:PostHook(NavigationManager, 'on_simulation_started', 'Iter_P7_AutoDump', function()
-		TH.p7_dump()
+	Hooks:PostHook(NavigationManager, 'set_load_data', 'Iter_P7_NoteLoad', function()
+		TH.p7_note_load()
+	end)
+	Hooks:PostHook(NavigationManager, 'update', 'Iter_P7_Tick', function(self, t)
+		TH.p7_tick(t)
 	end)
 
 	TH._p7_hook_registered = true
