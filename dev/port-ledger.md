@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-24T11:19:53.831Z
+Generated: 2026-10-24T11:20:41.187Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -101,7 +101,7 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `NavigationManager.itr_streamline` | 53 | 0 | 0 |  |
 | [ ] | audit | `path_copy` | 12 | 0 | 0 |  |
 | [ ] | drop/rewrite | `NavigationManager.send_nav_field_to_engine` | 10 | 73 | 0 | function exists in 246.1 but not in 248.2; drop or re-home |
-| [ ] | keep | `NavigationManager.register_anim_nav_link` | 51 | 45 | 45 |  |
+| [ ] | keep | `NavigationManager.register_anim_nav_link` | 55 | 45 | 45 |  |
 
 ## lua/groupaistatebase.lua
 

@@ -114,10 +114,14 @@ function NavigationManager:register_anim_nav_link(element)
 		}
 
 		local tracker = managers.navigation:create_nav_tracker(values.position, true)
-		values.itr_from_navseg = tracker:nav_segment()
-		tracker:move(values.search_position)
-		values.itr_to_navseg = tracker:nav_segment()
-		self:destroy_nav_tracker(tracker)
+		if tracker then
+			values.itr_from_navseg = tracker:nav_segment()
+			if values.search_position then
+				tracker:move(values.search_position)
+			end
+			values.itr_to_navseg = tracker:nav_segment()
+			self:destroy_nav_tracker(tracker)
+		end
 
 		local so_action = values.so_action
 		if Iter.settings.nav_streamline and type(so_action) == 'string' then

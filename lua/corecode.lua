@@ -9,7 +9,7 @@ Iter.settings = {
 	-- the internal master gate for the restored port and stays off until its
 	-- test card passes. `streamline_path` remains the future user-facing toggle.
 	-- See dev/plans/full-nav-port.md.
-	nav_overlay = false,
+	nav_overlay = true,
 	nav_streamline = false,
 	nav_ai = false,
 	streamline_path = false,

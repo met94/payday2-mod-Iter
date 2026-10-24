@@ -7,6 +7,18 @@
 	"items" : [
 		{
 			"type" : "toggle",
+			"id" : "nav_overlay",
+			"title" : "itr_options_nav_overlay_title",
+			"description" : "itr_options_nav_overlay_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "nav_overlay"
+		},
+		{
+			"type" : "divider",
+			"size" : 16
+		},
+		{
+			"type" : "toggle",
 			"id" : "rebuild_navlinks",
 			"title" : "itr_options_rebuild_navlinks_title",
 			"description" : "itr_options_rebuild_navlinks_desc",
