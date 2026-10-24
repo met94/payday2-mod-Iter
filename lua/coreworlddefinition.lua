@@ -99,7 +99,12 @@ elseif level_id == 'skm_mallcrasher' then
 					   unit_id = 600000,
 				},
 			}
-			table.insert(self._continent_definitions.mission_turf_war.statics, vase_blocker)
+
+			local continent = self._continent_definitions and self._continent_definitions.mission_turf_war
+
+			if continent and continent.statics then
+				table.insert(continent.statics, vase_blocker)
+			end
 		end
 
 		return itr_original_worlddefinition_create(self, layer, offset)

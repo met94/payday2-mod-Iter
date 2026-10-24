@@ -73,11 +73,12 @@ Applies the r200 per-level nav fixes after a version/CRC check.
 
 - Default: **OFF**.
 - Logs `applied`, `applied_partial`, `mismatch` or `skip_*` per level.
-- 18 levels survive as-is; 2 keep their geometry but lose the intended
-  cross-segment link (moon, peta); the skirmish Mallcrasher seal is dead
-  (navlink-only). The standard Vlad Mallcrasher is a different heist and
-  stays unpatched.
-- Heist restart required.
+- 21 clean blocks (22 level ids) survive as-is; 2 are accepted losses
+  (moon, peta); 1 is dead (`skm_mallcrasher`, navlink-only seal); dinner/flat
+  are no-ops. The standard Vlad Mallcrasher is a different heist and stays
+  unpatched.
+- Takes effect on the next heist load; no game restart needed while the
+  overlay is already loaded.
 
 ### Rebuild NavLinks (`rebuild_navlinks`)
 

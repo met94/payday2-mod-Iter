@@ -1,7 +1,3 @@
-if not Iter.settings.map_patches then
-	return
-end
-
 local mvec3_add = mvector3.add
 local mvec3_cpy = mvector3.copy
 local mvec3_set_x = mvector3.set_x
@@ -32,6 +28,10 @@ end
 -- Per-call obstacle fixes for dinner/flat. These were file-load side effects
 -- in r200; keeping them in select_patch would leak across heists.
 function NavigationManager:add_obstacle(obstacle_unit, ...)
+	if not Iter.settings.map_patches then
+		return itr_original_navigationmanager_addobstacle(self, obstacle_unit, ...)
+	end
+
 	local level_id = Iter:get_level_id()
 
 	if last_obstacle_level ~= level_id then
@@ -690,6 +690,9 @@ local nav_data_sigs = {
 nav_data_sigs.framing_frame_1 = nav_data_sigs.gallery
 
 local function _is_expected_data(data, level_id)
+	-- This list reproduces the r200 CRC input exactly: the duplicate
+	-- room_borders_x_pos and the absence of door_*_pos entries are intentional.
+	-- Do not deduplicate or extend it without recomputing every nav_data_sigs.
 	local tbls = {
 		'door_high_rooms',
 		'door_low_rooms',

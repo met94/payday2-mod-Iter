@@ -20,8 +20,8 @@ reimplemented on the v6 load data, with development gates for each subsystem.
 | Nav-link queue/reservations | working (T3 PASS) |
 | Iter coarse search + cache | working (T4 PASS) |
 | Direct-to-pos | working (T4 PASS) |
-| Path extender | implemented; T5 pending |
-| Map patches | framework working; 18 levels survive, 2 accepted losses (moon, peta), skirmish Mallcrasher dead |
+| Path extender | working (T5 PASS on counters; no visible slide/stuck) |
+| Map patches | 21 clean blocks (22 level ids), 2 accepted losses, 1 dead, 2 no-op |
 
 ## Requirements
 
@@ -45,7 +45,7 @@ See `dev/reports/compatibility-iter.md` for the function-level matrix.
 
 See `MENU_OPTIONS.md`. The menu toggles are development gates. Defaults enable
 the overlay, streamline, search, the AI cluster, nav-link queue and
-direct-to-pos; path extender and map patches stay off until their cards pass.
+direct-to-pos; path extender and map patches remain off by default.
 
 ## Credits
 

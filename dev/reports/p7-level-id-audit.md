@@ -53,8 +53,9 @@ Reverted:
 - `corecode.lua`: no `map_change_mallcrasher` key.
 - Harness P7 plan: no `mallcrasher` auto-dump; only `skm_mallcrasher`.
 
-The standard Vlad job is now unpatched (`skip_nopatch` when map patches are
-on). The skirmish block is dead at v6 (`skip_dead`): its 8<->11 link is
+The standard Vlad job is now unpatched (`skip_setting` when map patches are
+on, because no `map_change_mallcrasher` key exists). The skirmish block is
+dead at v6 (`skip_dead`): its 8<->11 link is
 carried by 2 navlinks, not a door, and the skirmish quad ids differ from the
 standard job (door 1343 quads 844/61; quad 943 belongs to segment 37). A
 navlink seal needs an engine-side expression. A separate standard-Mallcrasher

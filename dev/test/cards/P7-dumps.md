@@ -26,6 +26,9 @@ On heist start the harness runs `!iter p7` automatically for:
 
 `<X>` is picked automatically as another neighbour of the sealed segment and
 logged as `p7auto seal seg=… exclude=… alt=…`. That pair is the seal test.
+For `jolly`/`peta` the sealed segment has only the intended neighbour and for
+`moon` it has none, so the dump correctly logs `alt=none`; that is itself the
+finding (seal already inherent / segment isolated).
 
 The header records the live master gate: `p7auto level=… patches=on|off`.
 `!iter p7` forces a re-run in the current heist; `!iter p7 auto off` disables

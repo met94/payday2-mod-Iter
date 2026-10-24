@@ -174,7 +174,8 @@ Iter = {
 }
 
 lines = {}
-Iter_TestHarness.p7_dump(true)
+local dumped = Iter_TestHarness.p7_dump(true)
+assert(dumped == true, 'p7 dump should report success')
 local p7_text = table.concat(lines, '\n')
 assert(p7_text:find('p7auto level=escape_street patches=on', 1, true), 'p7 header missing: ' .. p7_text)
 assert(p7_text:find('navdump seg=48', 1, true), 'p7 dump missing segment 48')
@@ -196,7 +197,7 @@ assert(p7_text:find('navdoors 8<->11', 1, true), 'skm_mallcrasher doors missing'
 
 Iter_TestHarness.p7_auto_enabled = false
 lines = {}
-Iter_TestHarness.p7_dump(false)
+assert(Iter_TestHarness.p7_dump(false) == false, 'p7 auto off should report no dump')
 assert(#lines == 0, 'p7 auto off should emit nothing')
 Iter_TestHarness.p7_auto_enabled = true
 
@@ -278,5 +279,12 @@ assert(quad_text:find('height=(10.0,11.0,12.0,13.0)', 1, true), 'navquad height 
 assert(quad_text:find('navquad id=2777 doors=none', 1, true), 'navquad doors line wrong: ' .. quad_text)
 assert(quad_text:find('navquad id=999 missing', 1, true), 'navquad missing id wrong: ' .. quad_text)
 assert(parse('!iter navquad 2777').command == 'navquad', 'navquad command not parsed')
+
+-- setting with no value must not delete the key.
+Iter.settings.map_patches = true
+lines = {}
+Iter_TestHarness.set_setting('map_patches', nil)
+assert(table.concat(lines, '\n'):find('setting: missing value', 1, true), 'set_setting nil guard wrong')
+assert(Iter.settings.map_patches == true, 'set_setting nil must not delete the key')
 
 print('ok: Iter test-harness parser')

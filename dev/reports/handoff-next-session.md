@@ -19,8 +19,8 @@ Core navigation/AI port is **release-candidate complete**:
 | Nav-link queue/reservations | T3 PASS |
 | Iter coarse search + cache | T4 PASS |
 | Direct-to-pos | T4 PASS |
-| Path extender | implemented; **T5 pending** (no converted/chase run yet) |
-| Map patches | 16 levels survive; 4 need rewrites; 1 dead |
+| Path extender | T5 PASS on counters; no visible slide/stuck |
+| Map patches | 21 clean blocks (22 level ids), 2 accepted losses, 1 dead, 2 no-op |
 | LIES compatibility | tested together during T1-T4; no Iter errors |
 
 Static gates PASS; API audit baseline 12 expected errors, 12 scoped
@@ -36,8 +36,9 @@ queue/direct on; path extender and map patches off.
   disables it. Hook registration is deferred to
   `LocalizationManagerPostInit`/`GameSetupUpdate` because the harness loads
   before `NavigationManager` exists.
-- Mallcrasher id: the Vlad job reports `mallcrasher`; `_navdatapatches` now
-  aliases it to the `skm_mallcrasher` block/setting and logs `skip_dead`.
+- Mallcrasher id: the Vlad job reports `mallcrasher`; it is a **different
+  heist** from `skm_mallcrasher` (different world/CRC) and stays unpatched
+  (`skip_setting`). The skirmish block is `skip_dead`.
 - `!iter force <level_id>` added for levels not in Crime.net:
   `!iter force escape_street` from any heist loads the escape narrative and
   the auto dump fires on simulation start.
@@ -50,12 +51,13 @@ queue/direct on; path extender and map patches off.
 - T5 human card: `dev/test/cards/T5-extender.md` + `.json`.
 - P7 card rewritten to a combined dump + A/B run:
   `dev/test/cards/P7-dumps.md`.
-- P7 dead-write cleanup: the 16 `SURVIVES_AS_IS` blocks no longer carry the
-  `nav_segments.neighbours` writes that 248.2 discards. The four partials and
-  Mallcrasher keep theirs until rewrite. Guard:
+- P7 dead-write cleanup: the 21 clean blocks (22 level ids) no longer carry
+  the `nav_segments.neighbours` writes that 248.2 discards. `moon`/`peta` keep
+  theirs as accepted losses; `skm_mallcrasher` is `skip_dead`. Guard:
   `dev/tools/test/p7-dead-writes.test.mjs`.
-- Release docs refreshed to 16/4/1 and current RC defaults: `README.md`,
-  `MENU_OPTIONS.md`, `dev/reports/compatibility-iter.md`,
+- Release docs refreshed to 21 clean blocks / 2 accepted losses / 1 dead /
+  2 no-op and current RC defaults: `README.md`, `MENU_OPTIONS.md`,
+  `dev/reports/compatibility-iter.md`,
   `dev/reports/workspace-investigation-draft.md`.
 
 ## Remaining work
@@ -81,7 +83,7 @@ Patch-on dumps are done for all five pending levels:
   `register_cover_units` nil, missing skirmish package); `!iter force` now
   refuses skirmish levels. The standard Vlad job (`mallcrasher`, world
   `narratives/vlad/mallcrasher`, CRC `75811735`) is a different heist and
-  stays unpatched (`skip_nopatch`).
+  stays unpatched (`skip_setting`).
 - Level-id audit: `dev/reports/p7-level-id-audit.md` — no other conflation;
   `gallery` is a valid clone of `framing_frame_1` with its own CRC.
 
@@ -103,7 +105,7 @@ cop visibly slid or stuck at the append point.
   `dev/reports/compatibility-iter.md`, P7 audit.
 - Compatibility matrix: NavFixes must not run with Iter; The Fixes replaces
   `CopActionWalk._init` (path extender is off by default, so the conflict is
-  dormant until T5); Keepers direct-to-pos smoke.
+  dormant while the default holds); Keepers direct-to-pos smoke.
 - Workspace doc draft: `dev/reports/workspace-investigation-draft.md`.
 - Merge only on explicit user approval, then copy the investigation draft to
   `docs/investigations/iter-full-nav-port.md` and refresh
@@ -116,13 +118,13 @@ cop visibly slid or stuck at the append point.
    AI movement was fine.
 2. `[ITER-NAV] evt=patch` uses `applied`/`applied_partial`/`skip_dead`;
    `!iter patch` shows stats.
-3. `map_patches` remains off by default; 16 levels are safe, 4 partial.
+3. `map_patches` remains off by default; 21 clean blocks (22 level ids),
+   2 accepted losses, 1 dead, 2 no-op.
 4. `nav_event` heartbeat every 30 s; `_clear` resets shim/cache/navlink maps.
 5. LIES: Iter loads later and owns `_execute_coarce_search`; LIES cover
    search still runs. Re-check after a LIES update.
-6. `skm_mallcrasher` still has dead neighbour writes and a `skip_dead` entry.
-   Decide from the dump whether to retire it (`drop-log.md`) or rewrite as a
-   door/quad edit.
+6. `skm_mallcrasher` is resolved as `skip_dead` (navlink-only seal); the
+   standard `mallcrasher` is out of scope. No P7 testing remains.
 
 ## Session protocol
 
@@ -133,8 +135,9 @@ cd D:\Programowanie\payday\2\v2\.worktrees\Iter-iter-full-nav
 powershell -NoProfile -ExecutionPolicy Bypass -File dev\tools\gates.ps1
 ```
 
-Then read `dev/progress.md` and this file. Pick P7 or T5. End: update
-`dev/progress.md`, commit docs, write a new handoff if the session is long.
+Then read `dev/progress.md` and this file. P7/T5 are done; next is the final
+branch review and merge prep. End: update `dev/progress.md`, commit docs,
+write a new handoff if the session is long.
 
 ## Key commits
 

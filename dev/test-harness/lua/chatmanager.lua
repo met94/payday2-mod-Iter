@@ -769,7 +769,7 @@ end
 
 function TH.p7_dump(force)
 	if not force and not TH.p7_auto_enabled then
-		return
+		return false
 	end
 
 	local level_id = 'unknown'
@@ -785,21 +785,21 @@ function TH.p7_dump(force)
 	local plan = P7_PLANS[level_id]
 
 	if not plan then
-		return
+		return false
 	end
 
 	local nav = nav_manager()
 
 	if not nav or not nav._nav_segments or not next(nav._nav_segments) then
 		say(string.format('p7auto level=%s skip=nav_not_ready', level_id))
-		return
+		return false
 	end
 
 	local patches = Iter and Iter.settings and Iter.settings.map_patches and 'on' or 'off'
 
 	if not force then
 		if not TH.p7_auto_enabled then
-			return
+			return false
 		end
 
 		local now = 0
@@ -815,13 +815,12 @@ function TH.p7_dump(force)
 		end
 
 		if p7_last_dump_t and now - p7_last_dump_t < 5 then
-			return
+			return false
 		end
 
 		p7_last_dump_t = now
 	end
 
-	p7_dumped_generation = p7_generation
 	quiet_log = not force
 
 	local ok, err = pcall(function()
@@ -873,7 +872,10 @@ function TH.p7_dump(force)
 
 	if not ok then
 		say('p7auto ERROR ' .. tostring(err))
+		return false
 	end
+
+	return true
 end
 
 function TH.p7_auto_toggle(args)
@@ -885,7 +887,7 @@ function TH.p7_auto_toggle(args)
 		TH.p7_auto_enabled = true
 	end
 
-	say(string.format('p7auto enabled=%s (levels: escape_street, jolly, moon, peta, mallcrasher)', tostring(TH.p7_auto_enabled)))
+	say(string.format('p7auto enabled=%s (levels: escape_street, jolly, moon, peta, skm_mallcrasher)', tostring(TH.p7_auto_enabled)))
 end
 
 -- Nav data is loaded by NavigationManager:set_load_data; sim start may not run
@@ -916,8 +918,9 @@ function TH.p7_tick(t)
 		return
 	end
 
-	p7_dumped_generation = p7_generation
-	TH.p7_dump()
+	if TH.p7_dump() then
+		p7_dumped_generation = p7_generation
+	end
 end
 
 local function register_p7_autodump()
@@ -1148,6 +1151,11 @@ function TH.set_setting(key, value)
 
 	if not key then
 		say('setting: usage !iter setting <key> <value>')
+		return
+	end
+
+	if value == nil then
+		say('setting: missing value (use 0/1 or true/false)')
 		return
 	end
 

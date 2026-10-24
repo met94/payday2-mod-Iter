@@ -1,6 +1,6 @@
 ﻿# Iter 248.2 full-nav static gates
 
-Generated: 2026-10-24 20:07:11Z
+Generated: 2026-10-24 20:23:43Z
 
 ## Node tool tests
 
@@ -11,7 +11,7 @@ Result: PASS
 Γä╣ cancelled 0
 Γä╣ skipped 0
 Γä╣ todo 0
-Γä╣ duration_ms 132.202
+Γä╣ duration_ms 141.4759
 
 ## Test-harness parser
 
@@ -24,7 +24,7 @@ ok: Iter test-harness parser
 Result: PASS
 
 test_nav_patches.lua: PASS
-15 checks, P7 wrapper test passed
+17 checks, P7 wrapper test passed
 test_shim.lua: PASS
 ok accepts_numeric_string_keys
 ok clear_resets

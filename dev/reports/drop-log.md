@@ -35,14 +35,14 @@ At 248.2 `_convert_nav_data_v5_to_v6` always creates v6 segments with an empty
 `data.nav_segments[..].neighbours` in a v5 patch block is therefore discarded
 before `_resolve_segment_neighbours` rebuilds the graph from doors/quads.
 
-The dead writes were removed from every `SURVIVES_AS_IS` block (18 levels;
-`arm_for`, `crojob2`, `escape_street` and `jolly` were confirmed by runtime
-dumps first). Their topology survives through `append_door` / `transfer_room` /
-quad edits. The two `applied_partial` blocks (`moon`, `peta`) keep their writes
-until the accepted loss is revisited: removing them would make the remaining
-intent harder to read, and the log status already tells the truth.
-`skm_mallcrasher` / `mallcrasher` no longer carries neighbour writes; its seal
-is rewritten as a quad transfer (A/B pending).
+The dead writes were removed from every `SURVIVES_AS_IS` block (21 blocks /
+22 level ids; `arm_for`, `crojob2`, `escape_street` and `jolly` were confirmed
+by runtime dumps first). Their topology survives through `append_door` /
+`transfer_room` / quad edits. The two `applied_partial` blocks (`moon`, `peta`)
+keep their writes until the accepted loss is revisited: removing them would
+make the remaining intent harder to read, and the log status already tells the
+truth. `skm_mallcrasher` keeps its original dead write and is `skip_dead`; the
+seal is navlink-only and has no nav-data expression.
 
 Accepted loss, no v6 expression:
 

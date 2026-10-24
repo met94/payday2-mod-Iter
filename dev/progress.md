@@ -167,6 +167,25 @@ Target: `e3a8b616` (248.2).
   Cost if wrong: none (dev-only file, excluded from `dist/Iter`).
 - Next: player confirms no visible slide/stuck for T5, then final branch
   review and release/merge.
+- T5 visual confirmed: no sliding, no stuck append. T5 PASS.
+- Final branch review (cavecrew-reviewer, `ca22c4a..HEAD`) returned
+  FIX-REQUIRED. Fixed in one pass:
+  - release counts corrected everywhere: 21 clean blocks / 22 level ids,
+    2 accepted losses, 1 dead, 2 no-op;
+  - map_patches loads unconditionally so the menu toggle applies on the next
+    heist load; the per-call gate and the dinner/flat obstacle wrapper now both
+    check map_patches;
+  - dead-write test cross-checks `dead_patches`/`partial_patches` and matches
+    actual `nav_segments.neighbours` writes, not comments;
+  - `p7_dump` returns success and `p7_tick` only marks the generation dumped on
+    success; `!iter setting` rejects a missing value;
+  - `coreworlddefinition` skirmish blocker guards the continent table;
+  - stale docs fixed (drop-log, handoff, level-id audit, workspace draft,
+    README/MENU/changelog, seal `alt=none` note).
+  Deferred minors: CRC table duplicate/no door positions is intentional r200
+  CRC input (commented); seal plans log `alt=none` by data (documented).
+- Gates PASS after the fix pass (49 Node, harness, 17+144 Lua checks).
+- Next: merge only on explicit user approval.
 
 ## Rulings
 

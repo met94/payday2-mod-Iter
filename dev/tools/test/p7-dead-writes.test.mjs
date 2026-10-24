@@ -67,22 +67,39 @@ function blockFor(level) {
   return lines.slice(start, end).join('\n');
 }
 
+const deadSource = source.match(/local dead_patches = \{([\s\S]*?)\n\}/);
+const partialSource = source.match(/local partial_patches = \{([\s\S]*?)\n\}/);
+
+assert.ok(deadSource, 'dead_patches table not found');
+assert.ok(partialSource, 'partial_patches table not found');
+
+const marked = (table, level) => new RegExp(`\\b${level}\\s*=\\s*true`).test(table);
+const writeRe = /data\.nav_segments\[[^\]]+\]\.neighbours/;
+
 test('surviving blocks carry no discarded neighbour writes', () => {
   for (const level of CLEAN) {
     const block = blockFor(level);
     assert.ok(
-      !block.includes('neighbours'),
+      !writeRe.test(block),
       `${level}: dead nav_segments.neighbours write is back; v6 discards it`
+    );
+    assert.ok(
+      !marked(deadSource[1], level) && !marked(partialSource[1], level),
+      `${level}: CLEAN block must not be in dead_patches/partial_patches`
     );
   }
 });
 
-test('blocks that keep their dead writes stay visible in the log', () => {
+test('dead/partial blocks keep their writes and their log marker', () => {
   for (const level of PENDING) {
     const block = blockFor(level);
     assert.ok(
-      block.includes('neighbours'),
-      `${level}: no neighbour writes left; update PENDING and the P7 docs if the rewrite landed`
+      writeRe.test(block),
+      `${level}: no nav_segments.neighbours write left; update PENDING and the P7 docs if the rewrite landed`
+    );
+    assert.ok(
+      marked(deadSource[1], level) || marked(partialSource[1], level),
+      `${level}: must be listed in dead_patches or partial_patches so the log status matches`
     );
   }
 });

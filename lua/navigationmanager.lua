@@ -7,9 +7,9 @@ if not Iter.settings.nav_overlay then
 	return
 end
 
-if Iter.settings.map_patches then
-	dofile(Iter._path .. 'lua/_navdatapatches.lua')
-end
+-- Loaded unconditionally; the per-call check in set_load_data keeps it inert
+-- while map_patches is off, so the menu toggle works on the next heist load.
+dofile(Iter._path .. 'lua/_navdatapatches.lua')
 dofile(Iter._path .. 'lua/iter_nav_v6_shim.lua')
 
 -- Nav-link maps must exist before the _clear hook below is registered.

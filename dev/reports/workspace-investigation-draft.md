@@ -27,9 +27,9 @@ coarse-search plumbing) were used as reference only.
   caused an access violation. `is_vec3` requires userdata + numeric x/y/z.
 - v6 discards explicit neighbour writes; a map patch survives only if its
   rooms/doors/quads express the connection. Static audit:
-  18 levels survive, 2 keep geometry but lose the intended cross-segment link
-(moon, peta); the skirmish Mallcrasher seal is dead (navlink-only). The
-standard Vlad Mallcrasher is a different heist and stays unpatched.
+  21 clean blocks (22 level ids) survive, 2 accepted losses (moon, peta),
+1 dead (`skm_mallcrasher`, navlink-only seal), dinner/flat no-ops.
+The standard Vlad Mallcrasher is a different heist and stays unpatched.
 
 ## Evidence
 
@@ -43,7 +43,9 @@ standard Vlad Mallcrasher is a different heist and stays unpatched.
 
 ## Remaining
 
-- T5 path extender not exercised (needs a converted cop/Joker or chase).
+- T5 path extender PASS on counters (Hoxton Breakout D1: `path_extend_ok=4`,
+  no Iter errors, no visible slide/stuck); card
+  `dev/test/cards/T5-extender.md`.
 - P7 rewrites: `escape_street`, `jolly`, `moon`, `peta`; `skm_mallcrasher`
   dead. `arm_for` and `crojob2` (Dockyard) were confirmed by dumps.
 - Probe length metric needed a `raw_positions` counter; added.

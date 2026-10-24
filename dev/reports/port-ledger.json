@@ -1,7 +1,7 @@
 {
   "oldRev": "a3180fc",
   "newRev": "e3a8b616",
-  "generated": "2026-10-24T19:07:13.052Z",
+  "generated": "2026-10-24T19:23:46.046Z",
   "files": [
     {
       "file": "lua/coreworldinstancemanager.lua",
@@ -177,12 +177,12 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 110
+          "startLine": 115
         },
         {
           "name": "WorldDefinition.create",
           "category": "MOD_EDIT_CLEAN",
-          "modLines": 17,
+          "modLines": 22,
           "oldLines": 220,
           "newLines": 220,
           "modParams": "layer, offset",

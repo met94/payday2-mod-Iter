@@ -80,6 +80,17 @@ dofile('lua/_navdatapatches.lua')
 check(type(NavigationManager.set_load_data) == 'function', 'wrapper installed')
 check(NavigationManager.set_load_data ~= nil, 'wrapper differs from vanilla')
 
+-- map_patches off: the wrapper is installed but the per-call gate must call
+-- vanilla and emit no patch event.
+Iter.settings.map_patches = false
+current_level = 'jewelry_store'
+vanilla_calls = 0
+events = {}
+NavigationManager.set_load_data(nav, { version = 5, door_low_rooms = {} })
+check(vanilla_calls == 1, 'map_patches off calls vanilla once')
+check(#events == 0, 'map_patches off emits no patch event')
+Iter.settings.map_patches = true
+
 -- v6 data: skip and call vanilla.
 vanilla_calls = 0
 events = {}

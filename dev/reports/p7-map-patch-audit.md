@@ -58,12 +58,13 @@ all reach the v6 converter.
    side effects now live in a per-call wrapper (not file-load overrides).
 3. PARTIAL levels need a per-level in-game check (T6): if the added doors
    produce the intended connectivity, remove the dead neighbour writes;
-   otherwise re-express the connection as doors/quads. Status: the 16
-   `SURVIVES_AS_IS` blocks are cleaned; the four partials and Mallcrasher
-   keep their writes until the rewrite. `dev/tools/test/p7-dead-writes.test.mjs`
+   otherwise re-express the connection as doors/quads. Status: the 21 clean
+   blocks (22 level ids, `framing_frame_1`/`gallery` share one) are cleaned;
+   `moon`/`peta` keep their writes as accepted losses; `skm_mallcrasher` keeps
+   its dead write and is `skip_dead`. `dev/tools/test/p7-dead-writes.test.mjs`
    guards the split.
 4. Sample at least one PARTIAL level (Biker D1 `born`, Golden Grin `kenaz`)
-   before calling P7 complete.
+   before calling P7 complete. Done: `born`/`kenaz` applied, `big` sampled.
 
 ## Per-block audit
 
@@ -76,7 +77,7 @@ Consolidated verdicts:
 
 | Verdict | Levels |
 |---|---|
-| SURVIVES_AS_IS (18) | alex_2, arm_fac, arm_for, born, branchbank, chas, crojob2, escape_street, firestarter_1, framing_frame_1, jolly, jewelry_store, kenaz, kosugi, mex, mia_1, pbr, roberts, watchdogs_1 |
+| SURVIVES_AS_IS (21 blocks / 22 level ids) | alex_2, arm_fac, arm_for, big, born, branchbank, chas, crojob2, escape_park, escape_street, firestarter_1, framing_frame_1, gallery, jolly, jewelry_store, kenaz, kosugi, mex, mia_1, pbr, roberts, watchdogs_1 |
 | ACCEPTED_LOSS (2) | moon, peta (door on the shared edge, engine does not derive the link; visibility is not the gate) |
 | DEAD (1) | skm_mallcrasher (8<->11 is 2 navlinks; no nav-data expression for the seal) |
 | OUT_OF_SCOPE | `mallcrasher` (standard Vlad job, different world/CRC; r200 never patched it) |
