@@ -1,6 +1,12 @@
 local key = ModPath .. '	' .. RequiredScript
 if _G[key] then return else _G[key] = true end
 
+-- Dev scaffold: the r200 navigation overlay is unported. Keep it inert until
+-- the v6 shim and each subsystem pass their test cards. See dev/plans/full-nav-port.md.
+if not Iter.settings.nav_overlay then
+	return
+end
+
 dofile(Iter._path .. 'lua/_navdatapatches.lua')
 
 local mvec3_add = mvector3.add
@@ -164,7 +170,7 @@ function NavigationManager:set_nav_segment_state(id, ...)
 	end
 end
 
-if not Iter.settings.streamline_path then
+if not Iter.settings.nav_overlay then
 	return
 end
 

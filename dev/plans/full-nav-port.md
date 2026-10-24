@@ -98,8 +98,8 @@ first path request                    -> search/streamline/navlink logic
 
 | Flag | Default | Subsystem |
 |---|---|---|
-| `streamline_path` | false | master gate, proxies + streamline |
-| `nav_core_dev` | false | dev guard; must be true for a test session |
+| `nav_overlay` | false | internal master gate for the restored overlay |
+| `streamline_path` | false | user-facing master toggle, proxies + streamline |
 | `navlink_queue` | false | congestion/queue/alternates/reservations |
 | `path_extender` | false | live path appending |
 | `direct_to_pos` | false | straight-line objective movement |

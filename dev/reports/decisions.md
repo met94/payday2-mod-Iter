@@ -22,17 +22,17 @@ Cost if wrong: none; this is a tooling reuse decision, not runtime code.
 
 ## R3. Overlay stays inert until its flag is enabled
 
-The restored r200 overlay is gated by `Iter.settings.streamline_path`, and a
-dev-only `nav_core_dev` guard forces the master gate off at load unless a test
-session explicitly enables it (`!iter setting nav_core_dev true`).
-`groupaistatebase` and the nav overlay return before installing anything.
+The restored r200 overlay is gated by `Iter.settings.nav_overlay`, an internal
+master switch that defaults to false. `streamline_path` remains the future
+user-facing toggle. `groupaistatebase` and the nav overlay return before
+installing anything.
 
 Why: a saved Iter Lite settings file may contain `streamline_path=true`; without
-the guard, the next build would run unported v5 code on 248.2 and crash on heist
-load.
+a new internal key, the next build would run unported v5 code on 248.2 and crash
+on heist load. The new key cannot be enabled accidentally by an old save file.
 
-Cost if wrong: a test session that forgets the flag behaves like Iter Lite; no
-crash, just no nav changes.
+Cost if wrong: a test session that forgets `nav_overlay` behaves like Iter Lite;
+no crash, just no nav changes.
 
 ## R4. v6 geometry shim before any feature work
 

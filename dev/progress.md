@@ -23,7 +23,17 @@ Target: `e3a8b616` (248.2).
   - `api-audit --new e3a8b616`: 17/17 hooks, 11 errors, 32 review.
 - Safety: overlay gated off (`streamline_path=false`, `nav_core_dev=false`);
   `groupaistatebase` and nav overlay return before installing anything.
-- Next: H-03 `Iter.diag` + runtime event schema, then H-04 baseline log card.
+- H-03 complete: `Iter.diag` added (`lua/iter_diag.lua`), loaded from the
+  corecode pre-hook. Events are `[ITER-NAV] v=1 sid=... evt=... k=v`;
+  `[ITER-ERR]` is always emitted and fails log scans. `debug_log` defaults to
+  1 on this dev branch.
+- H-04 pending: baseline log card T0. Build `dbbd103` in `dist/Iter`, handoff
+  written to `dev/reports/handoff-2026-10-24.md`.
+- H-05 complete: `gates.ps1` PASS (45 Node tests, LuaJIT syntax, freevars,
+  ledger, audit). API audit baseline 11 errors (unported nav).
+- P1 started: 39 three-way dossiers generated in `dev/reports/dossiers/`.
+- Next: user runs T0; implementation continues with P1 annotations and P2
+  shim while waiting.
 
 ## Rulings
 
