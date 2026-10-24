@@ -112,12 +112,13 @@ function containsSymbol(code, symbol) {
   return false;
 }
 
-export function auditText(source, { file, symbols }) {
+export function auditText(source, { file, symbols, allow }) {
   const findings = [];
   const maskedLines = maskLua(source).split(/\r?\n/);
   const originalLines = source.split(/\r?\n/);
   // Longest first so _room_doors suppresses the _rooms substring on the same line.
   const ordered = [...symbols].sort((a, b) => b.symbol.length - a.symbol.length);
+  const allowed = (allow && allow[file]) || {};
 
   for (let lineIndex = 0; lineIndex < maskedLines.length; lineIndex++) {
     const line = maskedLines[lineIndex];
@@ -134,6 +135,7 @@ export function auditText(source, { file, symbols }) {
         symbol: entry.symbol,
         severity: entry.severity,
         reason: entry.reason,
+        suppressed: Boolean(allowed[entry.symbol]),
         text: (originalLines[lineIndex] || line).trim().slice(0, 200)
       });
     }
@@ -142,12 +144,16 @@ export function auditText(source, { file, symbols }) {
   return findings;
 }
 
-export function renderReport({ targetRev, hookChecks, hookMethodChecks, findings }) {
-  const errors = findings.filter(item => item.severity === 'error');
-  const reviews = findings.filter(item => item.severity === 'review');
+export function renderReport({ targetRev, hookChecks, hookMethodChecks, findings, allowUsage }) {
+  const active = findings.filter(item => !item.suppressed);
+  const suppressed = findings.filter(item => item.suppressed);
+  const errors = active.filter(item => item.severity === 'error');
+  const reviews = active.filter(item => item.severity === 'review');
   const badHooks = hookChecks.filter(item => !item.ok);
   const methodChecks = hookMethodChecks || [];
   const badMethods = methodChecks.filter(item => !item.ok);
+  const usage = allowUsage || [];
+  const unusedAllow = usage.filter(item => !item.used);
 
   const lines = [];
   lines.push('# ITER 248.2 API audit');
@@ -158,6 +164,8 @@ export function renderReport({ targetRev, hookChecks, hookMethodChecks, findings
   lines.push(`- method checks: ${methodChecks.length - badMethods.length}/${methodChecks.length} ok`);
   lines.push(`- errors: ${errors.length}`);
   lines.push(`- review: ${reviews.length}`);
+  lines.push(`- suppressed (allowlisted): ${suppressed.length}`);
+  lines.push(`- unused allowlist entries: ${unusedAllow.length}`);
   lines.push('');
 
   lines.push('## Hook checks');
@@ -193,10 +201,32 @@ export function renderReport({ targetRev, hookChecks, hookMethodChecks, findings
       continue;
     }
     for (const item of items) {
-      lines.push(`- \`${item.file}:${item.line}\` \`${item.symbol}\` — ${item.reason}. \`${item.text}\``);
+      lines.push(`- \`${item.file}:${item.line}\` \`${item.symbol}\` - ${item.reason}. \`${item.text}\``);
     }
     lines.push('');
   }
+
+  lines.push('## Suppressed (allowlisted)');
+  lines.push('');
+  if (!suppressed.length) {
+    lines.push('None.');
+  } else {
+    for (const item of suppressed) {
+      lines.push(`- \`${item.file}:${item.line}\` \`${item.symbol}\` - ${item.reason}. \`${item.text}\``);
+    }
+  }
+  lines.push('');
+
+  lines.push('## Allowlist usage');
+  lines.push('');
+  if (!usage.length) {
+    lines.push('No allowlist entries.');
+  } else {
+    for (const item of usage) {
+      lines.push(`- ${item.used ? 'used' : 'UNUSED'} \`${item.file}\` \`${item.symbol}\``);
+    }
+  }
+  lines.push('');
 
   return lines.join('\n') + '\n';
 }
@@ -229,7 +259,7 @@ function walkLua(dir, out = []) {
   return out;
 }
 
-export function auditMod({ modDir, cloneDir, targetRev, symbols }) {
+export function auditMod({ modDir, cloneDir, targetRev, symbols, allow }) {
   const modTxt = readModTxt(modDir);
   const hooks = Array.isArray(modTxt.hooks) ? modTxt.hooks : [];
   const hookChecks = [];
@@ -249,7 +279,7 @@ export function auditMod({ modDir, cloneDir, targetRev, symbols }) {
       reason: !exists ? 'missing mod file' : (!targetExists ? `missing at ${targetRev}` : '')
     });
     if (!exists) continue;
-    findings.push(...auditText(fs.readFileSync(modFile, 'utf8'), { file: scriptPath, symbols }));
+    findings.push(...auditText(fs.readFileSync(modFile, 'utf8'), { file: scriptPath, symbols, allow }));
   }
 
   // Also scan Lua files that are not hooked directly (helpers, menu files).
@@ -257,7 +287,7 @@ export function auditMod({ modDir, cloneDir, targetRev, symbols }) {
   for (const file of luaFiles) {
     const rel = path.relative(modDir, file).replace(/\\/g, '/');
     if (hooked.has(rel)) continue;
-    findings.push(...auditText(fs.readFileSync(file, 'utf8'), { file: rel, symbols }));
+    findings.push(...auditText(fs.readFileSync(file, 'utf8'), { file: rel, symbols, allow }));
   }
 
   // Verify every Hooks:PostHook/PreHook method exists at the target revision.
@@ -316,7 +346,19 @@ export function auditMod({ modDir, cloneDir, targetRev, symbols }) {
   }
 
   findings.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.symbol.localeCompare(b.symbol));
-  return { targetRev, hookChecks, hookMethodChecks, findings };
+
+  const allowUsage = [];
+  for (const [file, map] of Object.entries(allow || {})) {
+    for (const symbol of Object.keys(map || {})) {
+      allowUsage.push({
+        file,
+        symbol,
+        used: findings.some(item => item.suppressed && item.file === file && item.symbol === symbol)
+      });
+    }
+  }
+
+  return { targetRev, hookChecks, hookMethodChecks, findings, allowUsage };
 }
 
 function parseArgs(argv) {
@@ -327,6 +369,7 @@ function parseArgs(argv) {
     out: '',
     json: '',
     symbols: DEFAULT_SYMBOLS_PATH,
+    allow: '',
     strict: false
   };
   for (let i = 0; i < argv.length; i++) {
@@ -337,9 +380,10 @@ function parseArgs(argv) {
     else if (arg === '--out') args.out = argv[++i];
     else if (arg === '--json') args.json = argv[++i];
     else if (arg === '--symbols') args.symbols = argv[++i];
+    else if (arg === '--allow') args.allow = argv[++i];
     else if (arg === '--strict') args.strict = true;
     else if (arg === '--help' || arg === '-h') {
-      console.log('Usage: node dev/tools/api-audit.mjs [--mod DIR] [--clone DIR] [--new REV] [--symbols FILE] [--out FILE] [--json FILE] [--strict]');
+      console.log('Usage: node dev/tools/api-audit.mjs [--mod DIR] [--clone DIR] [--new REV] [--symbols FILE] [--allow FILE] [--out FILE] [--json FILE] [--strict]');
       process.exit(0);
     } else {
       throw new Error(`Unknown argument: ${arg}`);
@@ -348,14 +392,24 @@ function parseArgs(argv) {
   return args;
 }
 
+function loadAllow(file) {
+  if (!file) return {};
+  const resolved = path.resolve(file);
+  if (!fs.existsSync(resolved)) return {};
+
+  return JSON.parse(fs.readFileSync(resolved, 'utf8'));
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
   const symbols = loadSymbols(path.resolve(args.symbols));
+  const allow = loadAllow(args.allow);
   const report = auditMod({
     modDir: path.resolve(args.mod),
     cloneDir: path.resolve(args.clone),
     targetRev: args.new,
-    symbols
+    symbols,
+    allow
   });
   const markdown = renderReport(report);
 
@@ -371,12 +425,15 @@ function main() {
   }
   if (!args.out && !args.json) process.stdout.write(markdown);
 
-  const errors = report.findings.filter(item => item.severity === 'error').length;
-  const reviews = report.findings.filter(item => item.severity === 'review').length;
+  const active = report.findings.filter(item => !item.suppressed);
+  const errors = active.filter(item => item.severity === 'error').length;
+  const reviews = active.filter(item => item.severity === 'review').length;
+  const suppressed = report.findings.length - active.length;
+  const unusedAllow = (report.allowUsage || []).filter(item => !item.used).length;
   const badHooks = report.hookChecks.filter(item => !item.ok).length;
   const badMethods = report.hookMethodChecks.filter(item => !item.ok).length;
-  console.log(`hooks=${report.hookChecks.length - badHooks}/${report.hookChecks.length} methods=${report.hookMethodChecks.length - badMethods}/${report.hookMethodChecks.length} errors=${errors} review=${reviews}`);
-  if (args.strict && (errors || badHooks || badMethods)) process.exitCode = 1;
+  console.log(`hooks=${report.hookChecks.length - badHooks}/${report.hookChecks.length} methods=${report.hookMethodChecks.length - badMethods}/${report.hookMethodChecks.length} errors=${errors} review=${reviews} suppressed=${suppressed} allowUnused=${unusedAllow}`);
+  if (args.strict && (errors || badHooks || badMethods || unusedAllow)) process.exitCode = 1;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

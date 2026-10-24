@@ -45,6 +45,25 @@ $luaOut = & $Luajit $luaTest 2>&1 | Out-String
 $luaOk = $LASTEXITCODE -eq 0
 Add-Section 'Test-harness parser' $luaOut.Trim() $luaOk
 
+# Offline Lua unit tests (no game required)
+$unitDir = Join-Path $RepoRoot 'dev\tests\lua'
+if (Test-Path -LiteralPath $unitDir) {
+    $unitTests = @(Get-ChildItem $unitDir -Filter 'test_*.lua' | Sort-Object Name)
+    $unitBody = @()
+    $unitOk = $unitTests.Count -gt 0
+    foreach ($test in $unitTests) {
+        $out = & $Luajit $test.FullName 2>&1 | Out-String
+        $ok = $LASTEXITCODE -eq 0
+        if (-not $ok) { $unitOk = $false }
+        $unitBody += ($test.Name + ': ' + $(if ($ok) { 'PASS' } else { 'FAIL' }))
+        if ($out.Trim()) { $unitBody += $out.Trim() }
+    }
+    if (-not $unitTests.Count) { $unitBody += 'No test_*.lua files found.' }
+    Add-Section 'Lua unit tests (offline)' (($unitBody -join "`n").Trim()) $unitOk
+} else {
+    Add-Section 'Lua unit tests (offline)' ("Missing: " + $unitDir) $false
+}
+
 # LuaJIT compile all runtime Lua
 $luaFiles = @(Get-ChildItem $RepoRoot -Recurse -Filter '*.lua' | Where-Object { $_.FullName -notmatch '\\dev\\' -and $_.FullName -notmatch '\\dist\\' })
 $compileFailures = @()
@@ -81,18 +100,25 @@ $ledgerOut = & node (Join-Path $RepoRoot 'dev\tools\fn-ledger.mjs') --mod $RepoR
 $ledgerOk = $LASTEXITCODE -eq 0
 Add-Section 'Function ledger' $ledgerOut.Trim() $ledgerOk
 
-$auditOut = & node (Join-Path $RepoRoot 'dev\tools\api-audit.mjs') --mod $RepoRoot --out (Join-Path $ReportDir 'api-audit.md') --json (Join-Path $ReportDir 'api-audit.json') 2>&1 | Out-String
+$allowFile = Join-Path $RepoRoot 'dev\tools\api-allowlist.json'
+$auditArgs = @('--mod', $RepoRoot)
+if (Test-Path -LiteralPath $allowFile) {
+    $auditArgs += @('--allow', $allowFile)
+}
+$auditArgs += @('--out', (Join-Path $ReportDir 'api-audit.md'), '--json', (Join-Path $ReportDir 'api-audit.json'))
+$auditOut = & node (Join-Path $RepoRoot 'dev\tools\api-audit.mjs') @auditArgs 2>&1 | Out-String
 $baselineFile = Join-Path $ReportDir 'api-audit-baseline.txt'
 $auditErrors = if ($auditOut -match 'errors=(\d+)') { [int]$matches[1] } else { 999999 }
 $hooksOk = if ($auditOut -match 'hooks=(\d+)/(\d+)') { [int]$matches[1] } else { 0 }
 $hooksTotal = if ($auditOut -match 'hooks=(\d+)/(\d+)') { [int]$matches[2] } else { 0 }
+$allowUnused = if ($auditOut -match 'allowUnused=(\d+)') { [int]$matches[1] } else { 999999 }
 $baseline = if (Test-Path -LiteralPath $baselineFile) { [int](Get-Content -LiteralPath $baselineFile -Raw) } else { $null }
 if ($null -eq $baseline) {
     Set-Content -LiteralPath $baselineFile -Value $auditErrors -Encoding utf8
     $baseline = $auditErrors
 }
-$auditOk = ($hooksOk -eq $hooksTotal) -and ($auditErrors -le $baseline)
-$auditBody = $auditOut.Trim() + "`nBaseline errors: $baseline (current: $auditErrors)"
+$auditOk = ($hooksOk -eq $hooksTotal) -and ($auditErrors -le $baseline) -and ($allowUnused -eq 0)
+$auditBody = $auditOut.Trim() + "`nBaseline errors: $baseline (current: $auditErrors)`nUnused allowlist entries: $allowUnused"
 Add-Section 'API audit' $auditBody $auditOk
 
 $lines | Set-Content -LiteralPath $Report -Encoding utf8

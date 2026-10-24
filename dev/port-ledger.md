@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-24T10:49:59.149Z
+Generated: 2026-10-24T11:16:57.806Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -12,6 +12,7 @@ Scope: top-level function definitions only. Nested helpers are folded into their
 | category | count |
 |---|---:|
 | MOD_EDIT_VANILLA_CHANGED | 7 |
+| MOD_ONLY_HOOK | 2 |
 | MOD_ONLY | 54 |
 | VANISHED_IN_NEW | 1 |
 | MOD_EDIT_CLEAN | 33 |
@@ -74,6 +75,8 @@ No function definitions (hook/overlay file).
 | [ ] | **PORT** | `NavigationManager.register_cover_units` | 19 | 80 | 75 |  |
 | [ ] | **PORT** | `NavigationManager.set_nav_segment_state` | 10 | 36 | 38 |  |
 | [ ] | **PORT** | `NavigationManager.unregister_anim_nav_link` | 7 | 63 | 69 |  |
+| [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._clear:Iter_nav_shim_clear` | 3 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
+| [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._send_nav_field_to_engine:Iter_nav_shim_rebuild` | 3 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit | `get_coarse_dis` | 8 | 0 | 0 |  |
 | [ ] | audit | `itr_add_door_pos_to` | 10 | 0 | 0 |  |
 | [ ] | audit | `itr_get_door_in_alignment` | 22 | 0 | 0 |  |
@@ -200,6 +203,10 @@ No function definitions (hook/overlay file).
 **UNHOOKED FILE** — not referenced by mod.txt; it never loads.
 
 ## lua/iter_diag.lua
+
+**UNHOOKED FILE** — not referenced by mod.txt; it never loads.
+
+## lua/iter_nav_v6_shim.lua
 
 **UNHOOKED FILE** — not referenced by mod.txt; it never loads.
 

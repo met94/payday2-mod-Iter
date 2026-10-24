@@ -8,6 +8,17 @@ if not Iter.settings.nav_overlay then
 end
 
 dofile(Iter._path .. 'lua/_navdatapatches.lua')
+dofile(Iter._path .. 'lua/iter_nav_v6_shim.lua')
+
+-- Rebuild the v5 geometry tables from the converted load data, then drop them
+-- again when the manager is cleared. Geometry only; see iter_nav_v6_shim.lua.
+Hooks:PostHook(NavigationManager, '_send_nav_field_to_engine', 'Iter_nav_shim_rebuild', function(self, load_data)
+	IterNavShim.rebuild(self, load_data)
+end)
+
+Hooks:PostHook(NavigationManager, '_clear', 'Iter_nav_shim_clear', function(self)
+	IterNavShim.clear(self)
+end)
 
 local mvec3_add = mvector3.add
 local mvec3_ang = mvector3.angle
