@@ -6,6 +6,10 @@ Build: `dist/Iter` at `ca22c4a` (`202-dev`)
 
 ## Where the port stands
 
+Glossary and the Bomb id mapping: `dev/reports/p7-terminology.md`.
+Short version: Dockyard = job `crojob1` / level `crojob2` (patched);
+Forest = job `crojob2` / level `crojob3` (no patch).
+
 Core navigation/AI port is **release-candidate complete**:
 
 | Area | Status |
