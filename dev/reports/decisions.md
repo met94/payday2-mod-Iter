@@ -125,6 +125,17 @@ Cost if wrong: a legitimate Vector3 whose components are not exposed as
 numbers would be treated as a nav-link and skipped; paths fall back to
 distance-only picks. No crash.
 
+## R13. Map patches deferred
+
+P7 is a separate phase: the r200 file selects its level at file-load time and
+69 patch writes target neighbour lists the v6 converter discards. Doing it
+inside the core-port session would mix a data migration with a working AI
+port. `map_patches` stays false and the overlay does not load the file.
+
+Cost if wrong: map-specific nav fixes (bus, biker counter, vault access) are
+not active yet; core AI pathing is unaffected.
+
+
 
 
 

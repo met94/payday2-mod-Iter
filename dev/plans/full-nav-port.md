@@ -242,14 +242,15 @@ Gate: T4 PASS; cache correct after segment state change.
 
 Gate: T5 PASS.
 
-### P7 Map patches — 16-24 h
+## P7 Map patches — 16-24 h — DEFERRED
 
-- M-01 framework + CRC/version logging.
-- M-02..M-05 level batches.
-- M-06 T6.
-- M-07 review.
+- Status: deferred to the next session; design card
+  `dev/plans/tasks/P7-map-patches.md`.
+- Blocker: the r200 file selects the level at file-load time, and 69 patch
+  writes target neighbour lists that v6 discards. Needs a per-call patch table
+  and a per-level audit.
+- Gate: T6 per level; `evt=patch` status; no errors.
 
-Gate: per-level status logged; no errors; dead neighbour writes removed.
 
 ### P8 Hardening and release — 10-14 h
 

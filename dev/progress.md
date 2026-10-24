@@ -77,7 +77,15 @@ Target: `e3a8b616` (248.2).
 - Big Bank probe verified: no crash; search 29/29, direct_to_pos 6. The 24
   streamline failures were probe double-streamlining; `itr_streamline` is now
   idempotent.
-- Next: P7 map patches (per-level refactor + CRC), then final combined smoke.
+- T3 PASS, T4 PASS. Hotline D1: 47 cops, 20 travelling, 27 coarse paths,
+  `navlink_prepare=514`, `reserve_ok=2`, search 133 ok / 2 fail, cache 33.
+  Jewelry: `direct_to_pos=2`, search 3/4. Big Bank: crash fixed; probe
+  search 29/29, direct_to_pos=6; streamline double-call fixed by making
+  `itr_streamline` idempotent.
+- P7 map patches deferred to the next session: per-call level selection and
+  69 dead neighbour writes need a dedicated audit. Design card written.
+- Session state: core nav/AI port is functional. Next: P7, then release
+  candidate hardening.
 
 ## Rulings
 
