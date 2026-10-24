@@ -209,7 +209,7 @@ elseif level_id == 'chas' then
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
 
-elseif level_id == 'crojob2' then
+elseif level_id == 'crojob2' or level_id == 'crojob3' then
 
 	return function(self, data)
 		transfer_room(414, 28, 74)
@@ -773,6 +773,7 @@ local nav_data_sigs = {
 	skm_mallcrasher = 598935744,
 }
 nav_data_sigs.framing_frame_1 = nav_data_sigs.gallery
+nav_data_sigs.crojob3 = nav_data_sigs.crojob2
 
 local function _is_expected_data(data, level_id)
 	local tbls = {
@@ -818,6 +819,7 @@ local dead_patches = {
 -- that v6 discards. Logged as applied_partial until rewritten.
 local partial_patches = {
 	crojob2 = true,
+	crojob3 = true,
 	escape_street = true,
 	jolly = true,
 	moon = true,
