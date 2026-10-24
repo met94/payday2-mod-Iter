@@ -746,8 +746,7 @@ local P7_PLANS = {
 	skm_mallcrasher = {
 		dumps = { 8, 11 },
 		doors = { { 8, 11 } },
-		paths = { { 8, 11 } },
-		quads = { 943, 61 }
+		paths = { { 8, 11 } }
 	}
 }
 
@@ -965,6 +964,14 @@ function TH.force_level(args)
 
 	if not level_data or not level_data.world_name then
 		say('force: unknown level ' .. tostring(level_id))
+		return
+	end
+
+	-- Skirmish levels carry their own job packages and group-AI state; loading
+	-- one through a mid-heist session switch leaves the mission state broken
+	-- (observed: NavigationManager:destroy access violation on exit).
+	if level_data.group_ai_state == 'skirmish' then
+		say('force: skirmish levels must be loaded through Crime Spree')
 		return
 	end
 

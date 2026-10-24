@@ -43,13 +43,12 @@ const CLEAN = [
   'mia_1',
   'pbr',
   'roberts',
-  'skm_mallcrasher',
   'watchdogs_1',
   'dinner',
   'flat'
 ];
 
-const PENDING = ['moon', 'peta'];
+const PENDING = ['moon', 'peta', 'skm_mallcrasher'];
 
 function blockFor(level) {
   const start = lines.findIndex(line => line.includes(`level_id == '${level}'`));
@@ -78,7 +77,7 @@ test('surviving blocks carry no discarded neighbour writes', () => {
   }
 });
 
-test('accepted-loss blocks keep the dead writes that document the missing link', () => {
+test('blocks that keep their dead writes stay visible in the log', () => {
   for (const level of PENDING) {
     const block = blockFor(level);
     assert.ok(

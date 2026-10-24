@@ -43,7 +43,7 @@ failures, a Border Crossing patch removed for a crash).
 | SURVIVES_AS_IS static audit | geometry edits reach the v6 converter | MEDIUM: mechanism survives, intent unproven |
 | `big` applied | `evt=patch applied`, data values changed | MEDIUM: mechanism, not behaviour |
 | `applied_partial` (`moon`, `peta`) | geometry applies, but the intended cross-segment link is absent at runtime (`navpath` fails / segment isolated); visibility cross-link did not change it | ACCEPTED LOSS (see `drop-log.md`) |
-| `skm_mallcrasher` (skirmish only) | rewrite untested: `transfer_room(943, 8, 11)` makes door 1526 intra-segment | pending Crime Spree A/B (`navpath 8->11 direct=0`) |
+| `skm_mallcrasher` (skirmish only) | 8<->11 is 2 navlinks; quad transfer moved the wrong quad (943 belongs to segment 37) | DEAD (skip_dead) |
 | `mallcrasher` (standard Vlad job) | different world/CRC from the skirmish stage; r200 never patched it | out of scope |
 
 Runtime evidence for the four dumped levels:

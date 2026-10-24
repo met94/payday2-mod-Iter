@@ -571,13 +571,12 @@ elseif level_id == 'roberts' then
 elseif level_id == 'skm_mallcrasher' then
 
 	return function(self, data)
-		-- v6: the r200 neighbour seal is discarded. Door 1526 joins quad 943
-		-- (segment 8) to quad 61 (segment 11) on their shared edge. Move
-		-- quad 943 into segment 11 so the door becomes intra-segment and the
-		-- 8<->11 link disappears (T6 navquad).
-		-- Skirmish-only: the standard Vlad job is `mallcrasher`, a different
-		-- world/nav data set; r200 never patched it. Untested on skirmish.
-		transfer_room(943, 8, 11)
+		-- v6: the 8<->11 link is carried by 2 navlinks, not by a door, and
+		-- the r200 neighbour seal is discarded. A quad transfer cannot remove
+		-- navlinks (skirmish quad 943 belongs to segment 37, not 8), so this
+		-- block is dead at 248.2 and is skipped by dead_patches.
+		data.nav_segments[8].neighbours[11] = {}
+		data.nav_segments[11].neighbours[8] = {}
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
@@ -726,16 +725,16 @@ local patch_cache = {}
 
 -- v6 cannot honour neighbour writes; these blocks have no surviving effect
 -- until rewritten as doors/quads. See dev/reports/p7-map-patch-audit.md.
-local dead_patches = {}
+local dead_patches = {
+	-- 8<->11 is carried by 2 navlinks; no data expression for the seal.
+	skm_mallcrasher = true
+}
 
 -- Geometry survives, but the block also relies on explicit neighbour writes
 -- that v6 discards. Logged as applied_partial until rewritten.
 local partial_patches = {
 	moon = true,
-	peta = true,
-	-- Skirmish rewrite is untested; keep the honest partial marker until a
-	-- Crime Spree run confirms the 8<->11 link is gone.
-	skm_mallcrasher = true
+	peta = true
 }
 
 local function patch_event(level_id, result, extra)

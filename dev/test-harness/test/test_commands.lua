@@ -228,7 +228,8 @@ local fake_session = {
 
 tweak_data = {
   levels = {
-    escape_street = { world_name = 'narratives/escapes/escape_street' }
+    escape_street = { world_name = 'narratives/escapes/escape_street' },
+    skm_mallcrasher = { world_name = 'narratives/skm/skm_mallcrasher', group_ai_state = 'skirmish' }
   }
 }
 Global = { game_settings = {} }
@@ -250,6 +251,10 @@ assert(table.concat(lines, '\n'):find('force: loading escape_street', 1, true), 
 lines = {}
 Iter_TestHarness.force_level({ 'nope' })
 assert(table.concat(lines, '\n'):find('force: unknown level nope', 1, true), 'force unknown level message wrong')
+
+lines = {}
+Iter_TestHarness.force_level({ 'skm_mallcrasher' })
+assert(table.concat(lines, '\n'):find('force: skirmish levels must be loaded through Crime Spree', 1, true), 'force skirmish guard wrong')
 
 assert(parse('!iter force escape_street').args[1] == 'escape_street', 'force args wrong')
 

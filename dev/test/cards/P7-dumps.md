@@ -22,7 +22,7 @@ On heist start the harness runs `!iter p7` automatically for:
 | Aftershock (`jolly`) | `navdump 87 141`, `navdoors 87 141`, `navquad 2420 3445`, `navpath 141 87`, `navpath 87 <X>` |
 | Stealing Xmas (`moon`) | `navdump 22 23`, `navdoors 22 23`, `navquad 2777 2758`, `navpath 22 23`, `navpath 23 <X>` |
 | Goat Simulator D1 (`peta`) | `navdump 47 53 91`, `navdoors 47 91`, `navdoors 47 53`, `navquad 121 126`, `navpath 47 91`, `navpath 47 53`, `navpath 91 <X>` |
-| Mallcrasher (skirmish `skm_mallcrasher` only) | `navdump 8 11`, `navdoors 8 11`, `navquad 943 61`, `navpath 8 11` (rewrite untested) |
+| Mallcrasher (skirmish `skm_mallcrasher` only) | `navdump 8 11`, `navdoors 8 11`, `navpath 8 11` (block is `skip_dead`) |
 
 `<X>` is picked automatically as another neighbour of the sealed segment and
 logged as `p7auto seal seg=… exclude=… alt=…`. That pair is the seal test.
@@ -42,6 +42,10 @@ It only appears as a random escape. Load any heist (host/solo), then type:
 This reuses the current network session and calls the game's level jump with
 `tweak_data.levels.escape_street.world_name`. The escape loads, the auto dump
 fires as usual, then quit to menu. Host only.
+
+Skirmish levels (`group_ai_state == 'skirmish'`, e.g. `skm_mallcrasher`) are
+refused: their job packages and mission state do not survive a mid-heist
+switch (observed `NavigationManager:destroy` crash). Use Crime Spree.
 
 ## Run order
 

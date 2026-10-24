@@ -28,8 +28,8 @@ coarse-search plumbing) were used as reference only.
 - v6 discards explicit neighbour writes; a map patch survives only if its
   rooms/doors/quads express the connection. Static audit:
   18 levels survive, 2 keep geometry but lose the intended cross-segment link
-(moon, peta); the skirmish Mallcrasher rewrite is untested. The standard Vlad
-Mallcrasher is a different heist and stays unpatched.
+(moon, peta); the skirmish Mallcrasher seal is dead (navlink-only). The
+standard Vlad Mallcrasher is a different heist and stays unpatched.
 
 ## Evidence
 

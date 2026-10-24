@@ -106,14 +106,14 @@ check(vanilla_calls == 1, 'disabled map calls vanilla once')
 check(find_event('patch').fields.result == 'skip_setting', 'disabled map logs skip_setting')
 Iter.settings.map_change_unknown = true
 
--- Skirmish Mallcrasher: block exists and its CRC gate must reject fake data.
+-- Skirmish Mallcrasher: dead at v6 (navlink seal has no data expression).
 current_level = 'skm_mallcrasher'
 Iter.settings.map_change_skm_mallcrasher = true
 vanilla_calls = 0
 events = {}
 NavigationManager.set_load_data(nav, { version = 5, door_low_rooms = {} })
 check(vanilla_calls == 1, 'skm_mallcrasher calls vanilla once')
-check(find_event('patch').fields.result == 'mismatch', 'skm_mallcrasher logs mismatch on fake data')
+check(find_event('patch').fields.result == 'skip_dead', 'skm_mallcrasher logs skip_dead')
 check(find_event('patch').fields.level == 'skm_mallcrasher', 'skm_mallcrasher logs its own level id')
 
 -- v5 data, level with a patch but CRC data mismatch: mismatch and vanilla.

@@ -54,11 +54,15 @@ Reverted:
 - Harness P7 plan: no `mallcrasher` auto-dump; only `skm_mallcrasher`.
 
 The standard Vlad job is now unpatched (`skip_nopatch` when map patches are
-on). A separate standard-Mallcrasher fix would need its own nav data pass and
-mission-element ids; it is out of r200 scope.
+on). The skirmish block is dead at v6 (`skip_dead`): its 8<->11 link is
+carried by 2 navlinks, not a door, and the skirmish quad ids differ from the
+standard job (door 1343 quads 844/61; quad 943 belongs to segment 37). A
+navlink seal needs an engine-side expression. A separate standard-Mallcrasher
+fix would need its own nav data pass and mission-element ids; it is out of
+r200 scope.
 
 ## Player POV
 
 The standard Mallcrasher keeps vanilla AI behaviour. The r200 vase-store
-blocker and seal remain a skirmish (Crime Spree) feature; the v6 rewrite there
-is still untested (`applied_partial`).
+blocker and seal remain a skirmish (Crime Spree) feature; at v6 the seal is
+dead because the link is navlink-only, so skirmish cops can still cross it.

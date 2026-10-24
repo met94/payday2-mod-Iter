@@ -132,8 +132,12 @@ Target: `e3a8b616` (248.2).
   `narratives/vlad/mallcrasher`, CRC `75811735`) and the skirmish stage
   (`skm_mallcrasher`, `narratives/skm/skm_mallcrasher`, CRC `598935744`) are
   **different heists**. The alias was reverted; the standard job logs
-  `skip_nopatch`. The skirmish block keeps `transfer_room(943, 8, 11)` as an
-  untested rewrite (`applied_partial`). Audit:
+  `skip_nopatch`. The skirmish dump proved 8<->11 is **2 navlinks**, not a
+  door; door 1343 uses quads 844/61 and quad 943 belongs to segment 37, so the
+  transfer moved the wrong quad. Reverted to `dead_patches` (`skip_dead`).
+  Forced skirmish load crashed on exit (`NavigationManager:destroy` access
+  violation, LIES `register_cover_units` nil, missing skirmish package);
+  `!iter force` now refuses `group_ai_state == 'skirmish'`. Audit:
   `dev/reports/p7-level-id-audit.md`.
 - Level-id audit found no other conflation: every patch/setting id maps to a
   real level; `gallery` is a valid `deep_clone` of `framing_frame_1` with its

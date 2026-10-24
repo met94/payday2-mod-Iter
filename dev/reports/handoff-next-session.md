@@ -74,10 +74,14 @@ Patch-on dumps are done for all five pending levels:
   visibility `see=1/1` did not help. **Accepted loss**; the working door is
   kept.
 - `skm_mallcrasher`: **skirmish only** (Crime Spree, world
-  `narratives/skm/skm_mallcrasher`, CRC `598935744`). `transfer_room(943, 8,
-  11)` is an untested rewrite; it logs `applied_partial`. The standard Vlad
-  job (`mallcrasher`, world `narratives/vlad/mallcrasher`, CRC `75811735`) is
-  a different heist and stays unpatched (`skip_nopatch`).
+  `narratives/skm/skm_mallcrasher`, CRC `598935744`). Dump proved 8<->11 is
+  2 navlinks, not a door; door 1343 uses quads 844/61 and quad 943 belongs to
+  segment 37. Transfer reverted; block is `skip_dead`. Forced skirmish load
+  crashed on exit (`NavigationManager:destroy` access violation, LIES
+  `register_cover_units` nil, missing skirmish package); `!iter force` now
+  refuses skirmish levels. The standard Vlad job (`mallcrasher`, world
+  `narratives/vlad/mallcrasher`, CRC `75811735`) is a different heist and
+  stays unpatched (`skip_nopatch`).
 - Level-id audit: `dev/reports/p7-level-id-audit.md` — no other conflation;
   `gallery` is a valid clone of `framing_frame_1` with its own CRC.
 

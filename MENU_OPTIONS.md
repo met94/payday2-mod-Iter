@@ -74,9 +74,9 @@ Applies the r200 per-level nav fixes after a version/CRC check.
 - Default: **OFF**.
 - Logs `applied`, `applied_partial`, `mismatch` or `skip_*` per level.
 - 18 levels survive as-is; 2 keep their geometry but lose the intended
-  cross-segment link (moon, peta); the skirmish Mallcrasher rewrite is
-  untested. The standard Vlad Mallcrasher is a different heist and stays
-  unpatched.
+  cross-segment link (moon, peta); the skirmish Mallcrasher seal is dead
+  (navlink-only). The standard Vlad Mallcrasher is a different heist and
+  stays unpatched.
 - Heist restart required.
 
 ### Rebuild NavLinks (`rebuild_navlinks`)
