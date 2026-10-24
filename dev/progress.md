@@ -112,15 +112,16 @@ Target: `e3a8b616` (248.2).
   `NavigationManager` exists, so the first hook registration silently skipped
   (now retried from `LocalizationManagerPostInit` / `GameSetupUpdate`); and
   the standard Mallcrasher job reports level id `mallcrasher`, not
-  `skm_mallcrasher` (alias added in `_navdatapatches.lua`, still `skip_dead`).
+  `skm_mallcrasher` (initially aliased; later reverted — they are different
+  heists, see the level-id audit below).
 - First runtime pass (jolly/moon/peta/mallcrasher) produced patch/heist events
   but no dumps; needs a rerun with the redeployed harness.
 - Manual `!iter p7` run on all five levels (patch on). Results:
   `dev/reports/p7-runtime-2026-10-24.md`. `escape_street` and `jolly` survive
   as-is (63<->48 is 2 navlinks; door 9410 links 87<->141 and 87's seal is
   inherent); dead writes removed, both now log `applied`. `moon` (23 isolated)
-  and `peta` (53 isolated) need rewrites. `skm_mallcrasher` alias works, block
-  is `skip_dead`; door 1526 carries 8<->11.
+  and `peta` (53 isolated) are accepted losses. `skm_mallcrasher` was
+  dead-only at this point; later got an untested transfer rewrite.
 - Harness fix: Mallcrasher's plan has no `paths`, so `ipairs(nil)` ended the
   block with `p7auto ERROR nil`; defaults added.
 - Peta/mallcrasher geometry checked: both doors sit exactly on the shared
@@ -134,9 +135,13 @@ Target: `e3a8b616` (248.2).
   `skip_nopatch`. The skirmish block keeps `transfer_room(943, 8, 11)` as an
   untested rewrite (`applied_partial`). Audit:
   `dev/reports/p7-level-id-audit.md`.
-- Level-id audit found no other conflation: all patch/setting ids map to real
-  level keys; `gallery` is a valid `deep_clone` of `framing_frame_1` with its
-  own CRC; `_day`/`_night` stripping is intentional.
+- Level-id audit found no other conflation: every patch/setting id maps to a
+  real level; `gallery` is a valid `deep_clone` of `framing_frame_1` with its
+  own CRC; `_day`/`_night` stripping is CRC-gated; `skm_big2` is mission-only.
+- T5 PASS on counters (Hoxton Breakout D1): `path_ahead=1`, `extend(ok=1)`
+  then `ok=4 skip=0`, `summary path_extend_ok=4`, 20 cops, no Iter errors.
+  Log scan card PASS: `dev/reports/smoke-t5-2026-10-24.md`. Visual
+  slide/stuck check still to be confirmed by the player.
 - Escape: Street is a random escape, not selectable in Crime.net. Added
   host-only `!iter force <level_id>` (tweak-data world name via
   `session():load_level`) so `escape_street` can be loaded from any heist.
@@ -144,19 +149,20 @@ Target: `e3a8b616` (248.2).
   in `CopBrain:clbk_pathing_results`; `!iter ai` prints `extend(ok, skip)`.
 - Cards: new `dev/test/cards/T5-extender.{md,json}`; `P7-dumps.md` rewritten
   as dump + navpath A/B run with an explicit on/off reload order.
-- P7 dead-write cleanup: all 16 `SURVIVES_AS_IS` blocks had their discarded
-  `nav_segments.neighbours` writes removed (the four partials and Mallcrasher
-  keep theirs until rewrite). New guard: `dev/tools/test/p7-dead-writes.test.mjs`.
-- Release docs refreshed to the real P7 counts (16 survive / 4 rewrite / 1
-  dead) and the RC defaults: README, MENU_OPTIONS, compatibility matrix,
-  workspace investigation draft, changelog 202-dev bullet.
-- Gates PASS (49 Node tests, harness test, 12+144 Lua checks, syntax,
+- P7 dead-write cleanup: all 18 `SURVIVES_AS_IS` blocks had their discarded
+  `nav_segments.neighbours` writes removed. The two accepted-loss blocks
+  (`moon`, `peta`) keep theirs; `skm_mallcrasher` uses a quad transfer. Guard:
+  `dev/tools/test/p7-dead-writes.test.mjs`.
+- Release docs refreshed to the real P7 counts (18 survive / 2 accepted losses
+  / 1 skirmish rewrite untested) and the RC defaults: README, MENU_OPTIONS,
+  compatibility matrix, workspace investigation draft, changelog bullet.
+- Gates PASS (49 Node tests, harness test, 15+144 Lua checks, syntax,
   freevars, ledger 100 functions, audit 12/12 baseline, 0 unused).
 - Ruling: navpath belongs to the dev harness only; no runtime cost, and the
   line records the live `map_patches` value so an A/B pair is self-describing.
   Cost if wrong: none (dev-only file, excluded from `dist/Iter`).
-- Next: run the combined P7 card and the T5 card in one game session, then
-  release/merge.
+- Next: player confirms no visible slide/stuck for T5, then final branch
+  review and release/merge.
 
 ## Rulings
 

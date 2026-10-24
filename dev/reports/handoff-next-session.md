@@ -85,14 +85,13 @@ Still useful: the patch-off baseline for `moon`/`peta` (confirms the patch is
 the only attempted link, not a vanilla topology change). Optional for
 `jolly`/`escape_street`.
 
-### 2. T5 path extender
+### 2. T5 path extender — PASS on counters
 
 Card: `dev/test/cards/T5-extender.md`.
-
-Needs a run with a converted cop (Joker), an `is_important` unit, or chase
-mode. Acceptance: `summary.path_extend_ok > 0`, no sliding, no stuck action.
-Path extender is OFF by default; enable **Dev: path extender** and restart the
-heist.
+Hoxton Breakout D1: `path_ahead=1`, `extend(ok=1)` → `ok=4 skip=0`,
+`summary path_extend_ok=4`, no Iter errors. Log scan:
+`dev/reports/smoke-t5-2026-10-24.md`. Remaining: player confirmation that no
+cop visibly slid or stuck at the append point.
 
 ### 3. Release/merge
 
