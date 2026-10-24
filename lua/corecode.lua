@@ -111,6 +111,9 @@ Iter.diag.event('boot', {
 	nav_overlay = tostring(Iter.settings.nav_overlay),
 	nav_streamline = tostring(Iter.settings.nav_streamline),
 	nav_search = tostring(Iter.settings.nav_search),
+	navlink_queue = tostring(Iter.settings.navlink_queue),
+	path_extender = tostring(Iter.settings.path_extender),
+	direct_to_pos = tostring(Iter.settings.direct_to_pos),
 	nav_ai = tostring(Iter.settings.nav_ai),
 	streamline_path = tostring(Iter.settings.streamline_path),
 	debug_log = Iter.settings.debug_log

@@ -20,6 +20,15 @@ end)
 
 Hooks:PostHook(NavigationManager, '_clear', 'Iter_nav_shim_clear', function(self)
 	IterNavShim.clear(self)
+	self.itr_coarse_cache = {}
+
+	for key in pairs(_navlink_elements) do
+		_navlink_elements[key] = nil
+	end
+
+	for key in pairs(_navlink_planned_use) do
+		_navlink_planned_use[key] = nil
+	end
 end)
 
 -- One line per heist so a plain play session produces a usable card.
@@ -128,6 +137,44 @@ NavigationManager.itr_navlink_planned_use = _navlink_planned_use
 Hooks:PostHook(NavigationManager, 'on_simulation_ended', 'Iter_nav_summary', function(self)
 	Iter.diag.summary({
 		level = Iter:get_level_id()
+	})
+end)
+
+-- 30 s heartbeat: a log is useful even when the player exits the game
+-- without a clean simulation end.
+Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_heartbeat', function(self, t, dt)
+	if not self.itr_next_summary_t then
+		self.itr_next_summary_t = (t or 0) + 30
+	end
+
+	if (t or 0) < self.itr_next_summary_t then
+		return
+	end
+
+	self.itr_next_summary_t = (t or 0) + 30
+
+	local elements, queued, reserved = 0, 0, 0
+
+	for _, element in pairs(_navlink_elements) do
+		elements = elements + 1
+
+		if (element.itr_navlink_queue_length or 0) > 0 then
+			queued = queued + 1
+		end
+
+		if alive(element.itr_reserved_by_unit) then
+			reserved = reserved + 1
+		end
+	end
+
+	Iter.diag.event('navlink', {
+		elements = elements,
+		queued = queued,
+		reserved = reserved
+	})
+	Iter.diag.summary({
+		level = Iter:get_level_id(),
+		navlink_elements = elements
 	})
 end)
 
@@ -252,6 +299,9 @@ function NavigationManager:clbk_navfield(event_name, args, args2, args3)
 
 	itr_original_navigationmanager_clbknavfield(self, event_name, args, args2, args3)
 
+	-- Any nav-field change can invalidate cached coarse paths.
+	self.itr_coarse_cache = {}
+
 	if fuckery then
 		for nav_seg_id in pairs(args) do
 			local nav_seg = self._nav_segments[nav_seg_id]
@@ -275,6 +325,7 @@ local itr_original_navigationmanager_setnavsegmentstate = NavigationManager.set_
 function NavigationManager:set_nav_segment_state(id, ...)
 	local unique_id = tostring(id)
 	itr_original_navigationmanager_setnavsegmentstate(self, unique_id, ...)
+	self.itr_coarse_cache = {}
 
 	self:itr_make_neighbours_list(unique_id)
 	local nav_seg = self._nav_segments[unique_id]
@@ -1119,10 +1170,12 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 	elseif type(cached_result) == 'number' then
 		local fail_t = cached_result
 		if t - fail_t < self.itr_coarse_fail_retry_t then
+			Iter.diag.count('search_cache_fail')
 			return false
 		end
 	else
 		if t - cached_result.t < self.itr_coarse_cache_lifetime then
+			Iter.diag.count('search_cache_hit')
 			local result = path_copy(cached_result)
 			result.t = nil
 			return search_data.results_callback and result or self:itr_streamline(result)
@@ -1131,6 +1184,7 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 
 	if access_pos and self._quad_field:is_nav_segment_blocked(end_i_seg, access_pos) then
 		self.itr_coarse_cache[path_key] = t
+		Iter.diag.count('search_fail')
 		return false
 	end
 
@@ -1259,6 +1313,7 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 
 	if not best_path then
 		self.itr_coarse_cache[path_key] = t
+		Iter.diag.count('search_fail')
 		return false
 	end
 
@@ -1274,6 +1329,7 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 	}
 	result.has_navlinks = best_path.delay > 0
 	result.coarse_dis = best_path.coarse_dis
+	Iter.diag.count(best_path.delay > 0 and 'search_ok_navlinks' or 'search_ok')
 
 	if best_path.delay == 0 then
 		local cache_result = path_copy(result)

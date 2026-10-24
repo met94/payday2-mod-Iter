@@ -11,6 +11,7 @@
     "fallback": 0,
     "navlink.elements": ">0",
     "summary.navlink_registered": ">0",
+    "summary.navlink_prepare": ">0",
     "summary.err": 0
   }
 }

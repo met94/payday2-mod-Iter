@@ -68,6 +68,7 @@ function CopLogicTravel._get_exact_move_pos(data, nav_index)
 	local nr = #coarse_path
 
 	if nr > 2 and nav_index == 2 and Iter.settings.direct_to_pos and my_data.itr_direct_to_pos then
+		Iter.diag.count('direct_to_pos')
 		if my_data.moving_to_cover then
 			managers.navigation:release_cover(my_data.moving_to_cover[1])
 			my_data.moving_to_cover = nil

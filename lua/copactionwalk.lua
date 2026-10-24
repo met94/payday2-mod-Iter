@@ -142,6 +142,7 @@ if Network:is_server() then
 		end
 
 		if navlink_element._values.itr_interval == 0 then
+			Iter.diag.count('navlink_reserve_free')
 			return true
 		end
 
@@ -156,12 +157,15 @@ if Network:is_server() then
 			local oldest_t = navlink_element.itr_navlink_queue_previous_oldest_t
 			if not oldest_t or wait_since_t <= oldest_t then
 				navlink_element.itr_reserved_by_unit = self._unit
+				Iter.diag.count('navlink_reserve_ok')
 				return true
 			end
 		elseif user:key() == self._unit:key() then
+			Iter.diag.count('navlink_reserve_own')
 			return true
 		end
 
+		Iter.diag.count('navlink_reserve_busy')
 		return false
 	end
 
@@ -209,11 +213,13 @@ if Network:is_server() then
 				end
 				alt_navlink_element.itr_reserved_by_unit = self._unit
 				self.itr_wait_for_navlink = nil
+				Iter.diag.count('navlink_switch_ok')
 
 				return true
 			end
 		end
 
+		Iter.diag.count('navlink_switch_fail')
 		return false
 	end
 
@@ -259,6 +265,8 @@ if Network:is_server() then
 		if self.itr_wait_for_navlink then
 			return
 		end
+
+		Iter.diag.count('navlink_prepare')
 
 		local index = self._next_is_nav_link and 2 or 3
 		local upcoming_navlink = self._simplified_path[index]

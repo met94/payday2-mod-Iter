@@ -424,7 +424,8 @@ function TH.dump_ai()
 	for _, data in pairs(enemies) do
 		total = total + 1
 
-		local brain = data.brain
+		local unit = data.unit
+		local brain = unit and unit:brain()
 		local logic_data = brain and brain._logic_data
 		local my_data = logic_data and logic_data.internal_data
 

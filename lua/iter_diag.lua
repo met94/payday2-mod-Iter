@@ -7,6 +7,7 @@ local D = Iter.diag
 
 D.version = 1
 D.counters = D.counters or {}
+D.counters.err = D.counters.err or 0
 D.session_id = D.session_id or string.format('%04x', math.random(0, 0xffff))
 
 local function level()
@@ -88,7 +89,7 @@ function D.observe_ms(name, ms)
 end
 
 function D.reset()
-	D.counters = {}
+	D.counters = { err = 0 }
 end
 
 function D.summary(extra)

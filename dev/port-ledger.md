@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-24T12:16:28.214Z
+Generated: 2026-10-24T12:23:55.307Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -12,7 +12,7 @@ Scope: top-level function definitions only. Nested helpers are folded into their
 | category | count |
 |---|---:|
 | MOD_EDIT_VANILLA_CHANGED | 6 |
-| MOD_ONLY_HOOK | 6 |
+| MOD_ONLY_HOOK | 7 |
 | MOD_ONLY | 54 |
 | MOD_EDIT_CLEAN | 32 |
 
@@ -69,16 +69,17 @@ No function definitions (hook/overlay file).
 
 | done | status | function | mod L | old L | new L | note |
 |---:|---|---|---:|---:|---:|---|
-| [ ] | **PORT** | `NavigationManager.clbk_navfield` | 32 | 163 | 176 |  |
+| [ ] | **PORT** | `NavigationManager.clbk_navfield` | 35 | 163 | 176 |  |
 | [ ] | **PORT** | `NavigationManager.register_cover_units` | 27 | 80 | 75 |  |
-| [ ] | **PORT** | `NavigationManager.set_nav_segment_state` | 12 | 36 | 38 |  |
+| [ ] | **PORT** | `NavigationManager.set_nav_segment_state` | 13 | 36 | 38 |  |
 | [ ] | **PORT** | `NavigationManager.unregister_anim_nav_link` | 14 | 63 | 69 |  |
-| [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._clear:Iter_nav_shim_clear` | 3 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
+| [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._clear:Iter_nav_shim_clear` | 12 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._resolve_segment_neighbours:Iter_nav_prepare` | 3 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._send_nav_field_to_engine:Iter_nav_shim_rebuild` | 3 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.on_simulation_ended:Iter_nav_link_summary` | 21 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.on_simulation_ended:Iter_nav_summary` | 5 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.set_load_data:Iter_nav_heist` | 31 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
+| [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.update:Iter_nav_heartbeat` | 35 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit | `get_coarse_dis` | 8 | 0 | 0 |  |
 | [ ] | audit | `itr_add_door_pos_to` | 10 | 0 | 0 |  |
 | [ ] | audit | `itr_get_door_in_alignment` | 31 | 0 | 0 |  |
@@ -86,7 +87,7 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `itr_get_rooms_having_access_to_next_level` | 16 | 0 | 0 |  |
 | [ ] | audit | `itr_log_navlink_usage` | 12 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_copy_door_data` | 11 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_execute_coarce_search` | 192 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_execute_coarce_search` | 197 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_find_best_navlink` | 47 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_find_choke_point` | 24 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_find_proxies` | 153 | 0 | 0 |  |
@@ -138,10 +139,10 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `CopActionWalk.itr_delete_path_ahead` | 22 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_get_alternate_navlink` | 11 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_get_wait_pos` | 5 | 0 | 0 |  |
-| [ ] | audit | `CopActionWalk.itr_prepare_for_upcoming_navlink` | 36 | 0 | 0 |  |
-| [ ] | audit | `CopActionWalk.itr_reserve_navlink` | 28 | 0 | 0 |  |
+| [ ] | audit | `CopActionWalk.itr_prepare_for_upcoming_navlink` | 38 | 0 | 0 |  |
+| [ ] | audit | `CopActionWalk.itr_reserve_navlink` | 32 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_set_navlink_delay` | 10 | 0 | 0 |  |
-| [ ] | audit | `CopActionWalk.itr_switch_to_sibling_navlink` | 51 | 0 | 0 |  |
+| [ ] | audit | `CopActionWalk.itr_switch_to_sibling_navlink` | 53 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_update_navlink_queue_data` | 17 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_update_wait_for_navlink_availability` | 27 | 0 | 0 |  |
 | [ ] | keep | `CopActionWalk._advance_simplified_path` | 22 | 11 | 11 |  |
@@ -169,7 +170,7 @@ No function definitions (hook/overlay file).
 | [ ] | keep | `CopLogicTravel._chk_request_action_walk_to_advance_pos` | 13 | 31 | 31 |  |
 | [ ] | keep | `CopLogicTravel._chk_stop_for_follow_unit` | 50 | 25 | 25 |  |
 | [ ] | keep | `CopLogicTravel._get_allowed_travel_nav_segs` | 9 | 37 | 37 |  |
-| [ ] | keep | `CopLogicTravel._get_exact_move_pos` | 40 | 98 | 98 |  |
+| [ ] | keep | `CopLogicTravel._get_exact_move_pos` | 41 | 98 | 98 |  |
 | [ ] | keep | `CopLogicTravel._upd_pathing` | 29 | 44 | 44 |  |
 | [ ] | keep | `CopLogicTravel.action_complete_clbk` | 11 | 104 | 104 |  |
 | [ ] | keep | `CopLogicTravel.enter` | 11 | 150 | 150 |  |

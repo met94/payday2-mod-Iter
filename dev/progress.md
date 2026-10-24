@@ -63,8 +63,12 @@ Target: `e3a8b616` (248.2).
   methods, path extender, CopBrain/AI wrappers with sub-gates; dropped
   civilian/team-AI functions and `_optimize_path` (files inert, hooks
   removed, hook count 17 -> 14). `evt=summary` at simulation end.
-- Next: build for T3 (streamline + navlink_queue + nav_ai + path_extender,
-  direct-to-pos off).
+- T3 first AI run: no Iter errors, navdata/proxy good on Hotline D1 and
+  Biker D1; nav-link intervals derived. Card failed only because the harness
+  AI diagnostic read the wrong enemy table and no heartbeat existed.
+  Fixes: unit:brain diagnostic, 30 s heartbeat, boot flag logging, search
+  and nav-link counters, cache clears.
+- Next: combined T3+T4 run (AI + navlink queue + search + direct-to-pos).
 
 ## Rulings
 

@@ -1,0 +1,778 @@
+{
+  "file": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\PAYDAY 2\\mods\\logs\\2026_10_24_log.txt",
+  "setup": [
+    {
+      "line": 56,
+      "text": "01:17:28 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 128,
+      "text": "01:17:28 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 213,
+      "text": "01:17:29 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 361,
+      "text": "01:19:27 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 434,
+      "text": "01:19:27 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 506,
+      "text": "01:19:28 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 638,
+      "text": "01:20:07 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 711,
+      "text": "01:20:07 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 783,
+      "text": "01:20:07 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 923,
+      "text": "01:20:24 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 996,
+      "text": "01:20:25 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 1068,
+      "text": "01:20:25 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 1192,
+      "text": "01:21:05 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 1265,
+      "text": "01:21:05 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 1337,
+      "text": "01:21:05 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    }
+  ],
+  "harness": [
+    {
+      "line": 589,
+      "text": "01:19:39 PM Lua: [ITER-TEST] alarm: on_police_called + on_police_weapons_hot + set_assault_mode"
+    },
+    {
+      "line": 590,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009cf action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 591,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009d0 action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 592,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009d1 action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 593,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009d2 action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 594,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009d3 action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 595,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009d4 action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 596,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009d5 action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 597,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009d6 action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 598,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009d7 action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 599,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009d8 action=e_nl_climb_over_2m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 600,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009d9 action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 601,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009da action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 602,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009bf action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 603,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009c0 action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 604,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009c1 action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 605,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009c2 action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 606,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009c3 action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 607,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009c4 action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 608,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009c5 action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 609,
+      "text": "01:19:54 PM Lua: [ITER-TEST] link key=userdata: 0x000009c6 action=e_nl_up_1_down_5m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 610,
+      "text": "01:19:54 PM Lua: [ITER-TEST] links total=133 queued=0 shown=20"
+    },
+    {
+      "line": 611,
+      "text": "01:19:57 PM Lua: [ITER-TEST] ai total=38 travelling=0 coarse_path=0 direct_to_pos=0 path_ahead=0 pending_path_ahead=0"
+    },
+    {
+      "line": 612,
+      "text": "01:20:00 PM Lua: [ITER-TEST] path player_seg=51 pos=Vector3(-475, 675, -18.7126) action=none points= next_navlink=no"
+    },
+    {
+      "line": 1142,
+      "text": "01:20:37 PM Lua: [ITER-TEST] alarm: on_police_called + on_police_weapons_hot + set_assault_mode"
+    },
+    {
+      "line": 1144,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x0000176f action=e_nl_up_2m_down_1m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 1145,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x00001770 action=e_nl_up_2_2_down_1m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 1146,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x00001771 action=e_nl_up_0_5m_dwn_9m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 1147,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x00001772 action=e_nl_up_0_5m_dwn_9m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 1148,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x00001773 action=e_nl_down_4m_jump interval=1.00 queue=0 reserved=none"
+    },
+    {
+      "line": 1149,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x00001774 action=e_nl_down_4m_jump interval=1.00 queue=0 reserved=none"
+    },
+    {
+      "line": 1150,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x00001775 action=e_nl_climb_over_3m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 1151,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x0000175f action=e_nl_down_2m interval=1.50 queue=0 reserved=none"
+    },
+    {
+      "line": 1152,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x00001760 action=e_nl_down_2m interval=1.50 queue=0 reserved=none"
+    },
+    {
+      "line": 1153,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x00001761 action=e_nl_down_2m interval=1.50 queue=0 reserved=none"
+    },
+    {
+      "line": 1154,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x00001762 action=e_nl_down_2m interval=1.50 queue=0 reserved=none"
+    },
+    {
+      "line": 1155,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x00001763 action=e_nl_down_2m interval=1.50 queue=0 reserved=none"
+    },
+    {
+      "line": 1156,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x00001764 action=e_nl_climb_over_3m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 1157,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x00001765 action=e_nl_climb_over_3m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 1158,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x00001766 action=e_nl_climb_over_3m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 1159,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x00001767 action=e_nl_climb_over_3m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 1160,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x00001768 action=e_nl_climb_over_3m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 1161,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x00001769 action=e_nl_climb_over_3m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 1162,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x0000176a action=e_nl_climb_over_3m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 1163,
+      "text": "01:20:54 PM Lua: [ITER-TEST] link key=userdata: 0x0000176b action=e_nl_climb_over_3m interval=2.00 queue=0 reserved=none"
+    },
+    {
+      "line": 1164,
+      "text": "01:20:54 PM Lua: [ITER-TEST] links total=79 queued=0 shown=20"
+    },
+    {
+      "line": 1165,
+      "text": "01:20:57 PM Lua: [ITER-TEST] ai total=34 travelling=0 coarse_path=0 direct_to_pos=0 path_ahead=0 pending_path_ahead=0"
+    },
+    {
+      "line": 1166,
+      "text": "01:20:59 PM Lua: [ITER-TEST] path player_seg=25 pos=Vector3(385, -1440, 51.1) action=none points= next_navlink=no"
+    }
+  ],
+  "harnessErrors": [],
+  "fatal": [],
+  "luaErrors": [
+    {
+      "line": 318,
+      "text": "01:17:35 PM Log:  (D:\\a\\PAYDAY2-SuperBLT\\PAYDAY2-SuperBLT\\src\\InitiateState.cpp:98) mods/BeardLib/Modules/Utils/ModAssetsModule.lua:156: attempt to compare number with nil"
+    },
+    {
+      "line": 882,
+      "text": "01:20:10 PM Log:  (D:\\a\\PAYDAY2-SuperBLT\\PAYDAY2-SuperBLT\\src\\InitiateState.cpp:98) mods/BeardLib/Modules/Utils/ModAssetsModule.lua:156: attempt to compare number with nil"
+    },
+    {
+      "line": 1437,
+      "text": "01:21:08 PM Log:  (D:\\a\\PAYDAY2-SuperBLT\\PAYDAY2-SuperBLT\\src\\InitiateState.cpp:98) mods/BeardLib/Modules/Utils/ModAssetsModule.lua:156: attempt to compare number with nil"
+    }
+  ],
+  "iterErrors": [],
+  "navEvents": [
+    {
+      "v": 1,
+      "sid": "3a13",
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "false",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": "957d",
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "false",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": "e3b3",
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "true",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": "085b",
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "true",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": "085b",
+      "evt": "navdata",
+      "door_pairs": 124,
+      "doors_skipped": 0,
+      "doors_without_pair": 3053,
+      "fallback": 0,
+      "grid": 25,
+      "groups_without_seg": 0,
+      "room_doors": 3380,
+      "rooms": 2009,
+      "segments": 101,
+      "vis_groups": 101
+    },
+    {
+      "v": 1,
+      "sid": "085b",
+      "evt": "proxy",
+      "choke": 89,
+      "in_proxies": 42,
+      "ms": 0,
+      "no_doors": 0,
+      "out_proxies": 140,
+      "segments": 101
+    },
+    {
+      "v": 1,
+      "sid": "085b",
+      "evt": "heist",
+      "data_version": 5,
+      "fallback": 0,
+      "level": "mia_1",
+      "missing_neighbours": 0,
+      "numeric_keys": 0,
+      "room_doors": 3380,
+      "rooms": 2009,
+      "segments": 101,
+      "string_keys": 101,
+      "vis_groups": 101
+    },
+    {
+      "v": 1,
+      "sid": "602d",
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "true",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": "a487",
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "true",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": "72b3",
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "true",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": 4564,
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "true",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": 4564,
+      "evt": "navdata",
+      "door_pairs": 42,
+      "doors_skipped": 0,
+      "doors_without_pair": 6041,
+      "fallback": 0,
+      "grid": 25,
+      "groups_without_seg": 0,
+      "room_doors": 6274,
+      "rooms": 3407,
+      "segments": 53,
+      "vis_groups": 53
+    },
+    {
+      "v": 1,
+      "sid": 4564,
+      "evt": "proxy",
+      "choke": 17,
+      "in_proxies": 11,
+      "ms": 0,
+      "no_doors": 0,
+      "out_proxies": 41,
+      "segments": 53
+    },
+    {
+      "v": 1,
+      "sid": 4564,
+      "evt": "heist",
+      "data_version": 5,
+      "fallback": 0,
+      "level": "born",
+      "missing_neighbours": 0,
+      "numeric_keys": 0,
+      "room_doors": 6274,
+      "rooms": 3407,
+      "segments": 53,
+      "string_keys": 53,
+      "vis_groups": 53
+    },
+    {
+      "v": 1,
+      "sid": 1689,
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "true",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": "ba74",
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "true",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    }
+  ],
+  "navEventLines": [
+    {
+      "line": 177,
+      "event": {
+        "v": 1,
+        "sid": "3a13",
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "false",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 262,
+      "event": {
+        "v": 1,
+        "sid": "957d",
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "false",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 410,
+      "event": {
+        "v": 1,
+        "sid": "e3b3",
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "true",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 555,
+      "event": {
+        "v": 1,
+        "sid": "085b",
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "true",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 586,
+      "event": {
+        "v": 1,
+        "sid": "085b",
+        "evt": "navdata",
+        "door_pairs": 124,
+        "doors_skipped": 0,
+        "doors_without_pair": 3053,
+        "fallback": 0,
+        "grid": 25,
+        "groups_without_seg": 0,
+        "room_doors": 3380,
+        "rooms": 2009,
+        "segments": 101,
+        "vis_groups": 101
+      }
+    },
+    {
+      "line": 587,
+      "event": {
+        "v": 1,
+        "sid": "085b",
+        "evt": "proxy",
+        "choke": 89,
+        "in_proxies": 42,
+        "ms": 0,
+        "no_doors": 0,
+        "out_proxies": 140,
+        "segments": 101
+      }
+    },
+    {
+      "line": 588,
+      "event": {
+        "v": 1,
+        "sid": "085b",
+        "evt": "heist",
+        "data_version": 5,
+        "fallback": 0,
+        "level": "mia_1",
+        "missing_neighbours": 0,
+        "numeric_keys": 0,
+        "room_doors": 3380,
+        "rooms": 2009,
+        "segments": 101,
+        "string_keys": 101,
+        "vis_groups": 101
+      }
+    },
+    {
+      "line": 687,
+      "event": {
+        "v": 1,
+        "sid": "602d",
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "true",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 832,
+      "event": {
+        "v": 1,
+        "sid": "a487",
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "true",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 972,
+      "event": {
+        "v": 1,
+        "sid": "72b3",
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "true",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 1117,
+      "event": {
+        "v": 1,
+        "sid": 4564,
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "true",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 1138,
+      "event": {
+        "v": 1,
+        "sid": 4564,
+        "evt": "navdata",
+        "door_pairs": 42,
+        "doors_skipped": 0,
+        "doors_without_pair": 6041,
+        "fallback": 0,
+        "grid": 25,
+        "groups_without_seg": 0,
+        "room_doors": 6274,
+        "rooms": 3407,
+        "segments": 53,
+        "vis_groups": 53
+      }
+    },
+    {
+      "line": 1139,
+      "event": {
+        "v": 1,
+        "sid": 4564,
+        "evt": "proxy",
+        "choke": 17,
+        "in_proxies": 11,
+        "ms": 0,
+        "no_doors": 0,
+        "out_proxies": 41,
+        "segments": 53
+      }
+    },
+    {
+      "line": 1140,
+      "event": {
+        "v": 1,
+        "sid": 4564,
+        "evt": "heist",
+        "data_version": 5,
+        "fallback": 0,
+        "level": "born",
+        "missing_neighbours": 0,
+        "numeric_keys": 0,
+        "room_doors": 6274,
+        "rooms": 3407,
+        "segments": 53,
+        "string_keys": 53,
+        "vis_groups": 53
+      }
+    },
+    {
+      "line": 1241,
+      "event": {
+        "v": 1,
+        "sid": 1689,
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "true",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 1386,
+      "event": {
+        "v": 1,
+        "sid": "ba74",
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "true",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    }
+  ],
+  "errEvents": [],
+  "ok": true,
+  "card": {
+    "pass": false,
+    "checks": [
+      {
+        "name": "setup",
+        "actual": true,
+        "expected": true,
+        "pass": true
+      },
+      {
+        "name": "fatal",
+        "actual": 0,
+        "expected": 0,
+        "pass": true
+      },
+      {
+        "name": "iterErrors",
+        "actual": 0,
+        "expected": 0,
+        "pass": true
+      },
+      {
+        "name": "fallback",
+        "actual": 0,
+        "expected": 0,
+        "pass": true
+      },
+      {
+        "name": "navlink.elements",
+        "expected": ">0",
+        "pass": false
+      },
+      {
+        "name": "summary.navlink_registered",
+        "expected": ">0",
+        "pass": false
+      },
+      {
+        "name": "summary.err",
+        "expected": 0,
+        "pass": false
+      }
+    ]
+  }
+}
