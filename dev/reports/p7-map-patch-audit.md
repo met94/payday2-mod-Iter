@@ -53,7 +53,10 @@ all reach the v6 converter.
    side effects now live in a per-call wrapper (not file-load overrides).
 3. PARTIAL levels need a per-level in-game check (T6): if the added doors
    produce the intended connectivity, remove the dead neighbour writes;
-   otherwise re-express the connection as doors/quads.
+   otherwise re-express the connection as doors/quads. Status: the 16
+   `SURVIVES_AS_IS` blocks are cleaned; the four partials and Mallcrasher
+   keep their writes until the rewrite. `dev/tools/test/p7-dead-writes.test.mjs`
+   guards the split.
 4. Sample at least one PARTIAL level (Biker D1 `born`, Golden Grin `kenaz`)
    before calling P7 complete.
 

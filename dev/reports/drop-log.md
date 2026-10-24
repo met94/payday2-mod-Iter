@@ -28,6 +28,27 @@ Both files are now inert (`return` only) and their hooks were removed from
 
 File is inert (`return` only) and its hook was removed from `mod.txt`.
 
+## P7 cleanup — discarded neighbour writes
+
+At 248.2 `_convert_nav_data_v5_to_v6` always creates v6 segments with an empty
+`neighbours` table. Any explicit write to
+`data.nav_segments[..].neighbours` in a v5 patch block is therefore discarded
+before `_resolve_segment_neighbours` rebuilds the graph from doors/quads.
+
+The dead writes were removed from every `SURVIVES_AS_IS` block (16 levels;
+`arm_for` and `crojob2` were confirmed by runtime dumps first). Their topology
+survives through `append_door` / `transfer_room` / quad edits. The four
+`applied_partial` blocks (`escape_street`, `jolly`, `moon`, `peta`) and the
+`skip_dead` `skm_mallcrasher` block keep their writes until rewritten:
+removing them would make the remaining intent harder to read, and the log
+status already tells the truth.
+
+Accepted loss, no v6 expression:
+
+| Level | Lost edit | Why |
+|---|---|---|
+| `framing_frame_1` | `nav_segments[1].neighbours[13] = nil` (and reverse) | a door that still joins quads of segments 1 and 13 keeps the link alive; there is no supported link delete. The split itself survives because the nine quads move to segment 100. |
+
 ## Candidate drops (confirm during P7)
 
 - `_navdatapatches` entries whose only effect was explicit `neighbours` writes

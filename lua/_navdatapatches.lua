@@ -81,10 +81,7 @@ elseif level_id == 'alex_2' then
 		append_door(Vector3(117, 111, 74), Vector3(119, 111, 74), rid - 1, rid)
 
 		rid = append_room(119, 117, 134, 122, 280, 181, 280, 181, 90)
-		local did = append_door(Vector3(117, 122, 181), Vector3(119, 122, 181), rid - 1, rid)
-
-		data.nav_segments[55].neighbours[90] = { did }
-		data.nav_segments[90].neighbours[55] = { did }
+		append_door(Vector3(117, 122, 181), Vector3(119, 122, 181), rid - 1, rid)
 
 		rid = append_room(119, 117, 135, 134, 222.5, 280, 222.5, 280, 90)
 		append_door(Vector3(117, 134, 280), Vector3(119, 134, 280), rid - 1, rid)
@@ -100,13 +97,10 @@ elseif level_id == 'arm_fac' then
 	return function(self, data)
 		-- around truck 100226
 		local rid = append_room(24, 32, -130, -131, 232.389, 232.389, 232.389, 232.389, 11)
-		local did = append_door(Vector3(24, -130, 232.389), Vector3(24, -131, 232.389), 108, rid)
+		append_door(Vector3(24, -130, 232.389), Vector3(24, -131, 232.389), 108, rid)
 		append_door(Vector3(32, -130, 232.389), Vector3(32, -131, 232.389), 175, rid)
 		append_door(Vector3(26, -131, 232.389), Vector3(32, -131, 232.389), 164, rid)
 		append_door(Vector3(24, -131, 232.389), Vector3(26, -131, 232.389), 97, rid)
-
-		table.insert(data.nav_segments[9].neighbours[11], did)
-		table.insert(data.nav_segments[11].neighbours[9], did)
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
@@ -160,12 +154,9 @@ elseif level_id == 'born' then
 		-- near bunker
 		data.room_borders_y_pos[2798] = 111
 
-		local did = append_door(Vector3(-149, 111, 22.4998), Vector3(-146, 111, 22.4998), 2798, 3405)
+		append_door(Vector3(-149, 111, 22.4998), Vector3(-146, 111, 22.4998), 2798, 3405)
 		append_door(Vector3(-146, 111, 22.4998), Vector3(-140, 111, 22.4998), 2798, 3381)
 		append_door(Vector3(-140, 111, 22.4998), Vector3(-138, 111, 22.4998), 2798, 3379)
-
-		data.nav_segments[50].neighbours[51] = { did, did + 1, did + 2 }
-		data.nav_segments[51].neighbours[50] = { did, did + 1, did + 2 }
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
@@ -182,10 +173,7 @@ elseif level_id == 'branchbank' then
 		-- Parking, grid side
 		rid = append_room(-129, -130, 76, 53, 22.5, 22.5, 22.5, 22.5, 17)
 		append_door(Vector3(-130, 76, 22.5), Vector3(-129, 76, 22.5), 504, rid)
-		did = append_door(Vector3(-130, 53, 22.5), Vector3(-129, 53, 22.5), 553, rid)
-
-		table.insert(data.nav_segments[17].neighbours[18], did)
-		table.insert(data.nav_segments[18].neighbours[17], did)
+		append_door(Vector3(-130, 53, 22.5), Vector3(-129, 53, 22.5), 553, rid)
 
 		data.room_borders_x_pos[508] = -130
 		append_door(Vector3(-130, 66, 22.5), Vector3(-130, 67, 22.5), 508, rid)
@@ -300,9 +288,7 @@ elseif level_id == 'firestarter_1' then
 		data.room_borders_x_pos[576] = -12
 		data.room_borders_y_neg[576] = 159
 
-		local did = append_door(Vector3(-13, 159, 21.98), Vector3(-12, 159, 21.98), 576, 1124)
-		table.insert(data.nav_segments[29].neighbours[52], did)
-		table.insert(data.nav_segments[52].neighbours[29], did)
+		append_door(Vector3(-13, 159, 21.98), Vector3(-12, 159, 21.98), 576, 1124)
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
@@ -334,15 +320,10 @@ elseif level_id == 'framing_frame_1' or level_id == 'gallery' then
 
 		add_segment(100, Vector3(2457, 6, 0))
 
-		data.nav_segments[100].neighbours[1] = data.nav_segments[1].neighbours[13]
-		data.nav_segments[100].neighbours[13] = {1561, 1589, 1590, 1616}
-
-		data.nav_segments[1].neighbours[100] = data.nav_segments[1].neighbours[13]
-		data.nav_segments[13].neighbours[100] = data.nav_segments[100].neighbours[13]
-
-		data.nav_segments[1].neighbours[13] = nil
-		data.nav_segments[13].neighbours[1] = nil
-
+		-- v6: the nine quads moved from segment 13 to 100; every door that
+		-- spanned 1 and those quads now spans 1 and 100. The old neighbour
+		-- writes, including the 1<->13 removal, are discarded by the v6
+		-- converter; the removal is an accepted loss (see p7 audit A).
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
 
@@ -351,9 +332,7 @@ elseif level_id == 'jewelry_store' then
 	return function(self, data)
 		local rid = append_room(-8, -12, 87, 86, 27.5, 27.5, 27.5, 27.5, 5)
 
-		local did = append_door(Vector3(-12, 86, 27.5), Vector3(-11, 86, 27.5), 882, rid)
-		table.insert(data.nav_segments[5].neighbours[96], did)
-		table.insert(data.nav_segments[96].neighbours[5], did)
+		append_door(Vector3(-12, 86, 27.5), Vector3(-11, 86, 27.5), 882, rid)
 
 		append_door(Vector3(-8, 86, 27.5), Vector3(-8, 87, 27.5), 826, rid)
 
@@ -387,9 +366,7 @@ elseif level_id == 'kenaz' then
 	return function(self, data)
 		local rid = append_room(27, 23, -83, -84, -877.5, -877.5, -877.5, -877.5, 189)
 
-		local did = append_door(Vector3(23, -84, -877.5), Vector3(23, -83, -877.5), 1683, rid)
-		data.nav_segments[57].neighbours[189] = { did }
-		data.nav_segments[189].neighbours[57] = { did }
+		append_door(Vector3(23, -84, -877.5), Vector3(23, -83, -877.5), 1683, rid)
 
 		append_door(Vector3(27, -84, -877.5), Vector3(27, -83, -877.5), 3468, rid)
 
@@ -412,16 +389,6 @@ elseif level_id == 'kosugi' then
 		transfer_room(1767, 2, 3)
 		transfer_room(1772, 2, 3)
 
-		for _, door_id in ipairs(data.nav_segments[123].neighbours[2]) do
-			table.insert(data.nav_segments[123].neighbours[3], door_id)
-			table.insert(data.nav_segments[3].neighbours[123], door_id)
-		end
-		data.nav_segments[2].neighbours[123] = nil
-		data.nav_segments[123].neighbours[2] = nil
-
-		data.nav_segments[2].neighbours[3] = { 3028 }
-		data.nav_segments[3].neighbours[2] = { 3028 }
-
 		-- for dock access
 		local navseg = 150
 		append_vis_group(navseg, Vector3(4901.0, -2921.7, 975.9))
@@ -429,13 +396,8 @@ elseif level_id == 'kosugi' then
 
 		local rid = append_room(204, 188, -77, -157, 982.69, 1000.94, 982.69, 1000.94, navseg)
 
-		local did = append_door(Vector3(188, -77, 982.69), Vector3(204, -77, 982.69), 1651, rid)
-		data.nav_segments[navseg].neighbours[65] = { did }
-		data.nav_segments[65].neighbours[navseg] = { did }
-
-		did = append_door(Vector3(188, -157, 1000.94), Vector3(199, -157, 1000.94), 31, rid)
-		data.nav_segments[navseg].neighbours[69] = { did }
-		data.nav_segments[69].neighbours[navseg] = { did }
+		append_door(Vector3(188, -77, 982.69), Vector3(204, -77, 982.69), 1651, rid)
+		append_door(Vector3(188, -157, 1000.94), Vector3(199, -157, 1000.94), 31, rid)
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
@@ -451,12 +413,8 @@ elseif level_id == 'mex' then
 		transfer_room(3899, 235, 192)
 		transfer_room(3889, 235, 192)
 		transfer_room(3898, 235, 192)
-		data.nav_segments[235].neighbours[192] = { 6866, 6867, 6868, 6833, 6834, 6835 }
-		data.nav_segments[192].neighbours[235] = { 6866, 6867, 6868, 6833, 6834, 6835 }
 
 		transfer_room(2627, 214, 192)
-		data.nav_segments[214].neighbours[192] = { 4662, 4663, 4664 }
-		data.nav_segments[192].neighbours[214] = { 4662, 4663, 4664 }
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
@@ -536,13 +494,9 @@ elseif level_id == 'mia_1' then
 		transfer_room(1906, 20, 113)
 		transfer_room(1907, 20, 113)
 		transfer_room(1910, 20, 113)
-		data.nav_segments[20].neighbours[113] = {3207}
-		data.nav_segments[113].neighbours[20] = {3207}
 
 		transfer_room(1945, 119, 22) -- room 103 / underground
 		transfer_room(1946, 119, 22)
-		data.nav_segments[22].neighbours[119] = {3276,3277,3281}
-		data.nav_segments[119].neighbours[22] = {3276,3277,3281}
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
@@ -571,16 +525,12 @@ elseif level_id == 'pbr' then
 	return function(self, data)
 		data.room_borders_y_pos[1222] = -286
 
-		local did = append_door(Vector3(38, -287, -58), Vector3(38, -286, -82), 1147, 1222)
-		data.nav_segments[39].neighbours[40] = { did }
-		data.nav_segments[40].neighbours[39] = { did }
+		append_door(Vector3(38, -287, -58), Vector3(38, -286, -82), 1147, 1222)
 
 		data.room_borders_x_pos[5714] = -30
 		data.room_borders_y_pos[5714] = -96
 
-		did = append_door(Vector3(-30, -97, -160.145), Vector3(-30, -96, -160.145), 990, 5714)
-		data.nav_segments[30].neighbours[52] = { did }
-		data.nav_segments[52].neighbours[30] = { did }
+		append_door(Vector3(-30, -97, -160.145), Vector3(-30, -96, -160.145), 990, 5714)
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
@@ -634,35 +584,10 @@ elseif level_id == 'watchdogs_1' then
 		transfer_room(898, 134, 52)
 		transfer_room(899, 134, 52)
 
-		local d134t52 = data.nav_segments[134].neighbours[52]
-		local d52t134 = data.nav_segments[52].neighbours[134]
-
-		local old_doors = {
-			1852,
-			1855,
-			1943,
-			1944,
-			1949,
-			1953,
-			1959,
-			1960,
-		}
-		for _, door_id in ipairs(old_doors) do
-			table.delete(d134t52, door_id)
-			table.delete(d52t134, door_id)
-		end
-
-		local new_doors = {
-			1564,
-			1565,
-			1566,
-			1573,
-		}
-		for _, door_id in ipairs(new_doors) do
-			table.insert(d134t52, door_id)
-			table.insert(d52t134, door_id)
-		end
-
+		-- v6: the four transfers already flip the 134<->52 door set (doors
+		-- with a moved endpoint become intra-52, the rest stay cross-segment).
+		-- The old door-list curation is discarded; the adjustment is derived
+		-- on load (see p7 audit B).
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
 
