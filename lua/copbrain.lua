@@ -1,7 +1,7 @@
 local key = ModPath .. '	' .. RequiredScript
 if _G[key] then return else _G[key] = true end
 
-if not Iter.settings.nav_ai then
+if not Iter.settings.nav_ai and not Iter.settings.nav_streamline then
 	return
 end
 
@@ -12,6 +12,40 @@ local mvec3_sub = mvector3.subtract
 
 local tmp_vec1 = Vector3()
 local tmp_vec2 = Vector3()
+
+-- Streamline-only mode: apply the streamliner to vanilla/LIES coarse paths
+-- without taking over the search or the AI cluster.
+if Iter.settings.nav_streamline and not Iter.settings.nav_ai then
+	local itr_streamline_original_clbk = CopBrain.clbk_coarse_pathing_results
+
+	function CopBrain:clbk_coarse_pathing_results(search_id, path)
+		if path and Network:is_server() and managers.navigation.itr_streamline and path[1] then
+			local data = self._logic_data
+			local my_data = data and data.internal_data
+			local objective = data and data.objective
+
+			if my_data then
+				path[1][2] = data.m_pos
+
+				if objective and objective.follow_unit and alive(objective.follow_unit) then
+					path[#path][2] = objective.follow_unit:position()
+				end
+
+				local ok, streamlined = pcall(managers.navigation.itr_streamline, managers.navigation, path, self._SO_access)
+
+				if ok and streamlined then
+					path = streamlined
+				elseif not ok then
+					Iter.diag.err('copbrain.streamline', streamlined)
+				end
+			end
+		end
+
+		return itr_streamline_original_clbk(self, search_id, path)
+	end
+
+	return
+end
 
 local _search_path_queued
 

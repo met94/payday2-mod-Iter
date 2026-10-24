@@ -9,11 +9,12 @@
     "fatal": 0,
     "iterErrors": 0,
     "fallback": 0,
-    "navdata.segments": ">0",
-    "navdata.string_keys": ">0",
-    "navdata.missing_neighbours": 0,
-    "navdata.rooms": ">0",
-    "navdata.room_doors": ">0",
-    "navdata.vis_groups": ">0"
+    "heist.segments": ">0",
+    "heist.string_keys": ">0",
+    "heist.numeric_keys": 0,
+    "heist.missing_neighbours": 0,
+    "heist.rooms": ">0",
+    "heist.room_doors": ">0",
+    "heist.vis_groups": ">0"
   }
 }

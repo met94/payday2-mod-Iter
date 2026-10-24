@@ -8,6 +8,15 @@
 	"itr_options_nav_overlay_title" : "Dev: v6 navigation overlay",
 	"itr_options_nav_overlay_desc" : "Rebuilds the v6 navigation geometry and bookkeeping used by the Iter port. No AI behaviour changes until the individual feature toggles pass their tests.\nChange will be effective after a heist restart.",
 
+	"itr_options_nav_streamline_title" : "Dev: streamline (proxies + apply)",
+	"itr_options_nav_streamline_desc" : "Computes choke-point proxies and applies the path streamliner to coarse paths. Requires the v6 overlay.\nChange will be effective after a heist restart.",
+
+	"itr_options_nav_search_title" : "Dev: Iter coarse search",
+	"itr_options_nav_search_desc" : "Replaces the vanilla coarse search with Iter's weighted search and cache. Requires the v6 overlay and streamline.\nChange will be effective after a heist restart.",
+
+	"itr_options_nav_ai_title" : "Dev: Iter AI cluster",
+	"itr_options_nav_ai_desc" : "Installs the Iter AI wrappers (nav links, path extender, direct-to-pos). Requires the v6 overlay and streamline.\nChange will be effective after a heist restart.",
+
 	"itr_options_rebuild_navlinks_title" : "Rebuild NavLinks",
 	"itr_options_rebuild_navlinks_desc" : "Dynamically rebuild destinations of special paths (illustrated by special character animations).\nChange will be effective after a heist restart.",
 

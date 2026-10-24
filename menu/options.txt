@@ -14,6 +14,30 @@
 			"value" : "nav_overlay"
 		},
 		{
+			"type" : "toggle",
+			"id" : "nav_streamline",
+			"title" : "itr_options_nav_streamline_title",
+			"description" : "itr_options_nav_streamline_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "nav_streamline"
+		},
+		{
+			"type" : "toggle",
+			"id" : "nav_search",
+			"title" : "itr_options_nav_search_title",
+			"description" : "itr_options_nav_search_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "nav_search"
+		},
+		{
+			"type" : "toggle",
+			"id" : "nav_ai",
+			"title" : "itr_options_nav_ai_title",
+			"description" : "itr_options_nav_ai_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "nav_ai"
+		},
+		{
 			"type" : "divider",
 			"size" : 16
 		},

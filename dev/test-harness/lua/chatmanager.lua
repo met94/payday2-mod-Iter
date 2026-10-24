@@ -317,6 +317,18 @@ function TH.probe(args)
 		avg_raw,
 		avg_stream
 	))
+
+	if Iter and Iter.diag then
+		Iter.diag.event('probe', {
+			pairs = #pairs_to_test,
+			search_ok = ok_search,
+			search_fail = fail_search,
+			stream_ok = ok_stream,
+			stream_fail = fail_stream,
+			raw_points = raw_points,
+			stream_points = stream_points
+		})
+	end
 end
 
 function TH.dump_path()

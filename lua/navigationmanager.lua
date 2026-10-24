@@ -23,11 +23,29 @@ end)
 -- One line per heist so a plain play session produces a usable card.
 Hooks:PostHook(NavigationManager, 'set_load_data', 'Iter_nav_heist', function(self, data)
 	local shim = IterNavShim.stats(self) or {}
+	local string_keys, numeric_keys, missing_neighbours = 0, 0, 0
+
+	for key, segment in pairs(self._nav_segments or {}) do
+		if type(key) == 'string' then
+			string_keys = string_keys + 1
+		else
+			numeric_keys = numeric_keys + 1
+		end
+
+		for neighbour_id in pairs(segment.neighbours or {}) do
+			if not self._nav_segments[neighbour_id] then
+				missing_neighbours = missing_neighbours + 1
+			end
+		end
+	end
 
 	Iter.diag.event('heist', {
 		level = Iter:get_level_id(),
 		data_version = data and data.version,
 		segments = table.size(self._nav_segments or {}),
+		string_keys = string_keys,
+		numeric_keys = numeric_keys,
+		missing_neighbours = missing_neighbours,
 		rooms = shim.rooms,
 		room_doors = shim.room_doors,
 		vis_groups = shim.vis_groups,
