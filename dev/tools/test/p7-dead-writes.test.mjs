@@ -3,9 +3,9 @@
 // 248.2 `_convert_nav_data_v5_to_v6` always builds v6 segments with an empty
 // `neighbours` table, so every explicit `nav_segments[..].neighbours` write is
 // discarded. Blocks whose topology survives through doors/quads must not carry
-// those writes; the four partial blocks and the dead Mallcrasher block keep
-// theirs until they are rewritten (they are logged as applied_partial /
-// skip_dead, so the log continues to tell the truth).
+// those writes; the two accepted-loss blocks (moon, peta) keep theirs because
+// the intended link is still missing and the applied_partial marker documents
+// it. Mallcrasher is rewritten as a quad transfer, not a neighbour write.
 //
 // This test fails when a cleaned block reintroduces a dead write, or when a
 // pending block is cleaned without updating the lists below.
@@ -78,7 +78,7 @@ test('surviving blocks carry no discarded neighbour writes', () => {
   }
 });
 
-test('pending blocks still carry the dead writes that mark the rewrite work', () => {
+test('accepted-loss blocks keep the dead writes that document the missing link', () => {
   for (const level of PENDING) {
     const block = blockFor(level);
     assert.ok(

@@ -22,18 +22,6 @@ local itr_original_navigationmanager_addobstacle = NavigationManager.add_obstacl
 local downed_obstacle_units = {}
 local last_obstacle_level
 
--- The r200 patch tables are keyed by the old stage ids. At 248.2 the standard
--- Mallcrasher job reports `mallcrasher` while the skirmish stage is
--- `skm_mallcrasher`; both must reach the same block and setting key.
-local level_aliases = {
-	mallcrasher = 'skm_mallcrasher'
-}
-
-local function resolve_level_id()
-	local level_id = Iter:get_level_id()
-	return level_aliases[level_id] or level_id
-end
-
 local function _make_seg2vg(data)
 	seg2vg = {}
 	for i, vg in ipairs(data.vis_groups) do
@@ -44,7 +32,7 @@ end
 -- Per-call obstacle fixes for dinner/flat. These were file-load side effects
 -- in r200; keeping them in select_patch would leak across heists.
 function NavigationManager:add_obstacle(obstacle_unit, ...)
-	local level_id = resolve_level_id()
+	local level_id = Iter:get_level_id()
 
 	if last_obstacle_level ~= level_id then
 		last_obstacle_level = level_id
@@ -528,19 +516,6 @@ elseif level_id == 'moon' then
 		mvec3_set_x(pos1, pos1.x + 1)
 		append_door(pos, pos1, 2777, 2758)
 
-		-- v6: the door is exactly on the shared edge, so a missing 22<->23
-		-- link is engine-side. Candidate gate: the two visibility groups may
-		-- not see each other; cross-link them both ways and keep this until
-		-- the A/B confirms (navpath see_fwd/see_rev).
-		local vg22 = seg2vg[22]
-		local vg23 = seg2vg[23]
-
-		if vg22 and vg23 and data.vis_groups[vg22] and data.vis_groups[vg23]
-			and data.vis_groups[vg22].vis_groups and data.vis_groups[vg23].vis_groups then
-			data.vis_groups[vg22].vis_groups[vg23] = true
-			data.vis_groups[vg23].vis_groups[vg22] = true
-		end
-
 		data.nav_segments[22].neighbours[23] = { #data.door_low_pos }
 		data.nav_segments[23].neighbours = { [22] = { #data.door_low_pos } }
 
@@ -569,18 +544,6 @@ elseif level_id == 'peta' then
 		data.nav_segments[53].neighbours[47] = {201}
 		data.nav_segments[47].neighbours[53] = {201}
 
-		-- v6: door 201 quads 126/121 sit exactly on the shared edge
-		-- (y=-9725), but 53 can only link to 47 if their visibility groups
-		-- see each other; cross-link as the candidate gate (T6 navquad).
-		local vg47 = seg2vg[47]
-		local vg53 = seg2vg[53]
-
-		if vg47 and vg53 and data.vis_groups[vg47] and data.vis_groups[vg53]
-			and data.vis_groups[vg47].vis_groups and data.vis_groups[vg53].vis_groups then
-			data.vis_groups[vg47].vis_groups[vg53] = true
-			data.vis_groups[vg53].vis_groups[vg47] = true
-		end
-
 		local pos = mvec3_cpy(data.door_high_pos[11860])
 		mvector3.set_y(pos, pos.y + 4)
 		local pos1 = mvec3_cpy(pos)
@@ -605,13 +568,15 @@ elseif level_id == 'roberts' then
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
 
-elseif level_id == 'skm_mallcrasher' then
+elseif level_id == 'mallcrasher' or level_id == 'skm_mallcrasher' then
 
 	return function(self, data)
 		-- v6: the r200 neighbour seal is discarded. Door 1526 joins quad 943
 		-- (segment 8) to quad 61 (segment 11) on their shared edge. Move
 		-- quad 943 into segment 11 so the door becomes intra-segment and the
 		-- 8<->11 link disappears (T6 navquad).
+		-- The standard Vlad job and the skirmish stage carry different nav
+		-- data (CRC 75811735 vs 598935744); both select this block.
 		transfer_room(943, 8, 11)
 
 		itr_original_navigationmanager_setloaddata(self, data)
@@ -714,6 +679,7 @@ local nav_data_sigs = {
 	jolly = 617794335,
 	kenaz = 1079949878,
 	kosugi = 373270794,
+	mallcrasher = 75811735,
 	mex = -415457450,
 	mia_1 = 710528854,
 	moon = -814267024,
@@ -875,7 +841,7 @@ function NavigationManager:set_load_data(data)
 		return itr_original_navigationmanager_setloaddata(self, data)
 	end
 
-	local level_id = resolve_level_id()
+	local level_id = Iter:get_level_id()
 
 	if not Iter.settings['map_change_' .. level_id] then
 		patch_event(level_id, 'skip_setting')

@@ -24,6 +24,7 @@ Iter = {
 		map_patches = true,
 		map_change_unknown = true,
 		map_change_jewelry_store = true,
+		map_change_mallcrasher = true,
 		debug_log = 1
 	},
 	diag = {
@@ -105,16 +106,16 @@ check(vanilla_calls == 1, 'disabled map calls vanilla once')
 check(find_event('patch').fields.result == 'skip_setting', 'disabled map logs skip_setting')
 Iter.settings.map_change_unknown = true
 
--- Level alias: the standard job reports `mallcrasher`, the patch is keyed
--- `skm_mallcrasher`. With fake data the CRC gate must skip it safely.
+-- Standard Mallcrasher job: separate nav data CRC; fake data must mismatch
+-- safely (the real signature is in nav_data_sigs.mallcrasher).
 current_level = 'mallcrasher'
-Iter.settings.map_change_skm_mallcrasher = true
+Iter.settings.map_change_mallcrasher = true
 vanilla_calls = 0
 events = {}
 NavigationManager.set_load_data(nav, { version = 5, door_low_rooms = {} })
-check(vanilla_calls == 1, 'aliased map calls vanilla once')
-check(find_event('patch').fields.result == 'mismatch', 'aliased map logs mismatch on fake data')
-check(find_event('patch').fields.level == 'skm_mallcrasher', 'aliased map logs the stage id')
+check(vanilla_calls == 1, 'mallcrasher calls vanilla once')
+check(find_event('patch').fields.result == 'mismatch', 'mallcrasher logs mismatch on fake data')
+check(find_event('patch').fields.level == 'mallcrasher', 'mallcrasher logs its own level id')
 
 -- v5 data, level with a patch but CRC data mismatch: mismatch and vanilla.
 current_level = 'jewelry_store'

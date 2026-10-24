@@ -124,11 +124,14 @@ Target: `e3a8b616` (248.2).
 - Harness fix: Mallcrasher's plan has no `paths`, so `ipairs(nil)` ended the
   block with `p7auto ERROR nil`; defaults added.
 - Peta/mallcrasher geometry checked: both doors sit exactly on the shared
-  quad edge (`peta` 126/121 at y=-9725; `mallcrasher` 943/61 at x=-2450). Peta
-  got the same visibility cross-link candidate as moon. Mallcrasher rewrite
-  implemented: `transfer_room(943, 8, 11)` makes door 1526 intra-segment;
-  removed from `dead_patches`. `navquad` now lists doors per quad.
-- Next: A/B the three rewrites with the same `!iter p7` blocks.
+  quad edge. Visibility cross-link tested on moon/peta: `see_fwd=1 see_rev=1`
+  but the engine still does not derive the link, so visibility is **not** the
+  gate. Moon/peta moved to accepted losses (`drop-log.md`).
+- Mallcrasher: the standard job's nav data CRC is `75811735`, not the r200
+  skirmish `598935744`; the alias logged `mismatch`. Removed the alias, added
+  `nav_data_sigs.mallcrasher`, and gave both ids a dedicated
+  `transfer_room(943, 8, 11)` block. A/B pending.
+- `navquad` now lists doors per quad.
 - Escape: Street is a random escape, not selectable in Crime.net. Added
   host-only `!iter force <level_id>` (tweak-data world name via
   `session():load_level`) so `escape_street` can be loaded from any heist.

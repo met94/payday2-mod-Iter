@@ -75,7 +75,8 @@ Consolidated verdicts:
 | Verdict | Levels |
 |---|---|
 | SURVIVES_AS_IS (18) | alex_2, arm_fac, arm_for, born, branchbank, chas, crojob2, escape_street, firestarter_1, framing_frame_1, jolly, jewelry_store, kenaz, kosugi, mex, mia_1, pbr, roberts, watchdogs_1 |
-| NEEDS_REWRITE (3, under test) | moon, peta, skm_mallcrasher |
+| ACCEPTED_LOSS (2) | moon, peta (door on the shared edge, engine does not derive the link; visibility is not the gate) |
+| REWRITE_UNDER_TEST (1) | mallcrasher / skm_mallcrasher (`transfer_room(943, 8, 11)`) |
 | no nav-data ops | dinner, flat (obstacle wrappers only) |
 
 `crojob2` = The Bomb: Dockyard (level id; job id is `crojob1`).

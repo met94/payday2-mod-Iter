@@ -42,8 +42,8 @@ failures, a Border Crossing patch removed for a crash).
 | Dead neighbour writes removed (`arm_for`, `crojob2`, `escape_street`, `jolly`) | `navdoors`/`navdump` show the intended doors or navlinks already exist; v6 ignores the writes | HIGH: removal is behaviour-neutral |
 | SURVIVES_AS_IS static audit | geometry edits reach the v6 converter | MEDIUM: mechanism survives, intent unproven |
 | `big` applied | `evt=patch applied`, data values changed | MEDIUM: mechanism, not behaviour |
-| `applied_partial` (`moon`, `peta`) | geometry applies, but the intended cross-segment link is absent at runtime (`navpath` fails / segment isolated) | LOW until rewritten and tested |
-| `skm_mallcrasher` | rewrite in test: `transfer_room(943, 8, 11)` makes door 1526 intra-segment | pending A/B (`navpath 8->11 direct=0`) |
+| `applied_partial` (`moon`, `peta`) | geometry applies, but the intended cross-segment link is absent at runtime (`navpath` fails / segment isolated); visibility cross-link did not change it | ACCEPTED LOSS (see `drop-log.md`) |
+| `mallcrasher` | standard job CRC `75811735`, skirmish `598935744`; dedicated block uses `transfer_room(943, 8, 11)` | pending A/B (`navpath 8->11 direct=0`) |
 
 Runtime evidence for the four dumped levels:
 `dev/reports/p7-runtime-2026-10-24.md`.
