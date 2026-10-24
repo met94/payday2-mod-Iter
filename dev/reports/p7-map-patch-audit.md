@@ -19,7 +19,7 @@ Static classification of each level block:
 | born | PARTIAL | 2 | 4 | 2 |
 | branchbank | PARTIAL | 2 | 7 | 3 |
 | chas | SURVIVES | 0 | 3 | 0 |
-| crojob2 | PARTIAL | 9 | 4 | 0 |
+| crojob2 | SURVIVES | 0 | 4 | 0 |
 | dinner | no-op | 0 | 0 | 0 |
 | escape_park | SURVIVES | 0 | 0 | 12 |
 | escape_street | PARTIAL | 2 | 10 | 0 |
@@ -68,17 +68,17 @@ Consolidated verdicts:
 
 | Verdict | Levels |
 |---|---|
-| SURVIVES_AS_IS (15) | alex_2, arm_fac, arm_for, born, branchbank, chas, firestarter_1, framing_frame_1, jewelry_store, kenaz, kosugi, mex, mia_1, pbr, roberts, watchdogs_1 |
-| NEEDS_REWRITE (5) | crojob2, escape_street, jolly, moon, peta |
+| SURVIVES_AS_IS (16) | alex_2, arm_fac, arm_for, born, branchbank, chas, crojob2, firestarter_1, framing_frame_1, jewelry_store, kenaz, kosugi, mex, mia_1, pbr, roberts, watchdogs_1 |
+| NEEDS_REWRITE (4) | escape_street, jolly, moon, peta |
 | DEAD_ONLY (1) | skm_mallcrasher |
 | no nav-data ops | dinner, flat (obstacle wrappers only) |
 
 `crojob2` = The Bomb: Dockyard (level id; job id is `crojob1`).
 The Bomb: Forest is level `crojob3` and has no r200 patch.
 
-`arm_for` was verified by T6: the room transfers already leave doors 5188,
-5205/5210 and 5195/5206 between the segments; the old neighbour writes were
-redundant. `crojob2`, `escape_street`, `jolly`, `moon`, `peta` are logged as
+`arm_for` and `crojob2` (Dockyard) were verified by T6 dumps: the room
+transfers already leave the intended doors in place; the old neighbour writes
+were redundant. `escape_street`, `jolly`, `moon`, `peta` are logged as
 `applied_partial`; their surviving geometry runs, but the neighbour-only
 connection is lost until rewritten. `jolly`/`moon`/`peta` also lose a
 neighbour-list seal; that needs an engine-side segment/state expression, not

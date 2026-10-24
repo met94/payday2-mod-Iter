@@ -217,23 +217,8 @@ elseif level_id == 'crojob2' then
 		transfer_room(418, 28, 74)
 		transfer_room(424, 28, 74)
 
-		for _, door_id in ipairs(data.nav_segments[28].neighbours[52]) do
-			table.insert(data.nav_segments[74].neighbours[52], door_id)
-			table.insert(data.nav_segments[52].neighbours[74], door_id)
-		end
-		data.nav_segments[28].neighbours[52] = nil
-		data.nav_segments[52].neighbours[28] = nil
-
-		for _, door_id in ipairs({758, 764, 772, 773}) do
-			table.insert(data.nav_segments[28].neighbours[74], door_id)
-			table.insert(data.nav_segments[74].neighbours[28], door_id)
-		end
-
-		for _, door_id in ipairs({1776, 1777}) do
-			table.delete(data.nav_segments[28].neighbours[74], door_id)
-			table.delete(data.nav_segments[74].neighbours[28], door_id)
-		end
-
+		-- v6: doors 758/764/772/773 already sit between 28 and 74 after the
+		-- transfers; 28<->52 has no doors to remove (verified by T6 dumps).
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
 
@@ -817,7 +802,6 @@ local dead_patches = {
 -- Geometry survives, but the block also relies on explicit neighbour writes
 -- that v6 discards. Logged as applied_partial until rewritten.
 local partial_patches = {
-	crojob2 = true,
 	escape_street = true,
 	jolly = true,
 	moon = true,
