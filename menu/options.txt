@@ -31,6 +31,14 @@
 		},
 		{
 			"type" : "toggle",
+			"id" : "navlink_queue",
+			"title" : "itr_options_navlink_queue_title",
+			"description" : "itr_options_navlink_queue_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "navlink_queue"
+		},
+		{
+			"type" : "toggle",
 			"id" : "nav_ai",
 			"title" : "itr_options_nav_ai_title",
 			"description" : "itr_options_nav_ai_desc",

@@ -14,6 +14,9 @@
 	"itr_options_nav_search_title" : "Dev: Iter coarse search",
 	"itr_options_nav_search_desc" : "Replaces the vanilla coarse search with Iter's weighted search and cache. Requires the v6 overlay and streamline.\nChange will be effective after a heist restart.",
 
+	"itr_options_navlink_queue_title" : "Dev: nav-link queue tracking",
+	"itr_options_navlink_queue_desc" : "Tracks nav-link intervals, reservations and queue lengths for the congestion work. Diagnostics only until the AI cluster is enabled.\nChange will be effective after a heist restart.",
+
 	"itr_options_nav_ai_title" : "Dev: Iter AI cluster",
 	"itr_options_nav_ai_desc" : "Installs the Iter AI wrappers (nav links, path extender, direct-to-pos). Requires the v6 overlay and streamline.\nChange will be effective after a heist restart.",
 

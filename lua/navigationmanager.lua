@@ -143,7 +143,7 @@ function NavigationManager:register_anim_nav_link(element)
 		end
 
 		local so_action = values.so_action
-		if Iter.settings.nav_streamline and type(so_action) == 'string' then
+		if (Iter.settings.nav_streamline or Iter.settings.navlink_queue) and type(so_action) == 'string' then
 			local interval = math.max(values.interval or 1000, 0)
 			if intervals[so_action] then
 				values.interval = math.min(interval, intervals[so_action])
@@ -177,17 +177,57 @@ function NavigationManager:register_anim_nav_link(element)
 	local nav_link = element:nav_link()
 	if nav_link then
 		_navlink_elements[nav_link:key()] = element
+		Iter.diag.count('navlink_registered')
+
+		local interval = values.itr_interval or 0
+
+		if interval <= 0 then
+			Iter.diag.count('navlink_interval_zero')
+		elseif interval <= 1 then
+			Iter.diag.count('navlink_interval_le1')
+		else
+			Iter.diag.count('navlink_interval_gt1')
+		end
 	end
 end
 
 local itr_original_navigationmanager_unregisteranimnavlink = NavigationManager.unregister_anim_nav_link
 function NavigationManager:unregister_anim_nav_link(element)
 	local nav_link = element:nav_link()
-	if nav_link and Iter.settings.nav_streamline then
-		nav_link:set_delay_time(604800)
+
+	if nav_link then
+		_navlink_elements[nav_link:key()] = nil
+		Iter.diag.count('navlink_unregistered')
+
+		if Iter.settings.nav_streamline then
+			nav_link:set_delay_time(604800)
+		end
 	end
+
 	itr_original_navigationmanager_unregisteranimnavlink(self, element)
 end
+
+Hooks:PostHook(NavigationManager, 'on_simulation_ended', 'Iter_nav_link_summary', function(self)
+	local total, queued, reserved = 0, 0, 0
+
+	for _, element in pairs(_navlink_elements) do
+		total = total + 1
+
+		if (element.itr_navlink_queue_length or 0) > 0 then
+			queued = queued + 1
+		end
+
+		if alive(element.itr_reserved_by_unit) then
+			reserved = reserved + 1
+		end
+	end
+
+	Iter.diag.event('navlink', {
+		elements = total,
+		queued = queued,
+		reserved = reserved
+	})
+end)
 
 local itr_original_navigationmanager_clbknavfield = NavigationManager.clbk_navfield
 function NavigationManager:clbk_navfield(event_name, args, args2, args3)
