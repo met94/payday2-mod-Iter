@@ -161,3 +161,15 @@ No differences.
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+1. **Wrapper or replacement.** Wrapper with varargs. `lua/coplogictravel.lua:330` captures `itr_original_coplogictravel_chkrequestactionwalktoadvancepos`; `:331` declares `(data, my_data, ...)`, prepends a start position at `:334` when the advance path is a single point, calls the original at `:338` with `...`, then flags the action at `:341`.
+2. **Call sites.** r200: class override. 248.2: `coplogictravel.lua:1609` (from `_chk_start_advance_action`) and `lib/units/enemies/cop/logics/coplogicsniper.lua:298` (`objective.haste or "walk"`, `objective.rot`); definition `:751-781`.
+3. **Intent.** In stealth (`not _is_loud`), guarantee the walk action receives at least two nav points; a one-point path makes `CopActionWalk` read `_simplified_path[2]` as nil later. Then mark the started action so `_advance_simplified_path` knows it may be appended to.
+4. **248.2 delta.** Signature **extended** between the r200 target and 248.2: vanilla is now `(data, my_data, speed, end_rot, no_strafe, pose, end_pose)` (`:751`) versus the 4-arg form r200 was written against; the call site supplies `pose`/`end_pose` at `:1609`. The body also grew a start-point fixer: `CopLogicAttack._correct_path_start_pos(data, my_data.advance_path)` at `:753`, defined at `coplogicattack.lua:550-557` (inserts `data.m_pos` when the first point's xy differs).
+5. **Target mechanism.** Port the wrapper as-is (`...` already future-proofs the signature) but narrow the insert: only when `not my_data.advance_path[2]` **and** the existing first point is not already `data.m_pos`, so the two start-point mechanisms cannot both add a point. Keep `my_data.advancing.itr_path_ahead = true` (`:340-342`) unconditionally.
+6. **Decision.** **PORT** (P6, F3/A-02). The varargs capture is what makes this safe across the 248.2 signature; do not "tidy" it into named parameters.
+7. **Acceptance.** T5, with a stealth heist in the set. Log `evt=path_extend k=prepended=0|1,points=<n>,loud=0|1`.
+8. **Cost if wrong.** A duplicate first point gives a zero-length segment; `CopActionWalk:_chk_start_anim` then has a zero direction and the unit can spin or refuse to start. In loud, r200 skips the insert entirely, so a one-point path there relies on vanilla `_correct_path_start_pos` alone.
+9. **Evidence gaps.** `_is_loud` is a file-local flag set by an `enemy_weapons_hot` listener registered in a `DelayedCalls` (`:14-18`); if the listener is registered after a level starts, the first heist segment behaves as stealth. No log field currently exposes `_is_loud` at this call site — the proposed `loud=` field closes that.

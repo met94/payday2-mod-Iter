@@ -45,8 +45,14 @@ Target: `e3a8b616` (248.2).
   `nav_search` split from `nav_streamline`.
   - Offline shim tests: 144 checks / 11 tests PASS.
   - Audit baseline 11 -> 12 (R6, one expected shim-backed `_room_doors` line).
-- Next: S-03/S-04 (proxy/choke verification, door selection) and S-05
-  (streamline application); T1/T2 runtime data pending from the user.
+- S-05 implemented: streamline-only CopBrain wrapper behind `nav_streamline`;
+  `evt=heist` now carries string keys/missing neighbours; dev menu toggles for
+  streamline/search/AI; probe emits `evt=probe`.
+- L-01/L-02 implemented: nav-link element map registration/cleanup, interval
+  derivation, interval buckets, `evt=navlink` end-of-simulation summary,
+  nav-link queue dev toggle. Diagnostics only.
+- Next: P1 dossier annotations (nav + AI) in parallel; S-03/S-04 door
+  selection; runtime T1/T2 data pending.
 
 ## Rulings
 

@@ -232,3 +232,15 @@ No differences.
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+1. **Wrapper or replacement.** Wrapper. `lua/coplogictravel.lua:33` captures `itr_original_coplogictravel_updpathing`; the body `:34-62` inspects `data.pathing_results` first, then calls the original at `:61` — unless it took the followup-SO branch and returned early at `:53`.
+2. **Call sites.** r200: class override. 248.2: `lib/units/enemies/cop/logics/coplogictravel.lua:255` (from `upd_advance`, the `processing_advance_path or processing_coarse_path` branch); definition `:350-393`; also aliased as `TeamAILogicTravel._upd_pathing` at `lib/units/player_team/logics/teamailogictravel.lua:13`.
+3. **Intent.** A failed coarse search on a safe-path objective should hand over to the current SO's `followup_SO` (choose another objective) instead of failing the whole objective, as long as the SO has no explicit `fail` event to bypass.
+4. **248.2 delta.** None. `coplogictravel.lua` is **byte-identical** between `a3180fc` (246.1) and `e3a8b616` (248.2) — `git diff --no-index` on the two blobs is empty and `pd2diff` lists no changes for the file; all definitions sit at the same lines (350, 464, 751, 1331, 1369, 1411, 1554, 1612).
+5. **Target mechanism.** Port as-is as a wrapper. The APIs it needs still exist at 248.2: `objective.followup_SO` (`elementspecialobjective.lua:425`), `ElementSpecialObjective:choose_followup_SO(unit, skip_ids)` (`:751`), `element._events` (`:185`, `:293`), `my_data.path_safely` (`coplogictravel.lua:157`, `:380`). Fields: `my_data.processing_coarse_path`, `my_data.coarse_path_search_id`.
+6. **Decision.** **PORT** (P6) with two fixes: clear `data.pathing_results` before the early `return` at `:53` (or 248.2's `:354` never runs and a stale table survives), and pass `nil` rather than nothing to `choose_followup_SO` (r200 `:47` already does).
+7. **Acceptance.** T5. Log `evt=fallback k=reason=followup_so,so=<id>` on the handover and `evt=search k=ok=0,safely=0` on the failure that triggered it; a heist must not show an objective-failed spike with this branch active.
+8. **Cost if wrong.** If a followup SO is chosen where vanilla would have failed the objective, units can be re-tasked into a loop (`set_objective` → path fails → same followup). The `_events.fail` guard only covers SOs that registered a fail handler.
+9. **Evidence gaps.** The r200 path only triggers for `path_safely` objectives set in `CopLogicTravel.enter` (`:157`); whether any 248.2 level still builds such objectives with `followup_SO` populated is unverified. If none do, this wrapper is dead weight and should be dropped at the review gate.

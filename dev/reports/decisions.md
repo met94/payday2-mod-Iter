@@ -67,3 +67,32 @@ Cost if wrong: one expected error can mask a regression in that file; the
 review and ledger cover the line, and the baseline drops again when the v5
 branch is deleted.
 
+## R7. Search path ids stay strings
+
+The r200 search built its result with `string.gmatch(..., '%d+')` +
+`tonumber`, which is incompatible with 248.2 string segment keys and makes
+`itr_streamline` index nil. The port keeps the ids as strings and normalises
+only display values.
+
+Cost if wrong: path steps point at missing segments; T4 would fail with nil
+segment errors.
+
+## R8. Search does not require proxy data
+
+`nav_search` can run with `nav_streamline` off. `itr_get_coarse_pos_between`
+and `itr_streamline` now treat missing proxies as empty and fall back to
+door selection.
+
+Cost if wrong: coarser step positions and longer paths when proxies are not
+built; no crash.
+
+## R9. Client-side nav-link prep is guarded
+
+`CopActionWalk:_init` calls `itr_prepare_for_upcoming_navlink`, which is
+defined only inside the server block. The wrapper checks for the method
+before calling it.
+
+Cost if wrong: the prepare step is skipped on a client that somehow reaches
+the wrapper; vanilla path init still runs.
+
+

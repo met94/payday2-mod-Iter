@@ -159,17 +159,19 @@ Status legend:
 | `CopBrain.clbk_pathing_results` | append next detailed path to live action | wrapper stable | PORT (P6) |
 | `CopActionWalk._init` | expand one-point paths; prepare nav-link state | vanilla body changed; wrapper point stable | REIMPLEMENT (P6) |
 | `CopActionWalk` nav-link methods | delay/queue/alternate/reservation | internals changed; re-baseline | REIMPLEMENT (P4) |
-| `CopActionWalk._chk_correct_pose` | pose correction for nav links | 8 vs 29 lines; old body likely stale | DEFER/DROP after dossier |
+| `CopActionWalk._chk_correct_pose` | pose correction for nav links | wrapper (8 lines) around a 28-line unchanged 248.2 body | PORT (P4) |
+| `CopActionWalk._upd_nav_link_first_frame` | first-frame nav-link update | wrapper around a 9-line unchanged body | PORT (P4) |
 | `CopLogicTravel._get_exact_move_pos` | direct-to-pos | larger vanilla body; wrapper | PORT (P5) |
-| `CopLogicTravel._check_start_path_ahead` / `upd_advance` | path extender | body changed; re-baseline | REIMPLEMENT (P6) |
+| `CopLogicTravel._check_start_path_ahead` | path extender | replacement; only delta is `from_pos` | REIMPLEMENT (P6) |
+| `CopLogicTravel.upd_advance` | path extender tick | wrapper; skips vanilla tick | PORT (P6) |
 | `CopLogicTravel._chk_request_action_walk_to_advance_pos` | prepend position for one-point path | signature extended | PORT (P6) |
 | `CopLogicTravel._chk_stop_for_follow_unit` | follow-unit destination updates | body changed | REIMPLEMENT (P6) |
 | `CopLogicTravel.itr_simplify_coarse_path` | prune backtracks / use streamline | custom helper; new path shape | REIMPLEMENT (P3) |
 | `GroupAIStateBase.on_nav_seg_neighbour_state` | keep neighbour lists fresh | function exists | PORT (P4) |
 | `CopLogicIdle._perform_objective_action` | animation variant fallback | cosmetic | DEFER |
-| `CivilianBrain.clbk_pathing_results` | civilian path results | function gone | DROP |
-| `TeamAIBrain.clbk_pathing_results` | team AI path results | function gone | DROP |
-| `CivilianLogicTravel._optimize_path` | civilian path optimization | stale, predates 242 improvements | DROP after dossier |
+| `CivilianBrain.clbk_pathing_results` | civilian path results | function gone (inherits CopBrain) | DROP |
+| `TeamAIBrain.clbk_pathing_results` | team AI path results | function gone (inherits CopBrain) | DROP |
+| `CivilianLogicTravel._optimize_path` | civilian path optimization | stale: predates 242 statics raycast + padding | DROP |
 
 ## Rulings
 

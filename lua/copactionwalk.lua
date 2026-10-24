@@ -30,7 +30,7 @@ function CopActionWalk:_init()
 
 	local result = itr_original_copactionwalk_init(self)
 
-	if result and self._sync then
+	if result and self._sync and self.itr_prepare_for_upcoming_navlink then
 		self:itr_prepare_for_upcoming_navlink()
 	end
 

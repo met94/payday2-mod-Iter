@@ -787,3 +787,14 @@ end
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+**Call sites.** Game: `lib/managers/navigationmanager.lua:1231` (`_commence_coarce_searches`), `:1502` (`search_coarse` sync path); reached from `lib/units/enemies/cop/copbrain.lua:571`. Overlay: implementation `lua/navigationmanager.lua:1054`, installed at `:1229-1230` under `nav_search`.
+**Intent.** Weight coarse routes by nav-link waiting cost plus vertical penalty and cache them briefly, instead of vanilla's raw-distance Dijkstra.
+**248.2 constraint.** `search_data` is `{id,to_pos,start_i_seg,end_i_seg,seg_searched,discovered_seg,seg_to_search,results_callback,verify_clbk,access_pos,access_neg}` (`:1479-1497`); there is **no `from_pos`** and no `bypass_congestion`. Segment ids are `tostring(id)` keys (`:312`), neighbour values are `Vector3` or nav-link userdata (`:331-348`), `access_pos` is a numeric bitmask (`:1465-1471`).
+**Target mechanism.** N-02 string bookkeeping feeds `itr_make_neighbours_list` (`:105-120`); S-01 `nav.itr_shim_door_by_pair` feeds `itr_get_coarse_pos_between`; cache key `tostring(access_pos)..';'..start..';'..end` (`:1071`); separate `nav_search` gate (`:1229`).
+**Decision.** REIMPLEMENT (F1) — keep weighting and cache, rebuild path assembly. Two blockers first: `path = tostring(next_seg_id)` plus `tonumber(idseg)` (`:1105`, `:1162`, `:1208`) turns 248.2 string ids into numbers, and `itr_enabled_neighbours_i` is only filled by `itr_prepare_nav_data` (`:673-675`), which requires `nav_streamline` — `nav_search` alone hits `#nil` at `:1143`.
+**Acceptance.** T4 (no `dev/test/cards/T4-*.json` exists yet) plus T2 `[ITER-NAV] ... evt=probe search_ok=>0 search_fail=0`. No `evt=search` emitter exists although plan §7 requires it — add it before claiming T4.
+**Cost if wrong.** `nav_search=false` keeps vanilla distance search (AI still paths). With the flag on and numeric ids, `itr_streamline` indexes `_nav_segments[<number>]` → nil (`:950`); only the streamline-only CopBrain wrapper is pcall-guarded (`lua/copbrain.lua:34`), the search path is not.
+**Evidence gaps.** Intent map says "caller now sets `from_pos`"; neither 248.2 `:1479-1497` nor 246.1 `:2081-2099` sets it, so `:1109` always uses the segment position. LIES coexistence (R5) unverified; no runtime log yet.

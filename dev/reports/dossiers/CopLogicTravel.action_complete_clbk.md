@@ -376,3 +376,15 @@ No differences.
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+1. **Wrapper or replacement.** Wrapper. `lua/coplogictravel.lua:314` captures `itr_original_coplogictravel_actioncompleteclbk`; `:315-325` fakes `action._expired = true` around the original call (`:320`), stashing the action in `my_data.itr_want_path_ahead`, then restores the original `_expired` value. `:326-328` additionally re-points `TeamAILogicTravel.action_complete_clbk` after load.
+2. **Call sites.** r200: triggered by the fake-complete path in `_advance_simplified_path` (`lua/copactionwalk.lua:290`, `ext_brain:action_complete_clbk(self)`). 248.2: `lib/units/enemies/cop/copbrain.lua:580-582` (`self._current_logic.action_complete_clbk(...)`); definition `coplogictravel.lua:464-567`; the team alias already exists at `teamailogictravel.lua:20`.
+3. **Intent.** When the path extender has appended the next coarse step, the current walk action must be allowed to end *without* the logic treating it as a real destination arrival, then be resumed on the next tick.
+4. **248.2 delta.** None (file byte-identical 246.1↔248.2, definition at 464 in both). The field the trick relies on is unchanged: `CopActionWalk:expired()` still returns `self._expired` (`copactionwalk.lua:1431-1433`), and `action_complete_clbk` still branches on `action:expired()` at `:469`, `:482`, `:528`.
+5. **Target mechanism.** Port as-is as a wrapper, under `path_extender`. The `DelayedCalls` re-alias at `:326-328` is **required**, not redundant: 248.2 `teamailogictravel.lua:20` binds the *vanilla* function at load, so without the re-alias team AI would bypass the wrapper.
+6. **Decision.** **PORT** (P6, F3/A-01). Replace the `DelayedCalls:Add(..., 0)` re-alias with a direct assignment after the wrapper definition (the delayed one only works because nothing calls it in the same frame, which is fragile).
+7. **Acceptance.** T5. Log `evt=path_extend k=fake_complete=1,coarse_index=<i>` plus `k=resume=1` on the next `upd_advance`; a missing `resume` after a `fake_complete` is the failure signature.
+8. **Cost if wrong.** `_expired` left true leaks out of the wrapper and the action is treated as expired for the rest of its life (r200 restores it in the `else` path only, `:321`), or the wrong action is resumed — a unit walks to a stale coarse index. Both are visible as stuck cops, not crashes.
+9. **Evidence gaps.** r200 restores `_expired` *after* the original call returns, so any vanilla code that stores the action during the call sees a fake-expired action. Whether any 248.2 listener does that is unverified; a T5 log with `k=has_old_action=1` would expose it.

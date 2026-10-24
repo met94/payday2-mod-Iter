@@ -89,3 +89,14 @@ Cannot diff: old or new function missing.
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+**Call sites.** `lua/copbrain.lua:34` (pcall, streamline-only mode), `lua/copbrain.lua:116` (`nav_ai`), `lua/coplogictravel.lua:256` (`nav_ai`), self-calls `lua/navigationmanager.lua:1088` and `:1224`; dev harness `dev/test-harness/lua/chatmanager.lua:290`. No game caller (name is Iter-only).
+**Intent.** Rewrite each coarse step's pass-through position to a door centre or proxy so units stop cutting corners at segment transitions.
+**248.2 constraint.** Coarse path steps are `{seg_id_string, pos}` with a final `{end_i_seg, to_pos}` (`:1268-1291`); `segment.neighbours[x]` is a list of `Vector3`/nav-link userdata, never door ids (`:331-348`); `choke_point_proxies`/`in_proxies`/`out_proxies` exist only after the shim and proxy pass (`:632-698`).
+**Target mechanism.** Shim `_room_doors` plus `itr_shim_door_by_pair` (shim `:306-343`, `:387`), `itr_prepare_nav_data` post-hook on `_resolve_segment_neighbours` (`:700-702`), and `itr_get_door_in_alignment`'s numeric branch (`:894-915`) consuming shim door ids.
+**Decision.** PORT (F2). The body is correct on 248.2 data *if* `_room_doors` and proxies exist; add a guard returning `false` when `_room_doors` is empty or `step1[2]` cannot resolve, so a partial shim cannot nil-index.
+**Acceptance.** T2 `[ITER-NAV] ... evt=probe stream_ok=>0 stream_fail=0`, with `stream_points` below `raw_points` and `avg_len` not longer. No `evt=streamline` emitter yet (plan §7) — probe is the only proof today.
+**Cost if wrong.** `copbrain.lua:34` catches errors and keeps the vanilla path; `coplogictravel.lua:256` restores `path_backup` on `false`. Worst case is silently vanilla routing — except an error thrown outside the pcall (`:1088`, `:1224`).
+**Evidence gaps.** `:950` `all_segs[step1[1]].pos` nil-crashes if ids are numeric (Iter search output) or a segment is missing; the `step2[3]` navlink marker (`:982`) is read by `lua/coplogictravel.lua:170` but its 248.2 consumer semantics are unverified.

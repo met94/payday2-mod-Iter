@@ -341,3 +341,19 @@ No differences.
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+1. **Wrapper or replacement.** **Replacement.** `lua/civilianlogictravel.lua:13-76` captures no original and never calls vanilla; it retypes the whole 64-line body with a second parameter (`allow_out_of_graph`).
+2. **Call sites.** r200: `lua/civilianbrain.lua:16` (only when `Global.game_settings.level_id == 'pal'`, `civilianbrain.lua:8`) and `lua/teamaibrain.lua:12` (revive objective or whisper mode). Both callers are DROP candidates themselves. 248.2: `lib/units/civilians/logics/civilianlogictravel.lua:202` — vanilla calls it for hostages only (`if my_data.is_hostage`), definition `:119-175`; no other caller in `lib/`.
+3. **Intent.** Shortcut a civilian/team-AI detailed path by straight-lining between points with a clear walkable line, so escorted civilians do not zig-zag along the mesh.
+4. **248.2 delta.** The file is byte-identical 246.1↔248.2, but the *vanilla baseline r200 replaced* is already newer than r200. Commit `9af31e98` ("242", 2025-12-18) rewrote `_optimize_path` on top of the body r200 copied:
+   - `:138`, `:141`, `:145` — every raycast endpoint is raised by `math.UP * 4`;
+   - `:151` — a second `World:raycast(...)` against `slot_mask "statics"`, `sphere_cast_radius 8`, so a "clear" shortcut must clear static geometry, not just the nav graph;
+   - `:166-172` — the last point is pulled back `math.random(75, 110)` units along the final direction, so the civilian stops before the destination instead of on it.
+   r200 has none of the three (232.4 `_optimize_path` also lacks them, i.e. r200 forked the pre-242 body and only added `allow_out_of_graph`/`CopActionWalk._chk_shortcut_pos_to_pos`).
+5. **Target mechanism.** None. Porting it would install the weaker pre-242 algorithm over the 248.2 one, drop the statics raycast and the stop padding, and change the signature vanilla calls with one argument — while the only code that would call the 2-arg form (`civilianbrain`, `teamaibrain`) is being dropped.
+6. **Decision.** **DROP.** Confirmed stale on evidence, not on age: the 242 commit shows exactly which checks vanilla added, and r200 lacks all of them. Vanilla's hostage optimisation (`:202`) already covers the intent, more strictly.
+7. **Acceptance.** No card. T7 only: confirm no `CivilianLogicTravel._optimize_path` override is installed by Iter (`api-audit` hook list), so LIES/NavFixes/Keepers see the vanilla function.
+8. **Cost if wrong.** Escorted hostages keep the vanilla path (slightly longer, stops 75-110 units short of the target by design). No risk of the r200 failure mode, which is straight-lining through a wall the nav graph does not know about.
+9. **Evidence gaps.** None outstanding for the signature: `grep _optimize_path` finds no reference in `lua/_navdatapatches.lua` or anywhere else outside the two dropped brains (`lua/civilianbrain.lua:16`, `lua/teamaibrain.lua:12`). The remaining unknown is whether vanilla's statics raycast ever false-negatives on a level Iter patches — unobservable without the port.

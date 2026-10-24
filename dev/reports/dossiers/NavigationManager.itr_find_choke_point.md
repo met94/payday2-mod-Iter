@@ -60,3 +60,14 @@ Cannot diff: old or new function missing.
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+**Call sites.** `lua/navigationmanager.lua:591`, inside `itr_find_proxies`. No game caller.
+**Intent.** Return the centre of the single important room at the narrowest flood level — the doorway the whole segment must pass through.
+**248.2 constraint.** Reads `self._rooms[room_id].borders/.height` (`:439-442`); v6 builds no `_rooms`, so this is nil without the shim. In v6 load data borders are grid units and heights absolute (`:258-261`).
+**Target mechanism.** Shim rooms `:164-180` (`borders * _grid_size`, heights copied) plus the quad→vis-group inverse `:184-225`, which restores `vis_group` that the converter drops (`:272-276` keeps only quads/visible_groups/pos).
+**Decision.** PORT (F2) — body unchanged; correctness rides entirely on the shim.
+**Acceptance.** T2 `evt=proxy choke=>0` and T1 `evt=heist rooms=>0`. No dedicated event.
+**Cost if wrong.** Fewer choke-point proxies; `itr_streamline` then uses in/out proxies or door alignment, so paths remain walkable.
+**Evidence gaps.** `level_max = #room_level_counts` (`:427`) assumes a contiguous 1..n array built by `room_level_counts[level]`; sparse levels make `#` return 0 and skip the loop — r200 behaviour, unverified on 248.2 room sets.

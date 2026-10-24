@@ -416,3 +416,15 @@ No differences.
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+1. **Wrapper or replacement.** Wrapper. `lua/coplogictravel.lua:64` captures `itr_original_coplogictravel_getexactmovepos`; the body `:65-104` returns early in two Iter cases and otherwise calls the original at `:103`.
+2. **Call sites.** r200: class override (plus the mod's own `_check_start_path_ahead` at `:375`). 248.2: `coplogictravel.lua:1385` (`_check_start_path_ahead`, index `coarse_path_index + 2`), `:1545` (`_chk_start_pathing_to_next_nav_point`, index `+1`); definition `:1411-1508`; aliased at `teamailogictravel.lua:14`.
+3. **Intent.** Two separate behaviours: (a) **direct-to-pos** — when the coarse path has more than two nodes and the whisper/direct flag is set, collapse the path to `{first, last}`, remember all original segments in `my_data.itr_nav_segs` and return the objective position directly; (b) **cover bypass** — converted cops, `criminal1` team AI and phalanx objectives return `coarse_path[nav_index][2]` without reserving area cover.
+4. **248.2 delta.** None (file byte-identical 246.1↔248.2). Both r200 branches remain semantically live at 248.2: `criminal1` is still a team id (`lib/tweak_data/levelstweakdata.lua:781`), and phalanx is still special-cased in `get_pathing_prio` (`coplogictravel.lua:1400`). The 248.2 vanilla body is 98 lines (`:1411-1508`) and still reserves cover in the else branch at `:1480-1497`.
+5. **Target mechanism.** Port as-is but split into two independently flagged blocks: (a) under `direct_to_pos`, before the original call, exactly as r200 `:70-88`; (b) under `nav_ai`, as r200 `:90-101`. Keep the original capture — do not re-implement 98 lines.
+6. **Decision.** **PORT** (P5/C-04 for (a), P6/A-03 for (b)). (a) is the small high-value item the intent map wants; (b) is unmapped in the intent map and must get its own row before it ships.
+7. **Acceptance.** T4 + T5. Log `evt=direct k=nav_index=2,segs=<n>,cover_released=0|1` and `evt=path_extend k=cover_bypass=1,reason=converted|criminal1|phalanx`.
+8. **Cost if wrong.** A stale `my_data.itr_direct_to_pos` sends the unit straight at an old objective position, across nav gaps — the worst failure mode in this cluster (unit walks at a wall). The cover bypass can leave a converted cop without cover reservation, so two units stack on the same cover.
+9. **Evidence gaps.** r200 only *sets* `itr_direct_to_pos` (in `clbk_coarse_pathing_results`) and clears it only when a path has nav links — there is no clear on objective change or on `enter`. Before porting, add an explicit clear in `CopLogicTravel.enter` / `_begin_coarse_pathing` and prove it with a T4 objective-switch case.

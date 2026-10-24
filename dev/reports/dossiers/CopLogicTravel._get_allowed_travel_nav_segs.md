@@ -171,3 +171,15 @@ No differences.
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+1. **Wrapper or replacement.** Wrapper. `lua/coplogictravel.lua:106` captures `itr_original_coplogictravel_getallowedtravelnavsegs`; `:107-115` returns `my_data.itr_nav_segs` and **nils it** on the first call, otherwise calls the original at `:114`.
+2. **Call sites.** r200: the mod's `_check_start_path_ahead` at `:382`. 248.2: `coplogictravel.lua:1391` (`_check_start_path_ahead`) and `:1550` (`_chk_start_pathing_to_next_nav_point`); definition `:1331-1367`.
+3. **Intent.** Restrict the *detailed* search that follows a direct-to-pos coarse path to the segments the original coarse path actually crossed, so the walk does not cut through segments the coarse search had rejected; the one-shot nil keeps vanilla behaviour for every later search.
+4. **248.2 delta.** None (file byte-identical 246.1↔248.2). The consumer contract is still valid: `nav_segs` is a `CopBrain:search_for_path`/`search_for_path_from_pos` param (`copbrain.lua:509`, `:528`) and is passed straight into `managers.navigation:search_pos_to_pos`. 248.2 segment ids are strings, and `my_data.itr_nav_segs` is populated from `coarse_path[i][1]`, i.e. already string ids — no `tostring` shim needed.
+5. **Target mechanism.** Port as-is as a wrapper. Fields: `my_data.itr_nav_segs` (written by `_get_exact_move_pos`, consumed here once).
+6. **Decision.** **PORT** (P6, F8/A-03). It is 9 lines and only activates when `_get_exact_move_pos` wrote `itr_nav_segs`, i.e. only on the direct path — so it cannot affect vanilla routing.
+7. **Acceptance.** T5. Log `evt=search k=nav_segs=<n>,source=itr|vanilla` on the two call paths, and `evt=fallback k=reason=itr_nav_segs_failed` if the restricted search returns `failed`.
+8. **Cost if wrong.** A restricted `nav_segs` list that omits a segment the real route needs makes the detailed search fail; `_upd_pathing` then either fails the objective (`:366`, `:387`) or retries via the followup-SO branch. Because the list is consumed once, the failure is not self-healing on the same tick.
+9. **Evidence gaps.** No retry-without-restriction exists in r200. Confirm on T5 whether a failed restricted search is recoverable on the next logic tick (it should be, since `itr_nav_segs` is nil by then) — needs a log, not static reading.

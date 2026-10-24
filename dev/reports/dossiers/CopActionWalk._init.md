@@ -568,3 +568,15 @@ No differences.
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+1. **Wrapper or replacement.** Wrapper. `lua/copactionwalk.lua:15` captures `itr_original_copactionwalk_init = CopActionWalk._init`; the body `:16-38` pre-expands `self._nav_path`, calls the original at `:31`, then calls `self:itr_prepare_for_upcoming_navlink()` at `:34`.
+2. **Call sites.** r200: the class override applies wherever vanilla calls `_init`. 248.2: `lib/units/enemies/cop/actions/lower_body/copactionwalk.lua:371` (`elseif not self:_init() then`) and `:962` (both inside `CopActionWalk:init`).
+3. **Intent.** A one-point `_nav_path` (a single nav-link element or a single position) must still become a two-point path, or `_simplified_path[2]` is nil and the action cannot compute its first step; then pre-reserve the upcoming nav link so the unit does not stop at the link.
+4. **248.2 delta.** None inside `_init` (248.2 `:413-572`, 160 lines == 246.1). The 246.1→248.2 hunks in this file are at 677 (`_chk_start_anim`), 894 (`on_exit`, adds `self._root_blend_disabled = nil`), 1227 (`_upd_start_anim`) and 1385 (`get_husk_interrupt_desc`, adds `_init_called` nav_path handling) — none touch `_init`.
+5. **Target mechanism.** Port as-is. The pre-expansion is still required because 248.2 assigns `self._simplified_path = self._nav_path` unsimplified in exactly the two branches r200 pre-expands (`:492-495`), and then reads `_simplified_path[2]` at `:502` and `:508`. Fields: `self._nav_path`, `self._action_desc.path_simplified/persistent`, `managers.groupai:state():enemy_weapons_hot()`.
+6. **Decision.** **PORT** (P6, F3/A-02) with two fixes: (a) `itr_prepare_for_upcoming_navlink` is defined inside `if Network:is_server()` (`:40-334`) but r200 calls it precisely when `self._sync` (client) — move the call behind `Network:is_server()`; (b) `get_husk_interrupt_desc` at 248.2 now branches on `self._init_called` (`:1403-1414`), so the husk interrupt path inherits the expanded `_nav_path` — verify the husk re-serialisation does not duplicate the inserted point.
+7. **Acceptance.** T5. Log `evt=path_extend k=init_expanded=0|1,points=<n>,sync=0|1` and `evt=fallback k=reason=navlink_helper_missing`.
+8. **Cost if wrong.** Inserting a start point where the nav path already starts at the unit ⇒ a zero-length first segment ⇒ `_chk_start_anim` (`:508`) computes a zero-direction and the unit turns in place or stalls. Calling the client-only-missing helper ⇒ `attempt to call method 'itr_prepare_for_upcoming_navlink' (a nil value)` on the client, every walk action.
+9. **Evidence gaps.** No client-side (husk) test exists in the current cards; T5 as written is server-only. The `_sync` + `_init_called` interaction is unverified against a real client.

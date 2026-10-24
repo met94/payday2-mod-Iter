@@ -207,3 +207,15 @@ No differences.
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+1. **Wrapper or replacement.** Wrapper. `lua/copbrain.lua:89` captures `itr_original_copbrain_clbkpathingresults`; the body `:90-110` calls it first at `:91`, then appends to the live walk action.
+2. **Call sites.** r200: registered as `result_clbk` for the four detailed searches — `lua/copbrain.lua` calls `search_for_path_to_unit`/`search_for_path`/`search_for_path_from_pos`/`search_for_path_to_cover`, each building `callback(self, self, 'clbk_pathing_results', search_id)`. 248.2: `lib/units/enemies/cop/copbrain.lua:487`, `:504`, `:523`, `:542` (definition `:588-628`).
+3. **Intent.** If a detailed path arrives while the unit is already walking a coarse path, splice it onto the running `CopActionWalk` instead of letting the logic restart the walk action, so the unit never pauses at a coarse-step boundary; also carry the objective's end rotation onto the action.
+4. **248.2 delta.** None. `copbrain.lua:588-628` (41 lines) is unchanged from 246.1 — the dead-nav-link re-check, `_add_pathing_result` and the nav-link `set_delay_time` loop are all still there. The 248.2-specific nav-link work is inside `_play_nav_link_anim` (`copactionwalk.lua:2383`), not here.
+5. **Target mechanism.** Port as-is as a wrapper, gated on `path_extender`. Hook point: after the original `_add_pathing_result` (`:615`), call `my_data.advancing:itr_append_next_step(path)`; on success clear `self._logic_data.pathing_results[search_id]` and `my_data.processing_advance_path`, and set `walk_action._end_rot` when `my_data.coarse_path_index >= #my_data.coarse_path - 2`. Fields: `my_data.coarse_path`, `my_data.advancing`, `my_data.processing_advance_path`.
+6. **Decision.** **PORT** (P6, F3/A-01). Needs one hardening: `itr_append_next_step` is defined inside `if Network:is_server()` (`lua/copactionwalk.lua:40`), so guard the call with `Network:is_server()` or the nil-method call errors on clients.
+7. **Acceptance.** T5 (mixed heists, 15 min). Log `evt=path_extend k=appended=1,points=<n>,coarse_index=<i>` and `evt=fallback k=reason=not_server|not_extensible`.
+8. **Cost if wrong.** Append with a mismatched path shape ⇒ doubled/short `_simplified_path` ⇒ unit slides, walks backwards, or the action completes early (`itr_fake_complete`, `coplogictravel.lua:316-321`) and the unit stands still until the next logic tick. Recoverable by disabling `path_extender`.
+9. **Evidence gaps.** r200 calls `itr_append_next_step` unguarded (`lua/copbrain.lua:96`) yet the method is server-only — either r200 never ran this on a client, or the client path silently errored. A server-only T5 run cannot distinguish the two; the fix above removes the ambiguity.

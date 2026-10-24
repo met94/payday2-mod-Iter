@@ -128,3 +128,15 @@ No differences.
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+1. **Wrapper or replacement.** Wrapper. `lua/coplogicidle.lua:8` captures `itr_original_coplogicidle_performobjectiveaction`; `:9-14` rewrites the objective's action variant when it is `e_so_ntl_idle_look3`, then calls the original.
+2. **Call sites.** r200: class override. 248.2: `lib/units/enemies/cop/logics/coplogicidle.lua:126` and `:200`; definition `:1608-1632`; also aliased by `coplogicphalanxminion.lua:18` and `coplogicphalanxvip.lua:17`, which call it at `:102`, `:147` / `:99`, `:162`.
+3. **Intent.** Cosmetic animation fallback: when an SO hands the unit the `look3` idle action, use `look2` instead — presumably because `look3` was missing or wrong-facing on some heists.
+4. **248.2 delta.** None in the function. `pd2diff 246.1 248.2` hunks in `coplogicidle.lua` are at 406 (`data.t` → `t` in `damage_clbk`) and 931 (`on_area_safety` computes `TimerManager:game():time()`); both are unrelated to `_perform_objective_action`, which is identical at `:1608` in 246.1 and 248.2.
+5. **Target mechanism.** Port as-is if kept — both variant strings still exist at 248.2 (`elementspecialobjective.lua:854-855`, `copactionact.lua:790-791`), and the swap is a one-line pre-call mutation of `objective.action.variant`.
+6. **Decision.** **DEFER** (intent map row, unchanged). It is cosmetic, it silently mutates an SO-owned table, and the phalanx classes alias the function so the swap also applies to units the author never tested. Revisit only with a specific heist report of a broken `look3`.
+7. **Acceptance.** T5 on a level with `ntl` idle SOs; log `evt=fallback k=reason=variant_swap,from=e_so_ntl_idle_look3,to=e_so_ntl_idle_look2,heist=<id>` so a heist-specific need is measurable before enabling it.
+8. **Cost if wrong.** Visual only: a unit faces the wrong way while idling, or plays a missing animation and T-poses. No pathing, no combat effect.
+9. **Evidence gaps.** No record of *which* heist motivated the swap, and no list of SO elements that emit `look3` at 248.2. Without that, the flag has no testable acceptance beyond "no T-pose".

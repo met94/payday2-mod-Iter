@@ -1,7 +1,7 @@
 {
   "oldRev": "a3180fc",
   "newRev": "e3a8b616",
-  "generated": "2026-10-24T11:35:01.014Z",
+  "generated": "2026-10-24T11:53:09.428Z",
   "files": [
     {
       "file": "lua/coreworldinstancemanager.lua",
@@ -379,7 +379,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 1040
+          "startLine": 1043
         },
         {
           "name": "Hooks.PostHook:NavigationManager._clear:Iter_nav_shim_clear",
@@ -564,7 +564,7 @@
         {
           "name": "NavigationManager.itr_execute_coarce_search",
           "category": "MOD_ONLY",
-          "modLines": 172,
+          "modLines": 192,
           "oldLines": 0,
           "newLines": 0,
           "modParams": "search_data",
@@ -574,7 +574,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 1054
+          "startLine": 1057
         },
         {
           "name": "NavigationManager.itr_find_best_navlink",
@@ -649,7 +649,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 996
+          "startLine": 999
         },
         {
           "name": "NavigationManager.itr_get_all_doors_of_segment",
@@ -684,7 +684,7 @@
         {
           "name": "NavigationManager.itr_get_coarse_pos_between",
           "category": "MOD_ONLY",
-          "modLines": 24,
+          "modLines": 27,
           "oldLines": 0,
           "newLines": 0,
           "modParams": "segment1_id, segment2_id, near_pos, access_pos",
@@ -799,7 +799,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 942
+          "startLine": 945
         },
         {
           "name": "NavigationManager.register_anim_nav_link",
@@ -874,7 +874,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 1027
+          "startLine": 1030
         }
       ],
       "errors": [],

@@ -42,3 +42,14 @@ Cannot diff: old or new function missing.
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+**Call sites.** `lua/coplogictravel.lua:296` only (`nav_ai`, follow-unit retarget). No game caller.
+**Intent.** Return the point on the boundary between two segments nearest a reference position, so a follower's path can be retargeted.
+**248.2 constraint.** No door ids exist in v6; the pair index must supply them and `_room_doors[id].center` is shim-built. The fallback (`:840-843`) passes the engine neighbour list into `itr_get_closest_door_to_pos`, which only works through the `Vector3` branch.
+**Target mechanism.** S-01 `itr_shim_door_by_pair` lookup (`:814-838`) plus the `center` fallback `mvec3_lerp(pos,pos1,0.5)` (`:825`); R6 records the resulting `_room_doors` audit error (baseline 12).
+**Decision.** PORT (F8, S-01 implemented). Current body is `:814-844`; the dossier body above is the pre-S-01 numeric version.
+**Acceptance.** T5 follow-unit (no card yet) and indirect T1 `evt=heist missing_neighbours=0`; `evt=proxy` proves the index is populated.
+**Cost if wrong.** The follower keeps its old destination segment and re-routes the long way; no error unless `segment1_id` is numeric (`:840` nil index).
+**Evidence gaps.** No follow-unit test card exists; the numeric-id fallback at `:840` will nil-index if Iter search ever emits numeric ids (`:1208`).

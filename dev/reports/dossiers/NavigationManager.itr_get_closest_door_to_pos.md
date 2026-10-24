@@ -105,3 +105,14 @@ Cannot diff: old or new function missing.
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+**Call sites.** `lua/navigationmanager.lua:842` (`itr_get_door_between`), `:939` (`itr_get_coarse_pos_between`), `:975` (`itr_streamline`). No game caller.
+**Intent.** Pick the cheapest crossing point between two segments: a door position, or a nav-link whose wait cost still beats the direct route.
+**248.2 constraint.** `door_list` entries are `Vector3` (v6 doors) or nav-link userdata; numeric door ids come only from the shim pair index. `_navlink_elements` is keyed by `nav_link:key()` (overlay `:179`) and `element._values.itr_interval` is set only by the register wrapper (`:169`); `key()` is engine API with no vanilla 248.2 caller.
+**Target mechanism.** `self.itr_room_doors` (`:651-661`, `{center,pos,pos1}` from shim doors), the `Vector3` branch `:758-765`, and the nav-link branch `:770-799` against L-01/L-02 element fields.
+**Decision.** PORT (F2/S-03) with two guards: skip when `self.itr_room_doors[i_door]` is nil, and skip when `_navlink_elements[key]` is nil (unregistered link).
+**Acceptance.** T2 `evt=probe stream_ok=>0 stream_fail=0`; T3 covers the `navlink_accounting=true` path (`:704-715`).
+**Cost if wrong.** A nil index throws inside `itr_streamline`; the streamline-only wrapper pcall drops to vanilla paths (`lua/copbrain.lua:34-40`), so AI still moves but Iter routing is lost.
+**Evidence gaps.** `create_nav_tracker(door_pos, true)` (`:744`) is not nil-checked; whether the engine returns nil for a mid-door centre (shim `center`, `:245-249`) is unverified. `nav_link:key()` at 248.2 is unverified (no vanilla use). The dossier body above predates the `Vector3` branch.

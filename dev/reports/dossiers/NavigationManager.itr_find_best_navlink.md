@@ -82,3 +82,14 @@ Cannot diff: old or new function missing.
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+**Call sites.** `lua/copactionwalk.lua:129` (`itr_get_alternate_navlink` `:123-133`, used by `itr_switch_to_sibling_navlink` `:160-168`). That file is gated by `nav_ai` (`lua/copactionwalk.lua:4-6`). No game caller.
+**Intent.** Choose the parallel nav-link with the lowest expected wait when the current link has a queue.
+**248.2 constraint.** Nav-link userdata is still in `segment.neighbours` (`:331-348`) and `check_access(access_pos)` keeps its single-arg call, but every ranking input is Iter-owned (`itr_interval`, `itr_reserved_by_unit`, `itr_navlink_queue_length`) and `_navlink_elements` is populated only by the register wrapper (`:179`). `nav_link_delay()` still reads `_values.interval` (`elementspecialobjective.lua:643-645`), so the interval override survives.
+**Target mechanism.** L-03 reservation/alternates on top of L-01/L-02; `self.itr_navlink_coef = 350` (`:1049`); `set_delay_time` is live at 248.2 (`copactionwalk.lua:1777`).
+**Decision.** DEFER to P4 (L-03). The function exists but its inputs are unwritten, so it would always return "no alternate"; shipping it now only adds risk surface.
+**Acceptance.** T3 `[ITER-NAV] ... evt=navlink elements=>0 queued=<n> reserved=<n>` plus a switch counter that does not exist yet.
+**Cost if wrong.** Vanilla conga lines at ladders/jumps persist; no crash, no pathing loss.
+**Evidence gaps.** `best_dis = dis` (`:883`) reads an undefined `dis` (nil) — dead assignment, return value unaffected. A nil `_navlink_elements[...]` at `:860` would error and is not guarded.

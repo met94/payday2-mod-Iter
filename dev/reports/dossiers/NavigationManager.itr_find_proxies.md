@@ -164,3 +164,14 @@ Cannot diff: old or new function missing.
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+**Call sites.** `lua/navigationmanager.lua:634` inside `itr_prepare_streamline_data`, itself called from `itr_prepare_nav_data` (`:677`) through the `_resolve_segment_neighbours` post-hook (`:700-702`). No game caller.
+**Intent.** Per segment/neighbour pair, derive choke points and in/out/through proxies that later route paths through doorway centres.
+**248.2 constraint.** `segment.neighbours[neighbour]` holds engine door `Vector3`s or nav-link userdata (`:331-348`); the r200 flood needs numeric door ids plus `_room_doors`, `_rooms`, `_visibility_groups`, none of which v6 builds (`get_nav_seg_from_i_room` at `:1601-1603` reads tables that stay empty).
+**Target mechanism.** `nav.itr_shim_door_by_pair` (shim `:306-343`, assigned `:387`) replaces numeric neighbour entries; `_room_doors`/`_rooms`/`_visibility_groups` from shim `:384-386`; `itr_copy_door_data` (`:651-661`) exposes `itr_room_doors`; `proxy_no_doors` counter (`:625-627`).
+**Decision.** PORT (F2, S-01/S-02 implemented) — keep the flood/choke intent on shim door ids. Current body is `:479-630`; the dossier body above predates the pair-index block (`:488-508`).
+**Acceptance.** T1 `[ITER-NAV] ... evt=heist rooms=>0 room_doors=>0 vis_groups=>0` and `evt=proxy segments=>0 choke=>=0 in_proxies out_proxies ms=<n>`, with `proxy_no_doors` bounded (nav-link-only neighbours expected). The pair index is only visible as `evt=navdata ... door_pairs=<n>` (shim `:390`), not on the proxy line.
+**Cost if wrong.** Empty proxies: `itr_get_coarse_pos_between` falls through to the closest-door lookup (`:939`) or returns false, so the Iter search skips neighbours (`:1154`) and streamline degrades to vanilla. No crash path while the flag is off.
+**Evidence gaps.** `choke_pos = choke_point` (`:593`) assigns an undefined global — dead but an audit/freevars smell. The shim assigns `room.vis_group` from the first visibility group listing the quad (shim `:204`), whereas 246.1 used `data.room_vis_groups[i_room]` (`a3180fc` `:357`); equality unverified on 248.2 data.

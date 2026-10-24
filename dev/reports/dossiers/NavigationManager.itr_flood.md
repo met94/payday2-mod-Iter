@@ -86,3 +86,14 @@ Cannot diff: old or new function missing.
 - [ ] Check removed/changed APIs (`_room_doors`, numeric `_nav_segments`, `no_dispose`, `session():send_to_peers_synched`, ...).
 - [ ] Check new 248.2 fields/callbacks this function must preserve.
 - [ ] Run `luajit -bl` and `api-audit` on the file.
+
+## Port notes (P1)
+
+**Call sites.** `lua/navigationmanager.lua:512` only, inside `itr_find_proxies`. No game caller.
+**Intent.** Breadth-first flood of door "levels" outward from the entry doors through one segment's room→door adjacency.
+**248.2 constraint.** Requires numeric door ids indexing `_room_doors` (`:385`, `:395`); v6 neighbour lists contain `Vector3`/nav-link entries (`:331-348`), so the door list must come from the shim pair index.
+**Target mechanism.** S-01 door lists (`nav.itr_shim_door_by_pair[seg_a][seg_b]`), `itr_get_room_to_doors` (`:315-330`) using the now-working `get_nav_seg_from_i_room` (game `:1601-1603` against shim `room.vis_group` + `visibility_groups[].seg`).
+**Decision.** PORT (F2) — the algorithm is data-source agnostic once fed shim door ids; the body calls no 248.2 API.
+**Acceptance.** Indirect: T2 `evt=proxy choke=>0` on a multi-door map (Big Bank) plus T1 `room_doors=>0`. No `evt=flood` event exists.
+**Cost if wrong.** No flood levels → no choke points → streamline falls back to alignment (`:970`) or the closest door (`:975`); paths stay valid but wider.
+**Evidence gaps.** `door_level_counts[1] = #from_doors` (`:387`) counts nav-link entries that `:378-383` filtered out, so level-1 counts can overstate and skew `best_level`; inherited from r200, untested on 248.2 door sets.

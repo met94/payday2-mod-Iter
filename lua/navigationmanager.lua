@@ -921,17 +921,20 @@ function NavigationManager:itr_get_coarse_pos_between(segment1_id, segment2_id, 
 	end
 
 	local segment1 = self._nav_segments[segment1_id]
-	local best_pos = segment1.choke_point_proxies[segment2_id]
+	local choke = segment1.choke_point_proxies
+	local best_pos = choke and choke[segment2_id]
 	if best_pos then
 		return best_pos
 	end
 
-	best_pos = segment1.out_proxies[segment2_id]
+	local out = segment1.out_proxies
+	best_pos = out and out[segment2_id]
 	if best_pos then
 		return best_pos
 	end
 
-	best_pos = segment1.in_proxies[segment2_id]
+	local incoming = segment1.in_proxies
+	best_pos = incoming and incoming[segment2_id]
 	if best_pos then
 		return best_pos
 	end
@@ -962,16 +965,16 @@ function NavigationManager:itr_streamline(path, access_pos)
 			local step3 = path[i + 1]
 			local segment3 = step3 and all_segs[step3[1]]
 
-			local best_pos = segment1.choke_point_proxies[step2[1]]
+			local best_pos = segment1.choke_point_proxies and segment1.choke_point_proxies[step2[1]]
 
 			if not best_pos then
-				local out_proxy = step3 and (segment3.choke_points[step2[1]] or segment2.out_proxies[step3[1]])
-				local in_proxy = segment2.in_proxies[step1[1]] or step3 and all_segs[step3[1]].pos
+				local out_proxy = step3 and ((segment3.choke_points and segment3.choke_points[step2[1]]) or (segment2.out_proxies and segment2.out_proxies[step3[1]]))
+				local in_proxy = (segment2.in_proxies and segment2.in_proxies[step1[1]]) or (step3 and all_segs[step3[1]].pos)
 				best_pos = itr_get_door_in_alignment(all_doors, door_list, step1[2], out_proxy or in_proxy)
 			end
 
 			if not best_pos then
-				local proxy = step3 and segment2.in_proxies[step3[1]] or path[path_nr][2]
+				local proxy = (step3 and segment2.in_proxies and segment2.in_proxies[step3[1]]) or path[path_nr][2]
 				best_pos, navlink = self:itr_get_closest_door_to_pos(all_doors, door_list, step1[2], proxy, access_pos, true)
 				if not best_pos then
 					return false
@@ -1113,6 +1116,11 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 	local candidate
 	repeat
 		local navseg = all_nav_segments[next_seg_id]
+
+		if not navseg then
+			break
+		end
+
 		local neighbours = navseg.neighbours
 		if neighbours then
 			local consider_neighbours = true
@@ -1140,6 +1148,21 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 
 			if consider_neighbours then
 				local enabled_neighbours = navseg.itr_enabled_neighbours_i
+
+				if not enabled_neighbours then
+					enabled_neighbours = {}
+
+					for neighbour_seg_id in pairs(neighbours) do
+						local neighbour = all_nav_segments[neighbour_seg_id]
+
+						if neighbour and not neighbour.disabled then
+							enabled_neighbours[#enabled_neighbours + 1] = neighbour_seg_id
+						end
+					end
+
+					navseg.itr_enabled_neighbours_i = enabled_neighbours
+				end
+
 				for i = #enabled_neighbours, 1, -1 do
 					local neighbour_seg_id = enabled_neighbours[i]
 					if verify_clbk and not verify_clbk(neighbour_seg_id) then
@@ -1204,12 +1227,12 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 
 	local i = 1
 	local result = {}
-	for idseg in string.gmatch(best_path.path, '%d+') do
-		result[i] = { tonumber(idseg) }
+	for idseg in string.gmatch(best_path.path, '([^;]+)') do
+		result[i] = { idseg }
 		i = i + 1
 	end
 	result[i] = {
-		end_i_seg,
+		tostring(end_i_seg),
 		search_data.to_pos
 	}
 	result.has_navlinks = best_path.delay > 0
