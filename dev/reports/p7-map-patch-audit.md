@@ -14,7 +14,7 @@ Static classification of each level block:
 |---|---|---:|---:|---:|
 | alex_2 | PARTIAL | 2 | 9 | 1 |
 | arm_fac | PARTIAL | 2 | 5 | 0 |
-| arm_for | PARTIAL | 6 | 11 | 0 |
+| arm_for | SURVIVES | 0 | 11 | 0 |
 | big | SURVIVES | 0 | 0 | 4 |
 | born | PARTIAL | 2 | 4 | 2 |
 | branchbank | PARTIAL | 2 | 7 | 3 |
@@ -68,12 +68,14 @@ Consolidated verdicts:
 
 | Verdict | Levels |
 |---|---|
-| SURVIVES_AS_IS (14) | alex_2, arm_fac, born, branchbank, chas, firestarter_1, framing_frame_1, jewelry_store, kenaz, kosugi, mex, mia_1, pbr, roberts, watchdogs_1 |
-| NEEDS_REWRITE (6) | arm_for, crojob2, escape_street, jolly, moon, peta |
+| SURVIVES_AS_IS (15) | alex_2, arm_fac, arm_for, born, branchbank, chas, firestarter_1, framing_frame_1, jewelry_store, kenaz, kosugi, mex, mia_1, pbr, roberts, watchdogs_1 |
+| NEEDS_REWRITE (5) | crojob2, escape_street, jolly, moon, peta |
 | DEAD_ONLY (1) | skm_mallcrasher |
 | no nav-data ops | dinner, flat (obstacle wrappers only) |
 
-`arm_for`, `crojob2`, `escape_street`, `jolly`, `moon`, `peta` are logged as
+`arm_for` was verified by T6: the room transfers already leave doors 5188,
+5205/5210 and 5195/5206 between the segments; the old neighbour writes were
+redundant. `crojob2`, `escape_street`, `jolly`, `moon`, `peta` are logged as
 `applied_partial`; their surviving geometry runs, but the neighbour-only
 connection is lost until rewritten. `jolly`/`moon`/`peta` also lose a
 neighbour-list seal; that needs an engine-side segment/state expression, not

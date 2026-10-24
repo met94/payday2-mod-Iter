@@ -131,15 +131,8 @@ elseif level_id == 'arm_for' then
 		transfer_room(2711, 59, 60)
 		transfer_room(2712, 59, 60)
 
-		data.nav_segments[56].neighbours[57] = {5188}
-		data.nav_segments[57].neighbours[56] = {5188}
-
-		data.nav_segments[59].neighbours[60] = {5210}
-		data.nav_segments[60].neighbours[59] = {5210}
-
-		data.nav_segments[59].neighbours[58] = {5195}
-		data.nav_segments[58].neighbours[59] = {5195}
-
+		-- v6: the transfers already leave doors 5188, 5205/5210 and 5195/5206
+		-- in place; the old neighbour writes were redundant (verified by T6).
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
 
@@ -824,7 +817,6 @@ local dead_patches = {
 -- Geometry survives, but the block also relies on explicit neighbour writes
 -- that v6 discards. Logged as applied_partial until rewritten.
 local partial_patches = {
-	arm_for = true,
 	crojob2 = true,
 	escape_street = true,
 	jolly = true,

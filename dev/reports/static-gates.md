@@ -1,6 +1,6 @@
 ﻿# Iter 248.2 full-nav static gates
 
-Generated: 2026-10-24 15:02:13Z
+Generated: 2026-10-24 15:17:07Z
 
 ## Node tool tests
 
@@ -11,7 +11,7 @@ Result: PASS
 Γä╣ cancelled 0
 Γä╣ skipped 0
 Γä╣ todo 0
-Γä╣ duration_ms 154.8468
+Γä╣ duration_ms 152.3912
 
 ## Test-harness parser
 
