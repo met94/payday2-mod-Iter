@@ -47,11 +47,11 @@ all reach the v6 converter.
 
 ## Follow-up
 
-1. `skm_mallcrasher` rewrite is in test: `transfer_room(943, 8, 11)` makes
-   door 1526 intra-segment so the 8<->11 link disappears. Pass = `navpath
-   8->11 direct=0`; if it fails, retire the block to `drop-log.md`.
-   Runtime: the standard Vlad job reports level id `mallcrasher`, not
-   `skm_mallcrasher`; the patch resolves through `level_aliases`.
+1. `skm_mallcrasher` rewrite is untested: `transfer_room(943, 8, 11)` makes
+   door 1526 intra-segment so the 8<->11 link should disappear. Pass =
+   `navpath 8->11 direct=0` in Crime Spree. The standard Vlad job
+   (`mallcrasher`) is a different heist (`narratives/vlad/mallcrasher`, CRC
+   `75811735`) and stays unpatched; see `p7-level-id-audit.md`.
 2. `dinner` and `flat` have no nav-data operations; their `add_obstacle`
    side effects now live in a per-call wrapper (not file-load overrides).
 3. PARTIAL levels need a per-level in-game check (T6): if the added doors
@@ -76,7 +76,8 @@ Consolidated verdicts:
 |---|---|
 | SURVIVES_AS_IS (18) | alex_2, arm_fac, arm_for, born, branchbank, chas, crojob2, escape_street, firestarter_1, framing_frame_1, jolly, jewelry_store, kenaz, kosugi, mex, mia_1, pbr, roberts, watchdogs_1 |
 | ACCEPTED_LOSS (2) | moon, peta (door on the shared edge, engine does not derive the link; visibility is not the gate) |
-| REWRITE_UNDER_TEST (1) | mallcrasher / skm_mallcrasher (`transfer_room(943, 8, 11)`) |
+| REWRITE_UNTESTED (1) | skm_mallcrasher (`transfer_room(943, 8, 11)`; Crime Spree only) |
+| OUT_OF_SCOPE | `mallcrasher` (standard Vlad job, different world/CRC; r200 never patched it) |
 | no nav-data ops | dinner, flat (obstacle wrappers only) |
 
 `crojob2` = The Bomb: Dockyard (level id; job id is `crojob1`).

@@ -4,7 +4,9 @@ Status: Train Heist (`arm_for`), The Bomb: Dockyard (`crojob2`), Escape:
 Street (`escape_street`) and Aftershock (`jolly`) are done — all survive
 as-is; their dead neighbour writes were removed. Patch-on dumps are collected
 for the remaining levels: `dev/reports/p7-runtime-2026-10-24.md`. Remaining
-P7 work: rewrite `moon` and `peta`, decide `skm_mallcrasher`.
+P7 work: `moon`/`peta` are accepted losses; the skirmish `skm_mallcrasher`
+rewrite is untested. The standard Vlad `mallcrasher` is a different heist and
+out of scope.
 
 The harness collects the data automatically. Enable **Dev: v6 map patches**,
 load the heist, wait for the `p7auto` block in the log, quit. `!iter p7`
@@ -20,7 +22,7 @@ On heist start the harness runs `!iter p7` automatically for:
 | Aftershock (`jolly`) | `navdump 87 141`, `navdoors 87 141`, `navquad 2420 3445`, `navpath 141 87`, `navpath 87 <X>` |
 | Stealing Xmas (`moon`) | `navdump 22 23`, `navdoors 22 23`, `navquad 2777 2758`, `navpath 22 23`, `navpath 23 <X>` |
 | Goat Simulator D1 (`peta`) | `navdump 47 53 91`, `navdoors 47 91`, `navdoors 47 53`, `navquad 121 126`, `navpath 47 91`, `navpath 47 53`, `navpath 91 <X>` |
-| Mallcrasher (`mallcrasher`; skirmish stage `skm_mallcrasher`) | `navdump 8 11`, `navdoors 8 11`, `navquad 943 61`, `navpath 8 11` (rewrite under test) |
+| Mallcrasher (skirmish `skm_mallcrasher` only) | `navdump 8 11`, `navdoors 8 11`, `navquad 943 61`, `navpath 8 11` (rewrite untested) |
 
 `<X>` is picked automatically as another neighbour of the sealed segment and
 logged as `p7auto seal seg=… exclude=… alt=…`. That pair is the seal test.
@@ -50,8 +52,9 @@ One pass per level, then a baseline pass:
 2. Repeat for the four Crime.net levels. For Escape: Street, load any heist
    and run `!iter force escape_street` in chat; the dump fires on the escape
    start. Then quit to menu.
-3. Menu: **Dev: v6 map patches** OFF. Reload the four partial levels
-   (Mallcrasher has no path A/B). Wait for the block. Quit.
+3. Menu: **Dev: v6 map patches** OFF. Reload the two accepted-loss levels
+   (moon, peta). Wait for the block. Quit. `skm_mallcrasher` needs a Crime
+   Spree run; the standard `mallcrasher` is not patched.
 
 Do not toggle mid-heist: patches apply in `NavigationManager:set_load_data`.
 
@@ -63,7 +66,8 @@ Aftershock       !iter navdump 87 / navdump 141 / navdoors 87 141 / navpath 141 
 Stealing Xmas    !iter navdump 22 / navdump 23 / navdoors 22 23 / navpath 22 23
 Goat D1          !iter navdump 47 / navdump 53 / navdump 91 / navdoors 47 91 /
                  navdoors 47 53 / navpath 47 91
-Mallcrasher      !iter navdump 8 / navdump 11 / navdoors 8 11
+Mallcrasher      skirmish only: !iter navdump 8 / navdump 11 / navdoors 8 11
+                 (standard Vlad job is a different heist, unpatched)
 ```
 
 One command per chat line, each with `!iter`, no semicolons.

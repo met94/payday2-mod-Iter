@@ -73,9 +73,13 @@ Patch-on dumps are done for all five pending levels:
   segment 53 (hat shop) stays isolated. Door 201 geometry is correct;
   visibility `see=1/1` did not help. **Accepted loss**; the working door is
   kept.
-- `skm_mallcrasher`: standard job CRC `75811735` (skirmish `598935744`).
-  Dedicated block now applies `transfer_room(943, 8, 11)`; pass =
-  `navpath 8->11 direct=0`. A/B pending.
+- `skm_mallcrasher`: **skirmish only** (Crime Spree, world
+  `narratives/skm/skm_mallcrasher`, CRC `598935744`). `transfer_room(943, 8,
+  11)` is an untested rewrite; it logs `applied_partial`. The standard Vlad
+  job (`mallcrasher`, world `narratives/vlad/mallcrasher`, CRC `75811735`) is
+  a different heist and stays unpatched (`skip_nopatch`).
+- Level-id audit: `dev/reports/p7-level-id-audit.md` — no other conflation;
+  `gallery` is a valid clone of `framing_frame_1` with its own CRC.
 
 Still useful: the patch-off baseline for `moon`/`peta` (confirms the patch is
 the only attempted link, not a vanilla topology change). Optional for

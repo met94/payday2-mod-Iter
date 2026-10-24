@@ -187,12 +187,12 @@ p7_text = table.concat(lines, '\n')
 assert(p7_text:find('p7auto seal seg=87 exclude=141 alt=90', 1, true), 'p7 seal alternative wrong: ' .. p7_text)
 assert(p7_text:find('navpath level=jolly patches=on 87->90', 1, true), 'p7 seal path missing 87->90')
 
-current_level = 'mallcrasher'
+current_level = 'skm_mallcrasher'
 lines = {}
 Iter_TestHarness.p7_dump(true)
 p7_text = table.concat(lines, '\n')
-assert(p7_text:find('p7auto level=mallcrasher patches=on', 1, true), 'mallcrasher alias plan missing: ' .. p7_text)
-assert(p7_text:find('navdoors 8<->11', 1, true), 'mallcrasher doors missing')
+assert(p7_text:find('p7auto level=skm_mallcrasher patches=on', 1, true), 'skm_mallcrasher plan missing: ' .. p7_text)
+assert(p7_text:find('navdoors 8<->11', 1, true), 'skm_mallcrasher doors missing')
 
 Iter_TestHarness.p7_auto_enabled = false
 lines = {}

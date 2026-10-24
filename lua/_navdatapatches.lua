@@ -568,15 +568,15 @@ elseif level_id == 'roberts' then
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
 
-elseif level_id == 'mallcrasher' or level_id == 'skm_mallcrasher' then
+elseif level_id == 'skm_mallcrasher' then
 
 	return function(self, data)
 		-- v6: the r200 neighbour seal is discarded. Door 1526 joins quad 943
 		-- (segment 8) to quad 61 (segment 11) on their shared edge. Move
 		-- quad 943 into segment 11 so the door becomes intra-segment and the
 		-- 8<->11 link disappears (T6 navquad).
-		-- The standard Vlad job and the skirmish stage carry different nav
-		-- data (CRC 75811735 vs 598935744); both select this block.
+		-- Skirmish-only: the standard Vlad job is `mallcrasher`, a different
+		-- world/nav data set; r200 never patched it. Untested on skirmish.
 		transfer_room(943, 8, 11)
 
 		itr_original_navigationmanager_setloaddata(self, data)
@@ -679,7 +679,6 @@ local nav_data_sigs = {
 	jolly = 617794335,
 	kenaz = 1079949878,
 	kosugi = 373270794,
-	mallcrasher = 75811735,
 	mex = -415457450,
 	mia_1 = 710528854,
 	moon = -814267024,
@@ -733,7 +732,10 @@ local dead_patches = {}
 -- that v6 discards. Logged as applied_partial until rewritten.
 local partial_patches = {
 	moon = true,
-	peta = true
+	peta = true,
+	-- Skirmish rewrite is untested; keep the honest partial marker until a
+	-- Crime Spree run confirms the 8<->11 link is gone.
+	skm_mallcrasher = true
 }
 
 local function patch_event(level_id, result, extra)

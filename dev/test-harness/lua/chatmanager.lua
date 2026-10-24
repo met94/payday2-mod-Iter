@@ -748,14 +748,6 @@ local P7_PLANS = {
 		doors = { { 8, 11 } },
 		paths = { { 8, 11 } },
 		quads = { 943, 61 }
-	},
-	-- The standard Vlad job reports level_id "mallcrasher"; skm_mallcrasher is
-	-- the skirmish stage id. Keep both so either load collects the dump.
-	mallcrasher = {
-		dumps = { 8, 11 },
-		doors = { { 8, 11 } },
-		paths = { { 8, 11 } },
-		quads = { 943, 61 }
 	}
 }
 

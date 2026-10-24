@@ -127,11 +127,16 @@ Target: `e3a8b616` (248.2).
   quad edge. Visibility cross-link tested on moon/peta: `see_fwd=1 see_rev=1`
   but the engine still does not derive the link, so visibility is **not** the
   gate. Moon/peta moved to accepted losses (`drop-log.md`).
-- Mallcrasher: the standard job's nav data CRC is `75811735`, not the r200
-  skirmish `598935744`; the alias logged `mismatch`. Removed the alias, added
-  `nav_data_sigs.mallcrasher`, and gave both ids a dedicated
-  `transfer_room(943, 8, 11)` block. A/B pending.
-- `navquad` now lists doors per quad.
+- Mallcrasher id audit: the standard Vlad job (`mallcrasher`,
+  `narratives/vlad/mallcrasher`, CRC `75811735`) and the skirmish stage
+  (`skm_mallcrasher`, `narratives/skm/skm_mallcrasher`, CRC `598935744`) are
+  **different heists**. The alias was reverted; the standard job logs
+  `skip_nopatch`. The skirmish block keeps `transfer_room(943, 8, 11)` as an
+  untested rewrite (`applied_partial`). Audit:
+  `dev/reports/p7-level-id-audit.md`.
+- Level-id audit found no other conflation: all patch/setting ids map to real
+  level keys; `gallery` is a valid `deep_clone` of `framing_frame_1` with its
+  own CRC; `_day`/`_night` stripping is intentional.
 - Escape: Street is a random escape, not selectable in Crime.net. Added
   host-only `!iter force <level_id>` (tweak-data world name via
   `session():load_level`) so `escape_street` can be loaded from any heist.
