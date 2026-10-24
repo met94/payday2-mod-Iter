@@ -39,6 +39,22 @@
 		},
 		{
 			"type" : "toggle",
+			"id" : "path_extender",
+			"title" : "itr_options_path_extender_title",
+			"description" : "itr_options_path_extender_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "path_extender"
+		},
+		{
+			"type" : "toggle",
+			"id" : "direct_to_pos",
+			"title" : "itr_options_direct_to_pos_title",
+			"description" : "itr_options_direct_to_pos_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "direct_to_pos"
+		},
+		{
+			"type" : "toggle",
 			"id" : "nav_ai",
 			"title" : "itr_options_nav_ai_title",
 			"description" : "itr_options_nav_ai_desc",
