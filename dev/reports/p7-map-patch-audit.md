@@ -49,9 +49,33 @@ all reach the v6 converter.
 
 1. `skm_mallcrasher` is a no-op at 248.2: rewrite as a door/quad change or
    drop it (candidate for `drop-log.md`).
-2. `dinner` and `flat` have no operations: drop the blocks.
+2. `dinner` and `flat` have no nav-data operations; their `add_obstacle`
+   side effects now live in a per-call wrapper (not file-load overrides).
 3. PARTIAL levels need a per-level in-game check (T6): if the added doors
    produce the intended connectivity, remove the dead neighbour writes;
    otherwise re-express the connection as doors/quads.
 4. Sample at least one PARTIAL level (Biker D1 `born`, Golden Grin `kenaz`)
    before calling P7 complete.
+
+## Per-block audit
+
+Two read-only audits cover every level block:
+
+- `dev/reports/p7-partial-audit-a.md` — alex_2 … framing_frame_1.
+- `dev/reports/p7-partial-audit-b.md` — jewelry_store … watchdogs_1.
+
+Consolidated verdicts:
+
+| Verdict | Levels |
+|---|---|
+| SURVIVES_AS_IS (14) | alex_2, arm_fac, born, branchbank, chas, firestarter_1, framing_frame_1, jewelry_store, kenaz, kosugi, mex, mia_1, pbr, roberts, watchdogs_1 |
+| NEEDS_REWRITE (6) | arm_for, crojob2, escape_street, jolly, moon, peta |
+| DEAD_ONLY (1) | skm_mallcrasher |
+| no nav-data ops | dinner, flat (obstacle wrappers only) |
+
+`arm_for`, `crojob2`, `escape_street`, `jolly`, `moon`, `peta` are logged as
+`applied_partial`; their surviving geometry runs, but the neighbour-only
+connection is lost until rewritten. `jolly`/`moon`/`peta` also lose a
+neighbour-list seal; that needs an engine-side segment/state expression, not
+a data write.
+

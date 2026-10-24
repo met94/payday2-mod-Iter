@@ -1,12 +1,12 @@
 {
 	"blt_version" : 2,
-	"name" : "Iter Lite",
-	"description" : "Iter, minus the pathfinding code (Diesel 3.0 rewrote navigation); keeps the level and mission fixes.",
-	"author" : "TdlQ\n    lite build (pathfinding removed)\n    thai translation by NewPJzuza\n    swedish translation by TheBreakingBenny\n    chinese translation by LR_Daring\n    spanish translation by Kilowide",
+	"name" : "Iter",
+	"description" : "Improved navigation for all AIs, fixed a few levels. 248.2 x64 navigation port.",
+	"author" : "TdlQ\n    248.2 x64 nav port\n    thai translation by NewPJzuza\n    swedish translation by TheBreakingBenny\n    chinese translation by LR_Daring\n    spanish translation by Kilowide",
 	"image" : "tdlq.dds",
 	"color" : "0.52 1 0",
 	"contact" : "",
-	"version" : "201",
+	"version" : "202-dev",
 	"priority" : 40,
 	"pre_hooks" : [
 		{

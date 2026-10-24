@@ -1,3 +1,12 @@
+Revision 202-dev (248.2 navigation port):
+- restored the r200 navigation core against nav v6: v5 geometry shim, choke-point proxies, path streamliner, nav-link reservation/queue/alternates, Iter coarse search, direct-to-pos, path extender
+- kept the Lite level and mission fixes, drill, menu, localization, and SO nav-link rebuild
+- added per-call map-patch selection with version/CRC gates; Big Bank patch applied, 6 levels need a v6 rewrite, Mallcrasher is a no-op
+- dropped civilian/team-AI callbacks that no longer exist and the stale civilian `_optimize_path`
+- diagnostics: `[ITER-NAV]` events, 30 s heartbeat, `!iter` test harness
+
+Player notes: enemy and friendly AI can take shorter paths, wait less at ladders and jumps, and use the nav mesh the way Iter intended on the current 64-bit game. Level fixes are back except the handful listed above; the options menu exposes development toggles for testing.
+
 Revision 201 (Iter Lite):
 - removed pathfinding code (navigation manager, AI pathing hooks, nav-data patches) since Diesel 3.0 rewrote pathfinding
 - kept all level and mission fixes, drill, menu, localization, and the navlink-vector data they rely on

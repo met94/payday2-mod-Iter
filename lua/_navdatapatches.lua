@@ -809,6 +809,17 @@ local dead_patches = {
 	skm_mallcrasher = true
 }
 
+-- Geometry survives, but the block also relies on explicit neighbour writes
+-- that v6 discards. Logged as applied_partial until rewritten.
+local partial_patches = {
+	arm_for = true,
+	crojob2 = true,
+	escape_street = true,
+	jolly = true,
+	moon = true,
+	peta = true
+}
+
 local function patch_event(level_id, result, extra)
 	local fields = {
 		level = level_id,
@@ -957,6 +968,6 @@ function NavigationManager:set_load_data(data)
 		return itr_original_navigationmanager_setloaddata(self, data)
 	end
 
-	patch_event(level_id, 'applied', Iter.nav_patch_stats)
+	patch_event(level_id, partial_patches[level_id] and 'applied_partial' or 'applied', Iter.nav_patch_stats)
 	return true
 end
