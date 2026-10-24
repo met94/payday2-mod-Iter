@@ -184,15 +184,10 @@ function TH.dump_patch()
 	end
 
 	say(string.format(
-		'patch level=%s result=%s expected=%s actual=%s rooms=%s doors=%s segments=%s dead_neighbours=%s',
-		tostring(status.level_id),
+		'patch level=%s result=%s error=%s',
+		tostring(status.level),
 		tostring(status.result),
-		tostring(status.expected),
-		tostring(status.actual),
-		tostring(status.rooms),
-		tostring(status.doors),
-		tostring(status.segments),
-		tostring(status.dead_neighbours)
+		tostring(status.error)
 	))
 end
 

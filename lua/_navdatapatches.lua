@@ -15,7 +15,6 @@ local add_segment
 local append_room
 local transfer_room
 local append_vis_group
-local level_id = Iter:get_level_id()
 
 local itr_original_navigationmanager_setloaddata = NavigationManager.set_load_data
 
@@ -26,12 +25,13 @@ local function _make_seg2vg(data)
 	end
 end
 
-if not Iter.settings['map_change_' .. level_id] then
-	-- qued
+local function select_patch(level_id)
+	if not Iter.settings['map_change_' .. level_id] then
+		return nil
 
 elseif level_id == 'alex_2' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		local rid = append_room(119, 117, 111, 110, 74, 22.5, 74, 22.5, 55)
 		append_door(Vector3(117, 110, 22.5), Vector3(119, 110, 22.5), 456, rid)
 
@@ -55,7 +55,7 @@ elseif level_id == 'alex_2' then
 
 elseif level_id == 'arm_fac' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		-- around truck 100226
 		local rid = append_room(24, 32, -130, -131, 232.389, 232.389, 232.389, 232.389, 11)
 		local did = append_door(Vector3(24, -130, 232.389), Vector3(24, -131, 232.389), 108, rid)
@@ -71,7 +71,7 @@ elseif level_id == 'arm_fac' then
 
 elseif level_id == 'arm_for' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		-- 2701 and 2703 are clones, that's a new level of fucked up
 		-- 2705 and 2713 are clones, won't bother to delete that and their doors
 
@@ -103,7 +103,7 @@ elseif level_id == 'arm_for' then
 
 elseif level_id == 'big' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		-- so _get_pos_on_wall() can find something when using thermite
 		data.nav_segments[62].pos = Vector3(-3600, -1400, -1000)
 
@@ -117,7 +117,7 @@ elseif level_id == 'big' then
 
 elseif level_id == 'born' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		-- bar counter
 		data.room_borders_y_neg[442] = -46
 		append_door(Vector3(39, -46, 72.5), Vector3(39, -45, 72.5), 442, 457)
@@ -137,7 +137,7 @@ elseif level_id == 'born' then
 
 elseif level_id == 'branchbank' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		-- prevent chars to walk into wall
 		local rid = 551
 		data.room_borders_y_pos[rid] = 41
@@ -165,7 +165,7 @@ elseif level_id == 'branchbank' then
 
 elseif level_id == 'chas' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		-- between 2 cars in front of SF souvenirs
 		local rid = append_room(93, 98, 159, 160, 503.519, 503.519, 508, 503.519, 11)
 		append_door(Vector3(93, 159, 503.519), Vector3(93, 160, 508), 125, rid)
@@ -176,7 +176,7 @@ elseif level_id == 'chas' then
 
 elseif level_id == 'crojob2' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		transfer_room(414, 28, 74)
 		transfer_room(417, 28, 74)
 		transfer_room(418, 28, 74)
@@ -217,7 +217,7 @@ elseif level_id == 'dinner' then
 
 elseif level_id == 'escape_park' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		local pos_match = function(pos)
 			x = mvec3_x(low_pos)
 			y = mvec3_y(low_pos)
@@ -262,7 +262,7 @@ elseif level_id == 'escape_park' then
 
 elseif level_id == 'escape_street' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		append_vis_group(63, Vector3(1270, -1310, 400))
 		add_segment(63, Vector3(1270, -1310, 400))
 
@@ -284,7 +284,7 @@ elseif level_id == 'escape_street' then
 
 elseif level_id == 'firestarter_1' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		-- access around a truck
 		data.room_borders_x_pos[576] = -12
 		data.room_borders_y_neg[576] = 159
@@ -314,7 +314,7 @@ elseif level_id == 'flat' then
 
 elseif level_id == 'framing_frame_1' or level_id == 'gallery' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		local vg = append_vis_group(100, Vector3(2457, 6, 0))
 
 		vg.rooms = {
@@ -349,7 +349,7 @@ elseif level_id == 'framing_frame_1' or level_id == 'gallery' then
 
 elseif level_id == 'jewelry_store' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		local rid = append_room(-8, -12, 87, 86, 27.5, 27.5, 27.5, 27.5, 5)
 
 		local did = append_door(Vector3(-12, 86, 27.5), Vector3(-11, 86, 27.5), 882, rid)
@@ -363,7 +363,7 @@ elseif level_id == 'jewelry_store' then
 
 elseif level_id == 'jolly' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		data.room_borders_x_pos[2420] = data.room_borders_x_pos[2420] + 2
 		data.room_borders_y_neg[2420] = data.room_borders_y_neg[2420] - 1
 		data.room_borders_y_pos[3445] = data.room_borders_y_pos[3445] + 1
@@ -385,7 +385,7 @@ elseif level_id == 'jolly' then
 
 elseif level_id == 'kenaz' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		local rid = append_room(27, 23, -83, -84, -877.5, -877.5, -877.5, -877.5, 189)
 
 		local did = append_door(Vector3(23, -84, -877.5), Vector3(23, -83, -877.5), 1683, rid)
@@ -399,7 +399,7 @@ elseif level_id == 'kenaz' then
 
 elseif level_id == 'kosugi' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		transfer_room(1744, 2, 3)
 		transfer_room(1747, 2, 3)
 		transfer_room(1751, 2, 3)
@@ -443,7 +443,7 @@ elseif level_id == 'kosugi' then
 
 elseif level_id == 'mex' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		transfer_room(3908, 235, 192)
 		transfer_room(3916, 235, 192)
 		transfer_room(3907, 235, 192)
@@ -464,7 +464,7 @@ elseif level_id == 'mex' then
 
 elseif level_id == 'mia_1' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		-- room 101
 		append_room(222, 221, -84, -85, 47.5, 47.5, 47.5, 47.5, 3)
 		append_room(222, 221, -55, -56, 47.5, 47.5, 47.5, 47.5, 3)
@@ -550,7 +550,7 @@ elseif level_id == 'mia_1' then
 
 elseif level_id == 'moon' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		data.room_borders_x_neg[2777] = data.room_borders_x_neg[2777] - 1
 		data.room_borders_y_neg[2777] = data.room_borders_y_neg[2777] - 1
 
@@ -569,7 +569,7 @@ elseif level_id == 'moon' then
 
 elseif level_id == 'pbr' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		data.room_borders_y_pos[1222] = -286
 
 		local did = append_door(Vector3(38, -287, -58), Vector3(38, -286, -82), 1147, 1222)
@@ -588,7 +588,7 @@ elseif level_id == 'pbr' then
 
 elseif level_id == 'peta' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		transfer_room(121, 53, 47) -- Weathers hat shop
 		data.nav_segments[53].neighbours[47] = {201}
 		data.nav_segments[47].neighbours[53] = {201}
@@ -607,7 +607,7 @@ elseif level_id == 'peta' then
 
 elseif level_id == 'roberts' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		-- Jimbo's in
 		append_room(-30, -34, 101, 84, -18.14, -18.14, -18.14, -18.14, 218)
 
@@ -619,7 +619,7 @@ elseif level_id == 'roberts' then
 
 elseif level_id == 'skm_mallcrasher' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		-- prevent cops going through banditbarrier of vase store
 		data.nav_segments[8].neighbours[11] = {}
 		data.nav_segments[11].neighbours[8] = {}
@@ -629,7 +629,7 @@ elseif level_id == 'skm_mallcrasher' then
 
 elseif level_id == 'watchdogs_1' then
 
-	function NavigationManager:set_load_data(data)
+	return function(self, data)
 		transfer_room(896, 134, 52)
 		transfer_room(897, 134, 52)
 		transfer_room(898, 134, 52)
@@ -667,10 +667,7 @@ elseif level_id == 'watchdogs_1' then
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
 
-end
-
-if NavigationManager.set_load_data == itr_original_navigationmanager_setloaddata then
-	return
+	end
 end
 
 -- https://web.mit.edu/freebsd/head/sys/libkern/crc32.c
@@ -763,7 +760,7 @@ local nav_data_sigs = {
 }
 nav_data_sigs.framing_frame_1 = nav_data_sigs.gallery
 
-local function _is_expected_data(data, a, b)
+local function _is_expected_data(data, level_id)
 	local tbls = {
 		'door_high_rooms',
 		'door_low_rooms',
@@ -795,74 +792,137 @@ local function _is_expected_data(data, a, b)
 	return is_ok
 end
 
-local second_itr_original_navigationmanager_setloaddata = NavigationManager.set_load_data
-function NavigationManager:set_load_data(data)
-	if _is_expected_data(data) then
+local patch_cache = {}
+
+local function patch_event(level_id, result, extra)
+	local fields = {
+		level = level_id,
+		result = result
+	}
+
+	for key, value in pairs(extra or {}) do
+		fields[key] = value
+	end
+
+	Iter.nav_patch_status = fields
+	Iter.diag.event('patch', fields)
+end
+
+local function prepare_helpers(data)
+	_make_seg2vg(data)
+
+	transfer_room = function(id, from, to)
+		data.vis_groups[seg2vg[from]].rooms[id] = nil
+		data.vis_groups[seg2vg[to]].rooms[id] = true
+		data.room_vis_groups[id] = seg2vg[to]
+	end
+
+	local rid = #data.room_borders_x_neg
+
+	append_room = function(borders_x_pos, borders_x_neg, borders_y_pos, borders_y_neg, heights_xp_yp, heights_xp_yn, heights_xn_yp, heights_xn_yn, segment_id)
+		rid = rid + 1
+		borders_x_neg, borders_x_pos = math.min_max(borders_x_pos, borders_x_neg)
+		borders_y_neg, borders_y_pos = math.min_max(borders_y_pos, borders_y_neg)
+		data.room_borders_x_pos[rid] = borders_x_pos
+		data.room_borders_x_neg[rid] = borders_x_neg
+		data.room_borders_y_pos[rid] = borders_y_pos
+		data.room_borders_y_neg[rid] = borders_y_neg
+		data.room_heights_xp_yp[rid] = heights_xp_yp
+		data.room_heights_xp_yn[rid] = heights_xp_yn
+		data.room_heights_xn_yp[rid] = heights_xn_yp
+		data.room_heights_xn_yn[rid] = heights_xn_yn
+		data.room_vis_groups[rid] = seg2vg[segment_id]
+		data.vis_groups[seg2vg[segment_id]].rooms[rid] = true
+		return rid
+	end
+
+	local did = #data.door_high_pos
+
+	append_door = function(low_pos, high_pos, low_room_id, high_room_id)
+		did = did + 1
+		data.door_low_pos[did] = low_pos
+		data.door_high_pos[did] = high_pos
+		data.door_low_rooms[did] = low_room_id
+		data.door_high_rooms[did] = high_room_id
+		return did
+	end
+
+	append_vis_group = function(navseg_id, pos)
+		local vg = {
+			rooms = {},
+			pos = pos,
+			seg = navseg_id,
+			vis_groups = {}
+		}
+		for k, v in pairs(data.vis_groups) do
+			v.vis_groups[navseg_id] = true
+			vg.vis_groups[k] = true
+		end
+		table.insert(data.vis_groups, vg)
+
 		_make_seg2vg(data)
 
-		transfer_room = function(id, from, to)
-			data.vis_groups[seg2vg[from]].rooms[id] = nil
-			data.vis_groups[seg2vg[to]].rooms[id] = true
-			data.room_vis_groups[id] = seg2vg[to]
-		end
-
-		local rid = #data.room_borders_x_neg
-		append_room = function(borders_x_pos, borders_x_neg, borders_y_pos, borders_y_neg, heights_xp_yp, heights_xp_yn, heights_xn_yp, heights_xn_yn, segment_id)
-			rid = rid + 1
-			borders_x_neg, borders_x_pos = math.min_max(borders_x_pos, borders_x_neg)
-			borders_y_neg, borders_y_pos = math.min_max(borders_y_pos, borders_y_neg)
-			data.room_borders_x_pos[rid] = borders_x_pos
-			data.room_borders_x_neg[rid] = borders_x_neg
-			data.room_borders_y_pos[rid] = borders_y_pos
-			data.room_borders_y_neg[rid] = borders_y_neg
-			data.room_heights_xp_yp[rid] = heights_xp_yp
-			data.room_heights_xp_yn[rid] = heights_xp_yn
-			data.room_heights_xn_yp[rid] = heights_xn_yp
-			data.room_heights_xn_yn[rid] = heights_xn_yn
-			data.room_vis_groups[rid] = seg2vg[segment_id]
-			data.vis_groups[seg2vg[segment_id]].rooms[rid] = true
-			return rid
-		end
-
-		local did = #data.door_high_pos
-		append_door = function(low_pos, high_pos, low_room_id, high_room_id)
-			did = did + 1
-			data.door_low_pos[did] = low_pos
-			data.door_high_pos[did] = high_pos
-			data.door_low_rooms[did] = low_room_id
-			data.door_high_rooms[did] = high_room_id
-			return did
-		end
-
-		append_vis_group = function(navseg_id, pos)
-			local vg = {
-				rooms = {},
-				pos = pos,
-				seg = navseg_id,
-				vis_groups = {}
-			}
-			for k, v in pairs(data.vis_groups) do
-				v.vis_groups[navseg_id] = true
-				vg.vis_groups[k] = true
-			end
-			table.insert(data.vis_groups, vg)
-
-			_make_seg2vg(data)
-
-			return vg
-		end
-
-		add_segment = function(navseg_id, pos)
-			data.nav_segments[navseg_id] = {
-				location_id = 'location_unknown',
-				pos = pos,
-				vis_groups = { seg2vg[navseg_id] },
-				neighbours = {},
-			}
-		end
-
-		second_itr_original_navigationmanager_setloaddata(self, data)
-	else
-		itr_original_navigationmanager_setloaddata(self, data)
+		return vg
 	end
+
+	add_segment = function(navseg_id, pos)
+		data.nav_segments[navseg_id] = {
+			location_id = 'location_unknown',
+			pos = pos,
+			vis_groups = { seg2vg[navseg_id] },
+			neighbours = {},
+		}
+	end
+end
+
+function NavigationManager:set_load_data(data)
+	if not Iter.settings.map_patches then
+		return itr_original_navigationmanager_setloaddata(self, data)
+	end
+
+	if type(data) ~= 'table' or (data.version or 0) >= 6 or not data.door_low_rooms then
+		patch_event(Iter:get_level_id(), 'skip_version')
+		return itr_original_navigationmanager_setloaddata(self, data)
+	end
+
+	local level_id = Iter:get_level_id()
+
+	if not Iter.settings['map_change_' .. level_id] then
+		patch_event(level_id, 'skip_setting')
+		return itr_original_navigationmanager_setloaddata(self, data)
+	end
+
+	local patch = patch_cache[level_id]
+
+	if patch == nil then
+		patch = select_patch(level_id) or false
+		patch_cache[level_id] = patch
+	end
+
+	if not patch then
+		patch_event(level_id, 'skip_nopatch')
+		return itr_original_navigationmanager_setloaddata(self, data)
+	end
+
+	local expected_ok, expected = pcall(_is_expected_data, data, level_id)
+
+	if not expected_ok or not expected then
+		patch_event(level_id, 'mismatch', {
+			error = expected_ok and nil or tostring(expected)
+		})
+		return itr_original_navigationmanager_setloaddata(self, data)
+	end
+
+	prepare_helpers(data)
+
+	local ok, err = pcall(patch, self, data)
+
+	if not ok then
+		Iter.diag.err('navdatapatches.' .. tostring(level_id), err)
+		patch_event(level_id, 'error')
+		return itr_original_navigationmanager_setloaddata(self, data)
+	end
+
+	patch_event(level_id, 'applied')
+	return true
 end

@@ -82,10 +82,11 @@ Target: `e3a8b616` (248.2).
   Jewelry: `direct_to_pos=2`, search 3/4. Big Bank: crash fixed; probe
   search 29/29, direct_to_pos=6; streamline double-call fixed by making
   `itr_streamline` idempotent.
-- P7 map patches deferred to the next session: per-call level selection and
-  69 dead neighbour writes need a dedicated audit. Design card written.
-- Session state: core nav/AI port is functional. Next: P7, then release
-  candidate hardening.
+- P7 wrapper implemented: per-call `select_patch(level_id)`, v5/CVR gate,
+  helper prep, `evt=patch` with applied/mismatch/skip. Offline wrapper test
+  (12 checks). Runtime CRC/apply status still to sample on Big Bank/Golden
+  Grin.
+- Next: T6 map-patch sample; then release candidate hardening.
 
 ## Rulings
 

@@ -55,6 +55,14 @@
 		},
 		{
 			"type" : "toggle",
+			"id" : "map_patches",
+			"title" : "itr_options_map_patches_title",
+			"description" : "itr_options_map_patches_desc",
+			"callback" : "IterMenuCheckboxClbk",
+			"value" : "map_patches"
+		},
+		{
+			"type" : "toggle",
 			"id" : "nav_ai",
 			"title" : "itr_options_nav_ai_title",
 			"description" : "itr_options_nav_ai_desc",
