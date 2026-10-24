@@ -41,5 +41,6 @@ Write-Host ''
 Write-Host 'Copy to the game (user action):'
 Write-Host ('  Copy-Item -LiteralPath ''{0}'' -Destination ''C:\Program Files (x86)\Steam\steamapps\common\PAYDAY 2\mods\Iter'' -Recurse -Force' -f $Dest)
 Write-Host ''
-Write-Host 'Optional test harness:'
-Write-Host ('  Copy-Item -LiteralPath ''{0}'' -Destination ''C:\Program Files (x86)\Steam\steamapps\common\PAYDAY 2\mods\Iter-TestHarness'' -Recurse -Force' -f (Join-Path $RepoRoot 'dev\test-harness'))
+Write-Host 'Optional test harness (live folder name is test-harness):'
+Write-Host ('  Copy-Item -LiteralPath ''{0}'' -Destination ''C:\Program Files (x86)\Steam\steamapps\common\PAYDAY 2\mods\test-harness'' -Recurse -Force' -f (Join-Path $RepoRoot 'dev\test-harness'))
+Write-Host '  (do not also keep a second harness copy: two instances double every !iter reply)'
