@@ -74,19 +74,20 @@ Consolidated verdicts:
 
 | Verdict | Levels |
 |---|---|
-| SURVIVES_AS_IS (16) | alex_2, arm_fac, arm_for, born, branchbank, chas, crojob2, firestarter_1, framing_frame_1, jewelry_store, kenaz, kosugi, mex, mia_1, pbr, roberts, watchdogs_1 |
-| NEEDS_REWRITE (4) | escape_street, jolly, moon, peta |
+| SURVIVES_AS_IS (18) | alex_2, arm_fac, arm_for, born, branchbank, chas, crojob2, escape_street, firestarter_1, framing_frame_1, jolly, jewelry_store, kenaz, kosugi, mex, mia_1, pbr, roberts, watchdogs_1 |
+| NEEDS_REWRITE (2) | moon, peta |
 | DEAD_ONLY (1) | skm_mallcrasher |
 | no nav-data ops | dinner, flat (obstacle wrappers only) |
 
 `crojob2` = The Bomb: Dockyard (level id; job id is `crojob1`).
 The Bomb: Forest is level `crojob3` and has no r200 patch.
 
-`arm_for` and `crojob2` (Dockyard) were verified by T6 dumps: the room
-transfers already leave the intended doors in place; the old neighbour writes
-were redundant. `escape_street`, `jolly`, `moon`, `peta` are logged as
-`applied_partial`; their surviving geometry runs, but the neighbour-only
-connection is lost until rewritten. `jolly`/`moon`/`peta` also lose a
-neighbour-list seal; that needs an engine-side segment/state expression, not
-a data write.
+`arm_for`, `crojob2` (Dockyard), `escape_street` and `jolly` were verified by
+T6 dumps: the room transfers/doors already leave the intended links in place;
+the old neighbour writes were redundant. Runtime evidence:
+`dev/reports/p7-runtime-2026-10-24.md`. `moon` and `peta` are logged as
+`applied_partial`; their surviving geometry runs, but the intended cross-segment
+link does not materialise: segment 23 stays isolated on `moon`, segment 53 on
+`peta` (`peta`'s new 47<->91 door does work). `skm_mallcrasher` is `skip_dead`:
+its seal has no v6 data expression.
 

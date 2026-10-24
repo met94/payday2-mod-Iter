@@ -39,11 +39,14 @@ failures, a Border Crossing patch removed for a crash).
 
 | Class | Evidence | Confidence |
 |---|---|---|
-| Dead neighbour writes removed (`arm_for`, `crojob2`) | `navdoors` shows the intended doors already exist; v6 ignores the writes | HIGH: removal is behaviour-neutral |
+| Dead neighbour writes removed (`arm_for`, `crojob2`, `escape_street`, `jolly`) | `navdoors`/`navdump` show the intended doors or navlinks already exist; v6 ignores the writes | HIGH: removal is behaviour-neutral |
 | SURVIVES_AS_IS static audit | geometry edits reach the v6 converter | MEDIUM: mechanism survives, intent unproven |
 | `big` applied | `evt=patch applied`, data values changed | MEDIUM: mechanism, not behaviour |
-| `applied_partial` (`escape_street`, `jolly`, `moon`, `peta`) | surviving geometry + dead neighbour-only links | LOW until rewritten and tested |
+| `applied_partial` (`moon`, `peta`) | geometry applies, but the intended cross-segment link is absent at runtime (`navpath` fails / segment isolated) | LOW until rewritten and tested |
 | `skm_mallcrasher` | patch was neighbour-only | NONE: dead |
+
+Runtime evidence for the four dumped levels:
+`dev/reports/p7-runtime-2026-10-24.md`.
 
 ## Behavioural A/B test
 

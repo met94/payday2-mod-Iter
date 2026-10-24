@@ -1,12 +1,14 @@
 # P7 runtime card — dumps + path A/B
 
-Status: Train Heist (`arm_for`) and The Bomb: Dockyard (`crojob2`) are done —
-both survive as-is; their dead neighbour writes were removed. The other 14
-`SURVIVES_AS_IS` blocks are cleaned too; only the five levels below still carry
-dead writes.
+Status: Train Heist (`arm_for`), The Bomb: Dockyard (`crojob2`), Escape:
+Street (`escape_street`) and Aftershock (`jolly`) are done — all survive
+as-is; their dead neighbour writes were removed. Patch-on dumps are collected
+for the remaining levels: `dev/reports/p7-runtime-2026-10-24.md`. Remaining
+P7 work: rewrite `moon` and `peta`, decide `skm_mallcrasher`.
 
 The harness collects the data automatically. Enable **Dev: v6 map patches**,
-load the heist, wait for the `p7auto` block in the log, quit. No commands.
+load the heist, wait for the `p7auto` block in the log, quit. `!iter p7`
+forces a run if the auto block is missing.
 
 ## Auto collection
 
@@ -15,10 +17,10 @@ On heist start the harness runs `!iter p7` automatically for:
 | Heist (level id) | Logged |
 |---|---|
 | Escape: Street (`escape_street`) | `navdump 48 63`, `navdoors 48 63`, `navpath 63 48` |
-| Aftershock (`jolly`) | `navdump 87 141`, `navdoors 87 141`, `navpath 141 87`, `navpath 87 <X>` |
-| Stealing Xmas (`moon`) | `navdump 22 23`, `navdoors 22 23`, `navpath 22 23`, `navpath 23 <X>` |
-| Goat Simulator D1 (`peta`) | `navdump 47 53 91`, `navdoors 47 91`, `navdoors 47 53`, `navpath 47 91`, `navpath 91 <X>` |
-| Mallcrasher (`mallcrasher`; skirmish stage `skm_mallcrasher`) | `navdump 8 11`, `navdoors 8 11` (patch is `skip_dead`) |
+| Aftershock (`jolly`) | `navdump 87 141`, `navdoors 87 141`, `navquad 2420 3445`, `navpath 141 87`, `navpath 87 <X>` |
+| Stealing Xmas (`moon`) | `navdump 22 23`, `navdoors 22 23`, `navquad 2777 2758`, `navpath 22 23`, `navpath 23 <X>` |
+| Goat Simulator D1 (`peta`) | `navdump 47 53 91`, `navdoors 47 91`, `navdoors 47 53`, `navquad 121 126`, `navpath 47 91`, `navpath 91 <X>` |
+| Mallcrasher (`mallcrasher`; skirmish stage `skm_mallcrasher`) | `navdump 8 11`, `navdoors 8 11`, `navquad 943 61` (patch is `skip_dead`) |
 
 `<X>` is picked automatically as another neighbour of the sealed segment and
 logged as `p7auto seal seg=… exclude=… alt=…`. That pair is the seal test.

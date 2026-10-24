@@ -248,4 +248,24 @@ assert(table.concat(lines, '\n'):find('force: unknown level nope', 1, true), 'fo
 
 assert(parse('!iter force escape_street').args[1] == 'escape_street', 'force args wrong')
 
+-- navquad: border/height/segment dump.
+managers.navigation = p7_nav
+p7_nav._rooms = {
+  [2777] = {
+    vis_group = 21,
+    borders = { x_neg = 1.5, x_pos = 2.5, y_neg = 3.5, y_pos = 4.5 },
+    height = { xn_yn = 10, xn_yp = 11, xp_yn = 12, xp_yp = 13 }
+  }
+}
+p7_nav._visibility_groups = { [21] = { seg = '23' } }
+
+lines = {}
+Iter_TestHarness.dump_quad({ '2777', '999' })
+local quad_text = table.concat(lines, '\n')
+assert(quad_text:find('navquad id=2777 vg=21 seg=23', 1, true), 'navquad header wrong: ' .. quad_text)
+assert(quad_text:find('borders=(1.5,3.5)-(2.5,4.5)', 1, true), 'navquad borders wrong: ' .. quad_text)
+assert(quad_text:find('height=(10.0,11.0,12.0,13.0)', 1, true), 'navquad height wrong: ' .. quad_text)
+assert(quad_text:find('navquad id=999 missing', 1, true), 'navquad missing id wrong: ' .. quad_text)
+assert(parse('!iter navquad 2777').command == 'navquad', 'navquad command not parsed')
+
 print('ok: Iter test-harness parser')

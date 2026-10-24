@@ -1,7 +1,7 @@
 Revision 202-dev (248.2 navigation port):
 - restored the r200 navigation core against nav v6: v5 geometry shim, choke-point proxies, path streamliner, nav-link reservation/queue/alternates, Iter coarse search, direct-to-pos, path extender
 - kept the Lite level and mission fixes, drill, menu, localization, and SO nav-link rebuild
-- added per-call map-patch selection with version/CRC gates; 16 levels keep their r200 fixes as-is, 4 need a v6 rewrite, Mallcrasher is a no-op
+- added per-call map-patch selection with version/CRC gates; 18 levels keep their r200 fixes as-is, 2 need a v6 rewrite, Mallcrasher is a no-op
 - dropped civilian/team-AI callbacks that no longer exist and the stale civilian `_optimize_path`
 - diagnostics: `[ITER-NAV]` events, 30 s heartbeat, `!iter` test harness
 

@@ -21,7 +21,7 @@ reimplemented on the v6 load data, with development gates for each subsystem.
 | Iter coarse search + cache | working (T4 PASS) |
 | Direct-to-pos | working (T4 PASS) |
 | Path extender | implemented; T5 pending |
-| Map patches | framework working; 16 levels survive, 4 need a v6 rewrite, 1 dead |
+| Map patches | framework working; 18 levels survive, 2 need a v6 rewrite, 1 dead |
 
 ## Requirements
 

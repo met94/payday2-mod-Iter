@@ -115,6 +115,17 @@ Target: `e3a8b616` (248.2).
   `skm_mallcrasher` (alias added in `_navdatapatches.lua`, still `skip_dead`).
 - First runtime pass (jolly/moon/peta/mallcrasher) produced patch/heist events
   but no dumps; needs a rerun with the redeployed harness.
+- Manual `!iter p7` run on all five levels (patch on). Results:
+  `dev/reports/p7-runtime-2026-10-24.md`. `escape_street` and `jolly` survive
+  as-is (63<->48 is 2 navlinks; door 9410 links 87<->141 and 87's seal is
+  inherent); dead writes removed, both now log `applied`. `moon` (23 isolated)
+  and `peta` (53 isolated) need rewrites. `skm_mallcrasher` alias works, block
+  is `skip_dead`; door 1526 carries 8<->11.
+- Harness fix: Mallcrasher's plan has no `paths`, so `ipairs(nil)` ended the
+  block with `p7auto ERROR nil`; defaults added.
+- `!iter navquad <id...>` added (borders in world units, heights, vis group,
+  segment) and included in the P7 plans for the quads involved in the
+  `moon`/`peta`/`mallcrasher` rewrites.
 - Escape: Street is a random escape, not selectable in Crime.net. Added
   host-only `!iter force <level_id>` (tweak-data world name via
   `session():load_level`) so `escape_street` can be loaded from any heist.

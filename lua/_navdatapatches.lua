@@ -277,8 +277,8 @@ elseif level_id == 'escape_street' then
 		append_vis_group(63, Vector3(1270, -1310, 400))
 		add_segment(63, Vector3(1270, -1310, 400))
 
-		data.nav_segments[63].neighbours[48] = {}
-		data.nav_segments[48].neighbours[63] = {}
+		-- v6: the engine derives 2 navlinks between 63 and 48 from the new
+		-- quads; the old empty neighbour writes were redundant (T6 dump).
 
 		local rid = append_room(69, 12, -42, -48, 422.5, 422.5, 422.5, 422.5, 63)
 		append_room(69, 45, -48, -66, 422.5, 422.5, 422.5, 422.5, 63)
@@ -366,9 +366,11 @@ elseif level_id == 'jolly' then
 		local pos1 = mvec3_cpy(pos)
 		mvec3_set_y(pos1, pos1.y - 1)
 
-		local did = append_door(pos, pos1, 2420, 3445)
-		data.nav_segments[141].neighbours[87] = { did }
-		data.nav_segments[87].neighbours = { [141] = { did } }
+		append_door(pos, pos1, 2420, 3445)
+
+		-- v6: door 9410 links 141<->87; segment 87 has only 141 as a
+		-- neighbour in the engine graph, so the old whole-table seal was
+		-- redundant (T6 dump).
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
@@ -739,8 +741,6 @@ local dead_patches = {
 -- Geometry survives, but the block also relies on explicit neighbour writes
 -- that v6 discards. Logged as applied_partial until rewritten.
 local partial_patches = {
-	escape_street = true,
-	jolly = true,
 	moon = true,
 	peta = true
 }

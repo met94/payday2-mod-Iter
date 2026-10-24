@@ -31,10 +31,12 @@ const CLEAN = [
   'chas',
   'crojob2',
   'escape_park',
+  'escape_street',
   'firestarter_1',
   'framing_frame_1',
   'gallery',
   'jewelry_store',
+  'jolly',
   'kenaz',
   'kosugi',
   'mex',
@@ -46,7 +48,7 @@ const CLEAN = [
   'flat'
 ];
 
-const PENDING = ['escape_street', 'jolly', 'moon', 'peta', 'skm_mallcrasher'];
+const PENDING = ['moon', 'peta', 'skm_mallcrasher'];
 
 function blockFor(level) {
   const start = lines.findIndex(line => line.includes(`level_id == '${level}'`));

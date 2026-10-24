@@ -1,5 +1,5 @@
 -- Iter full-nav port test harness. Dev-only; not shipped.
--- Chat commands: !iter help | nav | patch | navdump | navdoors | navpath | p7 | force | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset
+-- Chat commands: !iter help | nav | patch | navdump | navdoors | navquad | navpath | p7 | force | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset
 
 Iter_TestHarness = Iter_TestHarness or {}
 local TH = Iter_TestHarness
@@ -401,6 +401,44 @@ local function path_positions(path)
 	return count
 end
 
+function TH.dump_quad(args)
+	local nav = nav_manager()
+
+	if not nav or not nav._rooms then
+		say('navquad: no nav rooms')
+		return
+	end
+
+	for _, arg in ipairs(args) do
+		local quad_id = tonumber(arg)
+		local room = quad_id and nav._rooms[quad_id]
+
+		if not room then
+			say('navquad id=' .. tostring(arg) .. ' missing')
+		else
+			local vis_group_id = room.vis_group
+			local group = vis_group_id and nav._visibility_groups and nav._visibility_groups[vis_group_id]
+			local borders = room.borders or {}
+			local height = room.height or {}
+
+			say(string.format(
+				'navquad id=%d vg=%s seg=%s borders=(%.1f,%.1f)-(%.1f,%.1f) height=(%.1f,%.1f,%.1f,%.1f)',
+				quad_id,
+				tostring(vis_group_id),
+				tostring(group and group.seg),
+				borders.x_neg or 0,
+				borders.y_neg or 0,
+				borders.x_pos or 0,
+				borders.y_pos or 0,
+				height.xn_yn or 0,
+				height.xn_yp or 0,
+				height.xp_yn or 0,
+				height.xp_yp or 0
+			))
+		end
+	end
+end
+
 function TH.probe(args)
 	local nav = nav_manager()
 
@@ -628,29 +666,34 @@ local P7_PLANS = {
 		dumps = { 87, 141 },
 		doors = { { 87, 141 } },
 		paths = { { 141, 87 } },
+		quads = { 2420, 3445 },
 		seal = { 87, 141 }
 	},
 	moon = {
 		dumps = { 22, 23 },
 		doors = { { 22, 23 } },
 		paths = { { 22, 23 } },
+		quads = { 2777, 2758 },
 		seal = { 23, 22 }
 	},
 	peta = {
 		dumps = { 47, 53, 91 },
 		doors = { { 47, 91 }, { 47, 53 } },
 		paths = { { 47, 91 } },
+		quads = { 121, 126 },
 		seal = { 91, 47 }
 	},
 	skm_mallcrasher = {
 		dumps = { 8, 11 },
-		doors = { { 8, 11 } }
+		doors = { { 8, 11 } },
+		quads = { 943, 61 }
 	},
 	-- The standard Vlad job reports level_id "mallcrasher"; skm_mallcrasher is
 	-- the skirmish stage id. Keep both so either load collects the dump.
 	mallcrasher = {
 		dumps = { 8, 11 },
-		doors = { { 8, 11 } }
+		doors = { { 8, 11 } },
+		quads = { 943, 61 }
 	}
 }
 
@@ -739,16 +782,26 @@ function TH.p7_dump(force)
 
 		TH.dump_nav()
 
-		for _, seg_id in ipairs(plan.dumps) do
+		for _, seg_id in ipairs(plan.dumps or {}) do
 			TH.dump_segment({ tostring(seg_id) })
 		end
 
-		for _, pair in ipairs(plan.doors) do
+		for _, pair in ipairs(plan.doors or {}) do
 			TH.dump_doors({ tostring(pair[1]), tostring(pair[2]) })
 		end
 
-		for _, pair in ipairs(plan.paths) do
+		for _, pair in ipairs(plan.paths or {}) do
 			TH.navpath({ tostring(pair[1]), tostring(pair[2]) })
+		end
+
+		if plan.quads then
+			local quad_args = {}
+
+			for _, quad_id in ipairs(plan.quads) do
+				quad_args[#quad_args + 1] = tostring(quad_id)
+			end
+
+			TH.dump_quad(quad_args)
 		end
 
 		if plan.seal then
@@ -1161,7 +1214,7 @@ function TH.reset()
 end
 
 function TH.help()
-	say('commands: nav | patch | navdump <seg> | navdoors <a> <b> | navpath <from> <to> | p7 [auto on|off] | force <level> | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset | help')
+	say('commands: nav | patch | navdump <seg> | navdoors <a> <b> | navquad <id...> | navpath <from> <to> | p7 [auto on|off] | force <level> | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset | help')
 end
 
 function TH.execute_string(message)
@@ -1190,6 +1243,8 @@ function TH.execute(command)
 		TH.dump_segment(args)
 	elseif name == 'navdoors' then
 		TH.dump_doors(args)
+	elseif name == 'navquad' then
+		TH.dump_quad(args)
 	elseif name == 'navpath' then
 		TH.navpath(args)
 	elseif name == 'p7' then
