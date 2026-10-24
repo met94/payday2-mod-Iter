@@ -91,8 +91,12 @@ Target: `e3a8b616` (248.2).
   applied, 160 segments). No Iter errors.
 - RC defaults set: overlay/streamline/search/AI/navlink-queue/direct on;
   path extender and map patches off. `202-dev`.
-- Open: T5 path extender needs a converted/chase run; six P7 levels need
-  rewrites; probe length metric needs a steps-with-pos counter.
+- P7 dumps resolved arm_for and crojob2 (Dockyard) as SURVIVES_AS_IS;
+  dead neighbour writes removed. 16 levels now survive, 4 need rewrites
+  (escape_street, jolly, moon, peta), Mallcrasher is dead-only.
+- Session handoff for next context window:
+  `dev/reports/handoff-next-session.md`.
+- Next: collect remaining five P7 dumps, T5 path extender, release/merge.
 
 ## Rulings
 
