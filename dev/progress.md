@@ -32,8 +32,14 @@ Target: `e3a8b616` (248.2).
 - H-05 complete: `gates.ps1` PASS (45 Node tests, LuaJIT syntax, freevars,
   ledger, audit). API audit baseline 11 errors (unported nav).
 - P1 started: 39 three-way dossiers generated in `dev/reports/dossiers/`.
-- Next: user runs T0; implementation continues with P1 annotations and P2
-  shim while waiting.
+- N-01 complete (commit `a7977f3`): v6 geometry shim (`lua/iter_nav_v6_shim.lua`),
+  rebuild/clear hooks, offline Lua tests (137 checks), scoped api-audit
+  allowlist with used-entry enforcement. Review PASS after one fix round.
+- N-02 complete: string-key bookkeeping and guards in the nav overlay;
+  feature split `nav_overlay` / `nav_streamline` / `nav_ai`; `evt=heist`
+  post-hook. Gates PASS; audit errors still 11.
+- Next: user runs T0/T1; implementation continues with S-01 (segment doors on
+  quads) and S-02 (flood/contiguity/choke).
 
 ## Rulings
 

@@ -20,6 +20,21 @@ Hooks:PostHook(NavigationManager, '_clear', 'Iter_nav_shim_clear', function(self
 	IterNavShim.clear(self)
 end)
 
+-- One line per heist so a plain play session produces a usable card.
+Hooks:PostHook(NavigationManager, 'set_load_data', 'Iter_nav_heist', function(self, data)
+	local shim = IterNavShim.stats(self) or {}
+
+	Iter.diag.event('heist', {
+		level = Iter:get_level_id(),
+		data_version = data and data.version,
+		segments = table.size(self._nav_segments or {}),
+		rooms = shim.rooms,
+		room_doors = shim.room_doors,
+		vis_groups = shim.vis_groups,
+		fallback = shim.fallback
+	})
+end)
+
 local mvec3_add = mvector3.add
 local mvec3_ang = mvector3.angle
 local mvec3_dis = mvector3.distance
@@ -41,19 +56,27 @@ local _navlink_planned_use = {}
 
 local itr_original_navigationmanager_registercoverunits = NavigationManager.register_cover_units
 function NavigationManager:register_cover_units()
+	if not Iter.settings.nav_streamline then
+		return itr_original_navigationmanager_registercoverunits(self)
+	end
+
 	local _debug = self._debug
 	self._debug = true
 	itr_original_navigationmanager_registercoverunits(self)
 	local covers = {}
 	for i = #self._covers, 1, -1 do
 		local cover = self._covers[i]
-		local nav_tracker = cover[3]
-		if mvector3.distance(cover[1], nav_tracker:position()) < 60 then
+		local nav_tracker = cover and cover[3]
+		if not nav_tracker or not cover[1] then
+			table.remove(self._covers, i)
+		elseif mvector3.distance(cover[1], nav_tracker:position()) < 60 then
 			table.insert(covers, nav_tracker:position())
 		else
 			table.remove(self._covers, i)
 			local location_script_data = self._quad_field:get_script_data(nav_tracker)
-			table.delete(location_script_data.covers, cover)
+			if location_script_data and location_script_data.covers and table.delete then
+				table.delete(location_script_data.covers, cover)
+			end
 			self._quad_field:destroy_nav_tracker(nav_tracker)
 		end
 	end
@@ -61,19 +84,25 @@ function NavigationManager:register_cover_units()
 end
 
 function NavigationManager:itr_make_neighbours_list(navseg_id)
-	local navseg = self._nav_segments and self._nav_segments[navseg_id]
+	local unique_id = tostring(navseg_id)
+	local navseg = self._nav_segments and self._nav_segments[unique_id]
 	if not navseg then
 		return
 	end
 
 	local list = {}
-	for neighbour_seg_id in pairs(navseg.neighbours) do
-		if not self._nav_segments[neighbour_seg_id].disabled then
+	for neighbour_seg_id in pairs(navseg.neighbours or {}) do
+		local neighbour = self._nav_segments[neighbour_seg_id]
+		if neighbour and not neighbour.disabled then
 			table.insert(list, neighbour_seg_id)
 		end
 	end
 	navseg.itr_enabled_neighbours_i = list
 end
+
+-- Diagnostics/harness surface. The r200 maps are file-local otherwise.
+NavigationManager.itr_navlink_elements = _navlink_elements
+NavigationManager.itr_navlink_planned_use = _navlink_planned_use
 
 local itr_original_navigationmanager_registeranimnavlink = NavigationManager.register_anim_nav_link
 function NavigationManager:register_anim_nav_link(element)
@@ -91,7 +120,7 @@ function NavigationManager:register_anim_nav_link(element)
 		self:destroy_nav_tracker(tracker)
 
 		local so_action = values.so_action
-		if type(so_action) == 'string' then
+		if Iter.settings.nav_streamline and type(so_action) == 'string' then
 			local interval = math.max(values.interval or 1000, 0)
 			if intervals[so_action] then
 				values.interval = math.min(interval, intervals[so_action])
@@ -116,7 +145,9 @@ function NavigationManager:register_anim_nav_link(element)
 
 		values.itr_interval = values.interval or 0
 	end
-	values.interval = Iter.settings.streamline_path and 0 or values.itr_interval
+	if Iter.settings.nav_streamline then
+		values.interval = 0
+	end
 
 	itr_original_navigationmanager_registeranimnavlink(self, element)
 
@@ -129,10 +160,10 @@ end
 local itr_original_navigationmanager_unregisteranimnavlink = NavigationManager.unregister_anim_nav_link
 function NavigationManager:unregister_anim_nav_link(element)
 	local nav_link = element:nav_link()
-	if nav_link then
+	if nav_link and Iter.settings.nav_streamline then
 		nav_link:set_delay_time(604800)
-		itr_original_navigationmanager_unregisteranimnavlink(self, element)
 	end
+	itr_original_navigationmanager_unregisteranimnavlink(self, element)
 end
 
 local itr_original_navigationmanager_clbknavfield = NavigationManager.clbk_navfield
@@ -141,7 +172,7 @@ function NavigationManager:clbk_navfield(event_name, args, args2, args3)
 	if event_name == 'add_nav_seg_neighbours' then
 		for nav_seg_id in pairs(args) do
 			local nav_seg = self._nav_segments[nav_seg_id]
-			if not nav_seg.disabled_neighbours then
+			if nav_seg and not nav_seg.disabled_neighbours then
 				nav_seg.disabled_neighbours = {}
 				fuckery = true
 			end
@@ -153,7 +184,7 @@ function NavigationManager:clbk_navfield(event_name, args, args2, args3)
 	if fuckery then
 		for nav_seg_id in pairs(args) do
 			local nav_seg = self._nav_segments[nav_seg_id]
-			if nav_seg.disabled_neighbours and not next(nav_seg.disabled_neighbours) then
+			if nav_seg and nav_seg.disabled_neighbours and not next(nav_seg.disabled_neighbours) then
 				nav_seg.disabled_neighbours = nil
 			end
 		end
@@ -171,17 +202,19 @@ end
 
 local itr_original_navigationmanager_setnavsegmentstate = NavigationManager.set_nav_segment_state
 function NavigationManager:set_nav_segment_state(id, ...)
-	itr_original_navigationmanager_setnavsegmentstate(self, id, ...)
+	local unique_id = tostring(id)
+	itr_original_navigationmanager_setnavsegmentstate(self, unique_id, ...)
 
-	self:itr_make_neighbours_list(id)
-	if self._nav_segments[id].neighbours then
-		for neighbour_id in pairs(self._nav_segments[id].neighbours) do
+	self:itr_make_neighbours_list(unique_id)
+	local nav_seg = self._nav_segments[unique_id]
+	if nav_seg and nav_seg.neighbours then
+		for neighbour_id in pairs(nav_seg.neighbours) do
 			self:itr_make_neighbours_list(neighbour_id)
 		end
 	end
 end
 
-if not Iter.settings.nav_overlay then
+if not Iter.settings.nav_streamline then
 	return
 end
 

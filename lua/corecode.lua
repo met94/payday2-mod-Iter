@@ -10,6 +10,8 @@ Iter.settings = {
 	-- test card passes. `streamline_path` remains the future user-facing toggle.
 	-- See dev/plans/full-nav-port.md.
 	nav_overlay = false,
+	nav_streamline = false,
+	nav_ai = false,
 	streamline_path = false,
 	navlink_queue = false,
 	path_extender = false,
@@ -105,6 +107,8 @@ dofile(Iter._path .. 'lua/iter_diag.lua')
 Iter.diag.event('boot', {
 	diag_version = Iter.diag.version,
 	nav_overlay = tostring(Iter.settings.nav_overlay),
+	nav_streamline = tostring(Iter.settings.nav_streamline),
+	nav_ai = tostring(Iter.settings.nav_ai),
 	streamline_path = tostring(Iter.settings.streamline_path),
 	debug_log = Iter.settings.debug_log
 })

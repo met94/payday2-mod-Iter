@@ -1,7 +1,7 @@
 {
   "oldRev": "a3180fc",
   "newRev": "e3a8b616",
-  "generated": "2026-10-24T11:16:57.807Z",
+  "generated": "2026-10-24T11:19:53.832Z",
   "files": [
     {
       "file": "lua/coreworldinstancemanager.lua",
@@ -379,7 +379,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 857
+          "startLine": 890
         },
         {
           "name": "Hooks.PostHook:NavigationManager._clear:Iter_nav_shim_clear",
@@ -412,6 +412,21 @@
           "startLine": 15
         },
         {
+          "name": "Hooks.PostHook:NavigationManager.set_load_data:Iter_nav_heist",
+          "category": "MOD_ONLY_HOOK",
+          "modLines": 13,
+          "oldLines": 0,
+          "newLines": 0,
+          "modParams": "data",
+          "oldParams": "",
+          "newParams": "",
+          "isLocal": false,
+          "isHook": true,
+          "form": "hook",
+          "note": "Hooks:PostHook/PreHook callback; audit and port with the hooked method",
+          "startLine": 24
+        },
+        {
           "name": "itr_add_door_pos_to",
           "category": "MOD_ONLY",
           "modLines": 10,
@@ -424,7 +439,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 355
+          "startLine": 388
         },
         {
           "name": "itr_get_door_in_alignment",
@@ -439,7 +454,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 713
+          "startLine": 746
         },
         {
           "name": "itr_get_navlink_usage",
@@ -454,7 +469,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 571
+          "startLine": 604
         },
         {
           "name": "itr_get_rooms_having_access_to_next_level",
@@ -469,7 +484,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 366
+          "startLine": 399
         },
         {
           "name": "itr_log_navlink_usage",
@@ -484,7 +499,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 557
+          "startLine": 590
         },
         {
           "name": "NavigationManager._execute_coarce_search",
@@ -499,7 +514,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 871
+          "startLine": 904
         },
         {
           "name": "NavigationManager.clbk_navfield",
@@ -514,7 +529,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 139
+          "startLine": 170
         },
         {
           "name": "NavigationManager.itr_copy_door_data",
@@ -529,7 +544,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 530
+          "startLine": 563
         },
         {
           "name": "NavigationManager.itr_find_best_navlink",
@@ -544,7 +559,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 665
+          "startLine": 698
         },
         {
           "name": "NavigationManager.itr_find_choke_point",
@@ -559,7 +574,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 329
+          "startLine": 362
         },
         {
           "name": "NavigationManager.itr_find_proxies",
@@ -574,7 +589,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 383
+          "startLine": 416
         },
         {
           "name": "NavigationManager.itr_flood",
@@ -589,7 +604,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 278
+          "startLine": 311
         },
         {
           "name": "NavigationManager.itr_get_accessibility",
@@ -604,7 +619,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 815
+          "startLine": 848
         },
         {
           "name": "NavigationManager.itr_get_all_doors_of_segment",
@@ -619,7 +634,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 188
+          "startLine": 221
         },
         {
           "name": "NavigationManager.itr_get_closest_door_to_pos",
@@ -634,7 +649,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 588
+          "startLine": 621
         },
         {
           "name": "NavigationManager.itr_get_coarse_pos_between",
@@ -649,7 +664,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 736
+          "startLine": 769
         },
         {
           "name": "NavigationManager.itr_get_door_between",
@@ -664,7 +679,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 658
+          "startLine": 691
         },
         {
           "name": "NavigationManager.itr_get_room_to_doors",
@@ -679,7 +694,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 219
+          "startLine": 252
         },
         {
           "name": "NavigationManager.itr_is_contiguous",
@@ -694,12 +709,12 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 236
+          "startLine": 269
         },
         {
           "name": "NavigationManager.itr_make_neighbours_list",
           "category": "MOD_ONLY",
-          "modLines": 14,
+          "modLines": 16,
           "oldLines": 0,
           "newLines": 0,
           "modParams": "navseg_id",
@@ -709,7 +724,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 63
+          "startLine": 86
         },
         {
           "name": "NavigationManager.itr_prepare_streamline_data",
@@ -724,7 +739,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 512
+          "startLine": 545
         },
         {
           "name": "NavigationManager.itr_streamline",
@@ -739,12 +754,12 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 761
+          "startLine": 794
         },
         {
           "name": "NavigationManager.register_anim_nav_link",
           "category": "MOD_EDIT_CLEAN",
-          "modLines": 49,
+          "modLines": 51,
           "oldLines": 45,
           "newLines": 45,
           "modParams": "element",
@@ -754,12 +769,12 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 79
+          "startLine": 108
         },
         {
           "name": "NavigationManager.register_cover_units",
           "category": "MOD_EDIT_VANILLA_CHANGED",
-          "modLines": 19,
+          "modLines": 27,
           "oldLines": 80,
           "newLines": 75,
           "modParams": "",
@@ -769,7 +784,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 43
+          "startLine": 58
         },
         {
           "name": "NavigationManager.send_nav_field_to_engine",
@@ -784,12 +799,12 @@
           "isHook": false,
           "form": "colon",
           "note": "function exists in 246.1 but not in 248.2; drop or re-home",
-          "startLine": 546
+          "startLine": 579
         },
         {
           "name": "NavigationManager.set_nav_segment_state",
           "category": "MOD_EDIT_VANILLA_CHANGED",
-          "modLines": 10,
+          "modLines": 12,
           "oldLines": 36,
           "newLines": 38,
           "modParams": "id, ...",
@@ -799,7 +814,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 173
+          "startLine": 204
         },
         {
           "name": "NavigationManager.unregister_anim_nav_link",
@@ -814,7 +829,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 130
+          "startLine": 161
         },
         {
           "name": "path_copy",
@@ -829,13 +844,13 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 844
+          "startLine": 877
         }
       ],
       "errors": [],
       "totals": {
         "MOD_ONLY": 22,
-        "MOD_ONLY_HOOK": 2,
+        "MOD_ONLY_HOOK": 3,
         "MOD_EDIT_VANILLA_CHANGED": 5,
         "MOD_EDIT_CLEAN": 1,
         "VANISHED_IN_NEW": 1

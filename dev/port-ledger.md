@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-24T11:16:57.806Z
+Generated: 2026-10-24T11:19:53.831Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -12,7 +12,7 @@ Scope: top-level function definitions only. Nested helpers are folded into their
 | category | count |
 |---|---:|
 | MOD_EDIT_VANILLA_CHANGED | 7 |
-| MOD_ONLY_HOOK | 2 |
+| MOD_ONLY_HOOK | 3 |
 | MOD_ONLY | 54 |
 | VANISHED_IN_NEW | 1 |
 | MOD_EDIT_CLEAN | 33 |
@@ -72,11 +72,12 @@ No function definitions (hook/overlay file).
 |---:|---|---|---:|---:|---:|---|
 | [ ] | **PORT** | `NavigationManager._execute_coarce_search` | 172 | 103 | 95 |  |
 | [ ] | **PORT** | `NavigationManager.clbk_navfield` | 32 | 163 | 176 |  |
-| [ ] | **PORT** | `NavigationManager.register_cover_units` | 19 | 80 | 75 |  |
-| [ ] | **PORT** | `NavigationManager.set_nav_segment_state` | 10 | 36 | 38 |  |
+| [ ] | **PORT** | `NavigationManager.register_cover_units` | 27 | 80 | 75 |  |
+| [ ] | **PORT** | `NavigationManager.set_nav_segment_state` | 12 | 36 | 38 |  |
 | [ ] | **PORT** | `NavigationManager.unregister_anim_nav_link` | 7 | 63 | 69 |  |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._clear:Iter_nav_shim_clear` | 3 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._send_nav_field_to_engine:Iter_nav_shim_rebuild` | 3 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
+| [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.set_load_data:Iter_nav_heist` | 13 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit | `get_coarse_dis` | 8 | 0 | 0 |  |
 | [ ] | audit | `itr_add_door_pos_to` | 10 | 0 | 0 |  |
 | [ ] | audit | `itr_get_door_in_alignment` | 22 | 0 | 0 |  |
@@ -95,12 +96,12 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `NavigationManager.itr_get_door_between` | 6 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_get_room_to_doors` | 16 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_is_contiguous` | 41 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_make_neighbours_list` | 14 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_make_neighbours_list` | 16 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_prepare_streamline_data` | 17 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_streamline` | 53 | 0 | 0 |  |
 | [ ] | audit | `path_copy` | 12 | 0 | 0 |  |
 | [ ] | drop/rewrite | `NavigationManager.send_nav_field_to_engine` | 10 | 73 | 0 | function exists in 246.1 but not in 248.2; drop or re-home |
-| [ ] | keep | `NavigationManager.register_anim_nav_link` | 49 | 45 | 45 |  |
+| [ ] | keep | `NavigationManager.register_anim_nav_link` | 51 | 45 | 45 |  |
 
 ## lua/groupaistatebase.lua
 
