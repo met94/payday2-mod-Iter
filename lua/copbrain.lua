@@ -130,16 +130,21 @@ function CopBrain:clbk_pathing_results(search_id, path)
 		local my_data = self._logic_data.internal_data
 		if my_data.coarse_path then
 			local walk_action = my_data.advancing
-			if walk_action and walk_action:itr_append_next_step(path) then
-				self._logic_data.pathing_results[search_id] = nil
-				my_data.processing_advance_path = nil
-				if my_data.coarse_path_index >= #my_data.coarse_path - 2 then
-					if self._logic_data.objective then
-						local end_rot = self._logic_data.objective.rot
-						if end_rot then
-							walk_action._end_rot = end_rot
+			if walk_action then
+				if walk_action:itr_append_next_step(path) then
+					Iter.diag.count('path_extend_ok')
+					self._logic_data.pathing_results[search_id] = nil
+					my_data.processing_advance_path = nil
+					if my_data.coarse_path_index >= #my_data.coarse_path - 2 then
+						if self._logic_data.objective then
+							local end_rot = self._logic_data.objective.rot
+							if end_rot then
+								walk_action._end_rot = end_rot
+							end
 						end
 					end
+				else
+					Iter.diag.count('path_extend_skip')
 				end
 			end
 		end

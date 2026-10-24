@@ -43,6 +43,7 @@ assert(parse('!iter patch').command == 'patch', 'patch command not parsed')
 assert(parse('!iter links').command == 'links', 'links command not parsed')
 assert(parse('!iter navdump 56').command == 'navdump', 'navdump command not parsed')
 assert(parse('!iter navdoors 56 57').command == 'navdoors', 'navdoors command not parsed')
+assert(parse('!iter navpath 63 48').command == 'navpath', 'navpath command not parsed')
 
 cmd = parse('!iter')
 assert(cmd and cmd.command == 'help', 'bare !iter should map to help')
@@ -54,5 +55,78 @@ Iter = {}
 log = function() end
 local ok, err = pcall(Iter_TestHarness.dump)
 assert(ok, 'dump with nil settings should not error: ' .. tostring(err))
+
+-- navpath behaviour with a fake navigation manager.
+local lines = {}
+log = function(message)
+  lines[#lines + 1] = message
+end
+
+mvector3 = {
+  distance = function(a, b)
+    local dx, dy, dz = a.x - b.x, a.y - b.y, a.z - b.z
+    return math.sqrt(dx * dx + dy * dy + dz * dz)
+  end
+}
+
+local function last_line()
+  return lines[#lines] or ''
+end
+
+local fake_nav = {
+  _nav_segments = {
+    ['48'] = { neighbours = {} },
+    ['63'] = { neighbours = { ['48'] = { {}, {} } } },
+    ['99'] = { neighbours = {} }
+  },
+  search_coarse = function(self, params)
+    if params.from_seg == '63' and params.to_seg == '48' then
+      return {
+        { '63', { x = 0, y = 0, z = 0 } },
+        { '48', { x = 3, y = 4, z = 0 } }
+      }
+    end
+    return false
+  end
+}
+
+managers = { navigation = fake_nav }
+Iter = {
+  settings = { map_patches = true },
+  get_level_id = function()
+    return 'test_level'
+  end
+}
+
+Iter_TestHarness.navpath({ '63', '48' })
+local line = last_line()
+assert(line:find('level=test_level patches=on 63->48 ok=1 steps=2', 1, true), 'navpath success header wrong: ' .. line)
+assert(line:find('positions=2', 1, true), 'navpath positions wrong: ' .. line)
+assert(line:find('length=5.0', 1, true), 'navpath length wrong: ' .. line)
+assert(line:find('direct=2', 1, true), 'navpath direct count wrong: ' .. line)
+assert(line:find('ids=63;48', 1, true), 'navpath ids wrong: ' .. line)
+
+Iter = {
+  settings = { map_patches = false },
+  get_level_id = function()
+    return 'test_level'
+  end
+}
+
+Iter_TestHarness.navpath({ '99', '63' })
+line = last_line()
+assert(line:find('patches=off 99->63 ok=0 fail=search direct=0', 1, true), 'navpath fail line wrong: ' .. line)
+
+fake_nav.search_coarse = function()
+  error('boom')
+end
+
+Iter_TestHarness.navpath({ '63', '48' })
+line = last_line()
+assert(line:find('ok=0 err=', 1, true) and line:find('boom', 1, true), 'navpath error line wrong: ' .. line)
+
+Iter_TestHarness.navpath({ '63', '77' })
+line = last_line()
+assert(line:find('navpath: no segment 77', 1, true), 'navpath missing segment line wrong: ' .. line)
 
 print('ok: Iter test-harness parser')

@@ -140,8 +140,9 @@ Copied from LIES dev tooling (same author, reuse approved) and adapted:
 | `dev/test-harness/` | `!iter` chat commands, prefix `[ITER-TEST]` |
 | `dev/test/cards/` | acceptance JSON consumed by `log-scan --card` |
 
-Commands: `!iter help | nav | patch | probe [n] | path | ai | links | alarm |
-assault | state | setting <key> <value> | dump | reset`.
+Commands: `!iter help | nav | patch | navdump <seg> | navdoors <a> <b> |
+navpath <from> <to> | probe [n] | path | ai | links | alarm | assault | state |
+setting <key> <value> | dump | reset`.
 
 ## 9. Test cards
 

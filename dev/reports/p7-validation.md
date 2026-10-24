@@ -45,18 +45,31 @@ failures, a Border Crossing patch removed for a crash).
 | `applied_partial` (`escape_street`, `jolly`, `moon`, `peta`) | surviving geometry + dead neighbour-only links | LOW until rewritten and tested |
 | `skm_mallcrasher` | patch was neighbour-only | NONE: dead |
 
-## Behavioural A/B test (next session)
+## Behavioural A/B test
 
-Add `!iter navpath <from_seg> <to_seg>`:
+`!iter navpath <from_seg> <to_seg>` (test harness) runs
+`NavigationManager:search_coarse` between the exact segments and logs one line:
 
-- runs `NavigationManager:search_coarse` between the exact segments;
-- logs `ok`, path length, steps, and `search_fail`;
-- run once with `map_patches=true`, once with `false`, on the same heist.
+```
+navpath level=<level> patches=<on|off> <from>-><to> ok=1 steps=N positions=N
+        length=<m> direct=<door count> ids=<seg;seg;...>
+```
+
+`direct` is the number of doors on the `from -> to` neighbour entry in the
+loaded graph; it is read without searching, so it separates "graph changed"
+from "search found a detour". `ids` is the returned segment sequence (first 32
+steps).
+
+Run once with `map_patches=true`, once with `false`, on the same heist and the
+same segment pair. Reload the heist after the toggle: patches apply in
+`set_load_data`.
 
 Expected per patch intent:
 
-- add-link patch: path exists with patch, fails or is blocked without it;
-- seal patch: path fails with patch, exists without it;
+- add-link patch: direct > 0 with the patch and 0 without it; the path may
+  still exist via a detour, so compare `length`/`ids`;
+- seal patch: direct = 0 with the patch and > 0 without it, plus a longer or
+  different route;
 - move/edit patch: path length or segment sequence changes.
 
 This is objective and scriptable. Scenario tests (cops stuck at a specific

@@ -1,0 +1,15 @@
+{
+  "id": "T5",
+  "name": "path extender",
+  "description": "With Dev: path extender ON, a travelling cop that runs (converted Joker, is_important unit, or chase mode) appends the next detailed path to its live walk action. Expect path_extend_ok > 0, no slide/stuck action, and no Iter errors.",
+  "maps": ["any"],
+  "commands": ["!iter ai", "!iter dump"],
+  "expect": {
+    "setup": true,
+    "fatal": 0,
+    "iterErrors": 0,
+    "fallback": 0,
+    "summary.search_ok": ">0",
+    "summary.path_extend_ok": ">0"
+  }
+}

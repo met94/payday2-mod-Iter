@@ -1,5 +1,5 @@
 -- Iter full-nav port test harness. Dev-only; not shipped.
--- Chat commands: !iter help | nav | patch | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset
+-- Chat commands: !iter help | nav | patch | navdump | navdoors | navpath | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset
 
 Iter_TestHarness = Iter_TestHarness or {}
 local TH = Iter_TestHarness
@@ -496,6 +496,121 @@ function TH.probe(args)
 	end
 end
 
+-- P7 topology A/B: coarse search between two known segment ids.
+-- Run once with "Dev: v6 map patches" on and once off; the line records the
+-- live setting, level and the direct door count so the two runs compare.
+function TH.navpath(args)
+	local nav = nav_manager()
+	local from_seg = args[1] and tostring(args[1])
+	local to_seg = args[2] and tostring(args[2])
+
+	if not nav or not from_seg or not to_seg then
+		say('navpath: usage !iter navpath <from_seg> <to_seg>')
+		return
+	end
+
+	local segments = nav._nav_segments or {}
+
+	if not segments[from_seg] then
+		say('navpath: no segment ' .. from_seg)
+		return
+	end
+
+	if not segments[to_seg] then
+		say('navpath: no segment ' .. to_seg)
+		return
+	end
+
+	local level_id = 'unknown'
+
+	if Iter and Iter.get_level_id then
+		local id_ok, id = pcall(Iter.get_level_id, Iter)
+
+		if id_ok and id then
+			level_id = tostring(id)
+		end
+	end
+
+	local patches = Iter and Iter.settings and Iter.settings.map_patches and 'on' or 'off'
+	local direct = 0
+
+	for neighbour_id, doors in pairs(segments[from_seg].neighbours or {}) do
+		if tostring(neighbour_id) == to_seg then
+			direct = type(doors) == 'table' and #doors or 0
+		end
+	end
+
+	local ok, path = pcall(function()
+		return nav:search_coarse({ from_seg = from_seg, to_seg = to_seg })
+	end)
+
+	if not ok then
+		say(string.format(
+			'navpath level=%s patches=%s %s->%s ok=0 err=%s direct=%d',
+			level_id,
+			patches,
+			from_seg,
+			to_seg,
+			tostring(path),
+			direct
+		))
+		return
+	end
+
+	if not path then
+		say(string.format(
+			'navpath level=%s patches=%s %s->%s ok=0 fail=search direct=%d',
+			level_id,
+			patches,
+			from_seg,
+			to_seg,
+			direct
+		))
+		return
+	end
+
+	local ids = {}
+
+	for i, step in ipairs(path) do
+		if i > 32 then
+			ids[#ids + 1] = '...'
+			break
+		end
+
+		ids[#ids + 1] = tostring(step[1] or '?')
+	end
+
+	local length = path_length(path)
+	local positions = path_positions(path)
+
+	say(string.format(
+		'navpath level=%s patches=%s %s->%s ok=1 steps=%d positions=%d length=%.1f direct=%d ids=%s',
+		level_id,
+		patches,
+		from_seg,
+		to_seg,
+		#path,
+		positions,
+		length,
+		direct,
+		table.concat(ids, ';')
+	))
+
+	if Iter and Iter.diag then
+		Iter.diag.event('navpath', {
+			level = level_id,
+			patches = patches,
+			from = from_seg,
+			to = to_seg,
+			ok = 1,
+			steps = #path,
+			positions = positions,
+			length = string.format('%.1f', length),
+			direct = direct
+		})
+	end
+end
+
 function TH.dump_path()
 	local nav = nav_manager()
 	local player = managers and managers.player and managers.player:player_unit()
@@ -540,6 +655,7 @@ end
 
 function TH.dump_ai()
 	local enemies = managers and managers.enemy and managers.enemy:all_enemies() or {}
+	local counters = Iter and Iter.diag and Iter.diag.counters or {}
 	local total = 0
 	local travelling = 0
 	local with_coarse = 0
@@ -579,13 +695,15 @@ function TH.dump_ai()
 	end
 
 	say(string.format(
-		'ai total=%d travelling=%d coarse_path=%d direct_to_pos=%d path_ahead=%d pending_path_ahead=%d',
+		'ai total=%d travelling=%d coarse_path=%d direct_to_pos=%d path_ahead=%d pending_path_ahead=%d extend(ok=%d skip=%d)',
 		total,
 		travelling,
 		with_coarse,
 		with_direct,
 		with_path_ahead,
-		waiting_navlink
+		waiting_navlink,
+		counters.path_extend_ok or 0,
+		counters.path_extend_skip or 0
 	))
 end
 
@@ -756,7 +874,7 @@ function TH.reset()
 end
 
 function TH.help()
-	say('commands: nav | patch | navdump <seg> | navdoors <a> <b> | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset | help')
+	say('commands: nav | patch | navdump <seg> | navdoors <a> <b> | navpath <from> <to> | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset | help')
 end
 
 function TH.execute_string(message)
@@ -785,6 +903,8 @@ function TH.execute(command)
 		TH.dump_segment(args)
 	elseif name == 'navdoors' then
 		TH.dump_doors(args)
+	elseif name == 'navpath' then
+		TH.navpath(args)
 	elseif name == 'probe' then
 		TH.probe(args)
 	elseif name == 'path' then
