@@ -1,7 +1,7 @@
 {
   "oldRev": "a3180fc",
   "newRev": "e3a8b616",
-  "generated": "2026-10-24T12:31:36.465Z",
+  "generated": "2026-10-24T12:35:55.075Z",
   "files": [
     {
       "file": "lua/coreworldinstancemanager.lua",
@@ -379,7 +379,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 1156
+          "startLine": 1167
         },
         {
           "name": "Hooks.PostHook:NavigationManager._clear:Iter_nav_shim_clear",
@@ -619,7 +619,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 1170
+          "startLine": 1181
         },
         {
           "name": "NavigationManager.itr_find_best_navlink",
@@ -694,7 +694,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 1108
+          "startLine": 1119
         },
         {
           "name": "NavigationManager.itr_get_all_doors_of_segment",
@@ -834,7 +834,7 @@
         {
           "name": "NavigationManager.itr_streamline",
           "category": "MOD_ONLY",
-          "modLines": 53,
+          "modLines": 64,
           "oldLines": 0,
           "newLines": 0,
           "modParams": "path, access_pos",
@@ -919,7 +919,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 1143
+          "startLine": 1154
         }
       ],
       "errors": [],

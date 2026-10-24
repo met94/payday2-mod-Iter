@@ -1052,6 +1052,17 @@ function NavigationManager:itr_get_coarse_pos_between(segment1_id, segment2_id, 
 end
 
 function NavigationManager:itr_streamline(path, access_pos)
+	if not path or #path == 0 then
+		return path
+	end
+
+	-- Already streamlined paths end with a positionless duplicate step; do not
+	-- streamline them twice (probe calls search_coarse and then itr_streamline).
+	if not is_vec3(path[#path][2]) then
+		Iter.diag.count('streamline_skip_done')
+		return path
+	end
+
 	local all_segs = self._nav_segments
 	local all_doors = self._room_doors
 	local path_nr = #path

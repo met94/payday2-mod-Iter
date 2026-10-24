@@ -74,7 +74,10 @@ Target: `e3a8b616` (248.2).
   nav-link userdata passed to `mvector3` in `itr_get_closest_door_to_pos`.
   Fixed with `is_vec3` numeric x/y/z validation and position guards.
   Harness global `ITER` -> `Iter` fixed (`!iter dump/setting`).
-- Next: verify Big Bank probe; then P7 map patches.
+- Big Bank probe verified: no crash; search 29/29, direct_to_pos 6. The 24
+  streamline failures were probe double-streamlining; `itr_streamline` is now
+  idempotent.
+- Next: P7 map patches (per-level refactor + CRC), then final combined smoke.
 
 ## Rulings
 
