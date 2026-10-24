@@ -98,6 +98,29 @@ Target: `e3a8b616` (248.2).
   `dev/reports/handoff-next-session.md`.
 - Next: collect remaining five P7 dumps, T5 path extender, release/merge.
 
+## 2026-10-24 — session 2 (offline)
+
+- P7 A/B tool added: `!iter navpath <from> <to>` logs level, live patch
+  setting, ok/steps/length, direct door count and segment ids. Harness test
+  covers success/fail/error/missing-segment (LuaJIT, PASS).
+- Path-extender observability: `path_extend_ok` / `path_extend_skip` counters
+  in `CopBrain:clbk_pathing_results`; `!iter ai` prints `extend(ok, skip)`.
+- Cards: new `dev/test/cards/T5-extender.{md,json}`; `P7-dumps.md` rewritten
+  as dump + navpath A/B run with an explicit on/off reload order.
+- P7 dead-write cleanup: all 16 `SURVIVES_AS_IS` blocks had their discarded
+  `nav_segments.neighbours` writes removed (the four partials and Mallcrasher
+  keep theirs until rewrite). New guard: `dev/tools/test/p7-dead-writes.test.mjs`.
+- Release docs refreshed to the real P7 counts (16 survive / 4 rewrite / 1
+  dead) and the RC defaults: README, MENU_OPTIONS, compatibility matrix,
+  workspace investigation draft, changelog 202-dev bullet.
+- Gates PASS (49 Node tests, harness test, 12+144 Lua checks, syntax,
+  freevars, ledger 100 functions, audit 12/12 baseline, 0 unused).
+- Ruling: navpath belongs to the dev harness only; no runtime cost, and the
+  line records the live `map_patches` value so an A/B pair is self-describing.
+  Cost if wrong: none (dev-only file, excluded from `dist/Iter`).
+- Next: run the combined P7 card and the T5 card in one game session, then
+  release/merge.
+
 ## Rulings
 
 - R1: use `a3180fc` as the old baseline for parsing; `b36f5fbb` restyle text

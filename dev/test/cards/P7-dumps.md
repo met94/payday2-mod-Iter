@@ -1,7 +1,9 @@
 # P7 runtime card — dumps + path A/B
 
 Status: Train Heist (`arm_for`) and The Bomb: Dockyard (`crojob2`) are done —
-both survive as-is; their dead neighbour writes were removed.
+both survive as-is; their dead neighbour writes were removed. The other 14
+`SURVIVES_AS_IS` blocks are cleaned too; only the five levels below still carry
+dead writes.
 
 Remaining: collect dumps for the four partial levels and Mallcrasher, then run
 the `navpath` A/B for the same segment pairs.

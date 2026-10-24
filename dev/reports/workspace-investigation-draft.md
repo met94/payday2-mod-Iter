@@ -27,7 +27,7 @@ coarse-search plumbing) were used as reference only.
   caused an access violation. `is_vec3` requires userdata + numeric x/y/z.
 - v6 discards explicit neighbour writes; a map patch survives only if its
   rooms/doors/quads express the connection. Static audit:
-  14 levels survive, 6 need rewrites, `skm_mallcrasher` is a no-op.
+  16 levels survive, 4 need rewrites, `skm_mallcrasher` is a no-op.
 
 ## Evidence
 
@@ -42,8 +42,8 @@ coarse-search plumbing) were used as reference only.
 ## Remaining
 
 - T5 path extender not exercised (needs a converted cop/Joker or chase).
-- P7 rewrites: `arm_for`, `crojob2`, `escape_street`, `jolly`, `moon`,
-  `peta`; `skm_mallcrasher` dead.
+- P7 rewrites: `escape_street`, `jolly`, `moon`, `peta`; `skm_mallcrasher`
+  dead. `arm_for` and `crojob2` (Dockyard) were confirmed by dumps.
 - Probe length metric needed a `raw_positions` counter; added.
 - Compatibility: NavFixes must not run with Iter (replaces the nav-link
   register wrapper); The Fixes replaces `CopActionWalk._init`.

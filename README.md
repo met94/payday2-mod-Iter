@@ -21,7 +21,7 @@ reimplemented on the v6 load data, with development gates for each subsystem.
 | Iter coarse search + cache | working (T4 PASS) |
 | Direct-to-pos | working (T4 PASS) |
 | Path extender | implemented; T5 pending |
-| Map patches | framework working; Big Bank applied; 6 levels need a v6 rewrite |
+| Map patches | framework working; 16 levels survive, 4 need a v6 rewrite, 1 dead |
 
 ## Requirements
 
@@ -43,9 +43,9 @@ See `dev/reports/compatibility-iter.md` for the function-level matrix.
 
 ## Options
 
-See `MENU_OPTIONS.md`. The menu toggles are development gates; on a normal
-session the defaults (overlay on, everything else off) are intentionally
-conservative.
+See `MENU_OPTIONS.md`. The menu toggles are development gates. Defaults enable
+the overlay, streamline, search, the AI cluster, nav-link queue and
+direct-to-pos; path extender and map patches stay off until their cards pass.
 
 ## Credits
 
