@@ -1,13 +1,18 @@
 -- Iter full-nav port test harness. Dev-only; not shipped.
--- Chat commands: !iter help | nav | patch | navdump | navdoors | navpath | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset
+-- Chat commands: !iter help | nav | patch | navdump | navdoors | navpath | p7 | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset
 
 Iter_TestHarness = Iter_TestHarness or {}
 local TH = Iter_TestHarness
 local PREFIX = '[ITER-TEST] '
+local quiet_log = false
 
 local function say(message)
 	message = tostring(message)
 	log(PREFIX .. message)
+
+	if quiet_log then
+		return
+	end
 
 	if managers and managers.chat and ChatManager then
 		pcall(function()
@@ -611,6 +616,144 @@ function TH.navpath(args)
 	end
 end
 
+-- Auto P7 collection: runs once per heist start on the five pending levels.
+-- Pair ids and intent come from dev/test/cards/P7-dumps.md.
+local P7_PLANS = {
+	escape_street = {
+		dumps = { 48, 63 },
+		doors = { { 48, 63 } },
+		paths = { { 63, 48 } }
+	},
+	jolly = {
+		dumps = { 87, 141 },
+		doors = { { 87, 141 } },
+		paths = { { 141, 87 } },
+		seal = { 87, 141 }
+	},
+	moon = {
+		dumps = { 22, 23 },
+		doors = { { 22, 23 } },
+		paths = { { 22, 23 } },
+		seal = { 23, 22 }
+	},
+	peta = {
+		dumps = { 47, 53, 91 },
+		doors = { { 47, 91 }, { 47, 53 } },
+		paths = { { 47, 91 } },
+		seal = { 91, 47 }
+	},
+	skm_mallcrasher = {
+		dumps = { 8, 11 },
+		doors = { { 8, 11 } }
+	}
+}
+
+TH.p7_auto_enabled = true
+
+local function first_other_neighbour(seg_id, exclude_id)
+	local nav = nav_manager()
+	local segment = nav and nav._nav_segments and nav._nav_segments[tostring(seg_id)]
+
+	for neighbour_id in pairs(segment and segment.neighbours or {}) do
+		if tostring(neighbour_id) ~= tostring(exclude_id) then
+			return tostring(neighbour_id)
+		end
+	end
+end
+
+function TH.p7_dump(force)
+	if not force and not TH.p7_auto_enabled then
+		return
+	end
+
+	local level_id = 'unknown'
+
+	if Iter and Iter.get_level_id then
+		local id_ok, id = pcall(Iter.get_level_id, Iter)
+
+		if id_ok and id then
+			level_id = tostring(id)
+		end
+	end
+
+	local plan = P7_PLANS[level_id]
+
+	if not plan then
+		return
+	end
+
+	local nav = nav_manager()
+
+	if not nav or not nav._nav_segments or not next(nav._nav_segments) then
+		say(string.format('p7auto level=%s skip=nav_not_ready', level_id))
+		return
+	end
+
+	local patches = Iter and Iter.settings and Iter.settings.map_patches and 'on' or 'off'
+
+	quiet_log = not force
+
+	local ok, err = pcall(function()
+		say(string.format('p7auto level=%s patches=%s', level_id, patches))
+
+		if patches == 'on' then
+			TH.dump_patch()
+		else
+			say('patch status=n/a (map_patches off)')
+		end
+
+		TH.dump_nav()
+
+		for _, seg_id in ipairs(plan.dumps) do
+			TH.dump_segment({ tostring(seg_id) })
+		end
+
+		for _, pair in ipairs(plan.doors) do
+			TH.dump_doors({ tostring(pair[1]), tostring(pair[2]) })
+		end
+
+		for _, pair in ipairs(plan.paths) do
+			TH.navpath({ tostring(pair[1]), tostring(pair[2]) })
+		end
+
+		if plan.seal then
+			local alt = first_other_neighbour(plan.seal[1], plan.seal[2])
+
+			if alt then
+				say(string.format('p7auto seal seg=%s exclude=%s alt=%s', tostring(plan.seal[1]), tostring(plan.seal[2]), alt))
+				TH.navpath({ tostring(plan.seal[1]), alt })
+			else
+				say(string.format('p7auto seal seg=%s exclude=%s alt=none', tostring(plan.seal[1]), tostring(plan.seal[2])))
+			end
+		end
+	end)
+
+	quiet_log = false
+
+	if not ok then
+		say('p7auto ERROR ' .. tostring(err))
+	end
+end
+
+function TH.p7_auto_toggle(args)
+	local value = args[1]
+
+	if value == 'off' or value == '0' or value == 'false' then
+		TH.p7_auto_enabled = false
+	elseif value == 'on' or value == '1' or value == 'true' then
+		TH.p7_auto_enabled = true
+	end
+
+	say(string.format('p7auto enabled=%s (levels: escape_street, jolly, moon, peta, skm_mallcrasher)', tostring(TH.p7_auto_enabled)))
+end
+
+-- on_simulation_started fires after nav data, shim and proxies are ready.
+if NavigationManager and NavigationManager.on_simulation_started then
+	Hooks:PostHook(NavigationManager, 'on_simulation_started', 'Iter_P7_AutoDump', function()
+		TH.p7_dump()
+	end)
+end
+
 function TH.dump_path()
 	local nav = nav_manager()
 	local player = managers and managers.player and managers.player:player_unit()
@@ -874,7 +1017,7 @@ function TH.reset()
 end
 
 function TH.help()
-	say('commands: nav | patch | navdump <seg> | navdoors <a> <b> | navpath <from> <to> | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset | help')
+	say('commands: nav | patch | navdump <seg> | navdoors <a> <b> | navpath <from> <to> | p7 [auto on|off] | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset | help')
 end
 
 function TH.execute_string(message)
@@ -905,6 +1048,12 @@ function TH.execute(command)
 		TH.dump_doors(args)
 	elseif name == 'navpath' then
 		TH.navpath(args)
+	elseif name == 'p7' then
+		if args[1] == 'auto' then
+			TH.p7_auto_toggle({ args[2] })
+		else
+			TH.p7_dump(true)
+		end
 	elseif name == 'probe' then
 		TH.probe(args)
 	elseif name == 'path' then

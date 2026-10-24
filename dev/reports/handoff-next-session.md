@@ -29,6 +29,11 @@ queue/direct on; path extender and map patches off.
 
 ## What changed this session
 
+- **P7 collection is automatic.** The harness post-hooks
+  `NavigationManager:on_simulation_started`; loading one of the five pending
+  levels logs `p7auto` + `navdump`/`navdoors`/`navpath` with the live
+  `map_patches` state. `!iter p7` forces a re-run; `!iter p7 auto off`
+  disables it.
 - `!iter navpath <from> <to>` added to the dev harness: logs `level`,
   live `patches` setting, `ok`, `steps`, `length`, `direct` (door count on the
   link) and the segment `ids`. This is the P7 A/B tool from

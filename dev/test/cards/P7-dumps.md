@@ -5,34 +5,52 @@ both survive as-is; their dead neighbour writes were removed. The other 14
 `SURVIVES_AS_IS` blocks are cleaned too; only the five levels below still carry
 dead writes.
 
-Remaining: collect dumps for the four partial levels and Mallcrasher, then run
-the `navpath` A/B for the same segment pairs.
+The harness collects the data automatically. Enable **Dev: v6 map patches**,
+load the heist, wait for the `p7auto` block in the log, quit. No commands.
 
-## Order (each level, same session)
+## Auto collection
 
-1. Menu: **Dev: v6 map patches** ON. Load the heist.
-2. Run the dump commands for that level (below), one command per chat line.
-3. Run `!iter navpath <from> <to>` for the listed pair(s).
-4. Quit to menu. Menu: **Dev: v6 map patches** OFF. Reload the same heist.
-5. Run the same `!iter navpath` pairs again. The `patches=` field must read
-   `off`; this is the baseline.
+On heist start the harness runs `!iter p7` automatically for:
+
+| Heist (level id) | Logged |
+|---|---|
+| Escape: Street (`escape_street`) | `navdump 48 63`, `navdoors 48 63`, `navpath 63 48` |
+| Aftershock (`jolly`) | `navdump 87 141`, `navdoors 87 141`, `navpath 141 87`, `navpath 87 <X>` |
+| Stealing Xmas (`moon`) | `navdump 22 23`, `navdoors 22 23`, `navpath 22 23`, `navpath 23 <X>` |
+| Goat Simulator D1 (`peta`) | `navdump 47 53 91`, `navdoors 47 91`, `navdoors 47 53`, `navpath 47 91`, `navpath 91 <X>` |
+| Mallcrasher (`skm_mallcrasher`) | `navdump 8 11`, `navdoors 8 11` (patch is `skip_dead`) |
+
+`<X>` is picked automatically as another neighbour of the sealed segment and
+logged as `p7auto seal seg=… exclude=… alt=…`. That pair is the seal test.
+
+The header records the live master gate: `p7auto level=… patches=on|off`.
+`!iter p7` forces a re-run in the current heist; `!iter p7 auto off` disables
+the automatic run.
+
+## Run order
+
+One pass per level, then a baseline pass:
+
+1. Menu: **Dev: v6 map patches** ON. Load the heist. Wait ~2 s for the
+   `p7auto` block. Quit to menu.
+2. Repeat for all five levels.
+3. Menu: **Dev: v6 map patches** OFF. Reload the four partial levels
+   (Mallcrasher has no path A/B). Wait for the block. Quit.
 
 Do not toggle mid-heist: patches apply in `NavigationManager:set_load_data`.
 
-## Commands
+## Manual fallback (if `p7auto` is absent)
 
-| Heist (level id) | Patch on: dumps | navpath pairs |
-|---|---|---|
-| Escape: Street (`escape_street`) | `!iter navdump 48` `!iter navdump 63` `!iter navdoors 48 63` | `!iter navpath 63 48` |
-| Aftershock (`jolly`) | `!iter navdump 87` `!iter navdump 141` `!iter navdoors 87 141` | `!iter navpath 141 87` + `!iter navpath 87 <X>` |
-| Stealing Xmas (`moon`) | `!iter navdump 22` `!iter navdump 23` `!iter navdoors 22 23` | `!iter navpath 22 23` + `!iter navpath 23 <X>` |
-| Goat Simulator D1 (`peta`) | `!iter navdump 47` `!iter navdump 53` `!iter navdump 91` `!iter navdoors 47 91` `!iter navdoors 47 53` | `!iter navpath 47 91` + `!iter navpath 91 <X>` |
-| Mallcrasher (`skm_mallcrasher`) | `!iter navdump 8` `!iter navdump 11` `!iter navdoors 8 11` | none — patch is `skip_dead`; dump only |
+```
+Escape: Street   !iter navdump 48 / navdump 63 / navdoors 48 63 / navpath 63 48
+Aftershock       !iter navdump 87 / navdump 141 / navdoors 87 141 / navpath 141 87
+Stealing Xmas    !iter navdump 22 / navdump 23 / navdoors 22 23 / navpath 22 23
+Goat D1          !iter navdump 47 / navdump 53 / navdump 91 / navdoors 47 91 /
+                 navdoors 47 53 / navpath 47 91
+Mallcrasher      !iter navdump 8 / navdump 11 / navdoors 8 11
+```
 
-`<X>` is any other neighbour of the sealed segment shown by its `navdump`
-(`seg=87 -> <X> doors=...`). That pair is the seal test.
-
-Also run `!iter patch` after each load to record `result=applied|applied_partial|skip_*`.
+One command per chat line, each with `!iter`, no semicolons.
 
 ## What the dumps decide
 
@@ -63,7 +81,7 @@ Confidence levels and the three separate claims: `dev/reports/p7-validation.md`.
 
 Notes:
 
-- One command per chat line, each with `!iter`, no semicolons.
-- Load heist -> paste block -> quit to menu. One log for the session.
 - The Bomb: Forest (`crojob3`) and The Bomb: Dockyard (`crojob2`) are
   different levels; the r200 patch is Dockyard only.
+- One log for the whole session is fine; each `p7auto` block says its level
+  and gate state.

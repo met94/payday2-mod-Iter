@@ -129,4 +129,64 @@ Iter_TestHarness.navpath({ '63', '77' })
 line = last_line()
 assert(line:find('navpath: no segment 77', 1, true), 'navpath missing segment line wrong: ' .. line)
 
+-- p7 auto-dump: plan selection, seal alternative, toggle.
+table.size = function(tbl)
+  local count = 0
+  for _ in pairs(tbl or {}) do
+    count = count + 1
+  end
+  return count
+end
+
+local p7_nav = {
+  _nav_segments = {
+    ['48'] = { pos = { x = 0, y = 0, z = 0 }, vis_groups = {}, neighbours = {} },
+    ['63'] = { pos = { x = 0, y = 0, z = 0 }, vis_groups = {}, neighbours = { ['48'] = { {}, {} } } },
+    ['87'] = { pos = { x = 0, y = 0, z = 0 }, vis_groups = {}, neighbours = { ['141'] = { {} }, ['90'] = { {} } } },
+    ['90'] = { pos = { x = 0, y = 0, z = 0 }, vis_groups = {}, neighbours = { ['87'] = { {} } } },
+    ['141'] = { pos = { x = 0, y = 0, z = 0 }, vis_groups = {}, neighbours = { ['87'] = { {} } } }
+  },
+  _rooms = {},
+  _room_doors = {},
+  _visibility_groups = {},
+  _covers = {},
+  search_coarse = function()
+    return false
+  end
+}
+
+managers = { navigation = p7_nav }
+
+local current_level = 'escape_street'
+
+Iter = {
+  settings = { map_patches = true },
+  get_level_id = function()
+    return current_level
+  end
+}
+
+lines = {}
+Iter_TestHarness.p7_dump(true)
+local p7_text = table.concat(lines, '\n')
+assert(p7_text:find('p7auto level=escape_street patches=on', 1, true), 'p7 header missing: ' .. p7_text)
+assert(p7_text:find('navdump seg=48', 1, true), 'p7 dump missing segment 48')
+assert(p7_text:find('navpath level=escape_street patches=on 63->48', 1, true), 'p7 path missing 63->48')
+
+current_level = 'jolly'
+lines = {}
+Iter_TestHarness.p7_dump(true)
+p7_text = table.concat(lines, '\n')
+assert(p7_text:find('p7auto seal seg=87 exclude=141 alt=90', 1, true), 'p7 seal alternative wrong: ' .. p7_text)
+assert(p7_text:find('navpath level=jolly patches=on 87->90', 1, true), 'p7 seal path missing 87->90')
+
+Iter_TestHarness.p7_auto_enabled = false
+lines = {}
+Iter_TestHarness.p7_dump(false)
+assert(#lines == 0, 'p7 auto off should emit nothing')
+Iter_TestHarness.p7_auto_enabled = true
+
+assert(parse('!iter p7').command == 'p7', 'p7 command not parsed')
+assert(parse('!iter p7 auto off').args[2] == 'off', 'p7 auto toggle args wrong')
+
 print('ok: Iter test-harness parser')

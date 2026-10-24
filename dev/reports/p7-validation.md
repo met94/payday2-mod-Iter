@@ -47,8 +47,9 @@ failures, a Border Crossing patch removed for a crash).
 
 ## Behavioural A/B test
 
-`!iter navpath <from_seg> <to_seg>` (test harness) runs
-`NavigationManager:search_coarse` between the exact segments and logs one line:
+The harness collects this automatically: on heist start it logs the dump block
+for the five P7 levels (`p7auto level=… patches=…`). `!iter navpath <from> <to>`
+also runs manually and prints one line per call:
 
 ```
 navpath level=<level> patches=<on|off> <from>-><to> ok=1 steps=N positions=N

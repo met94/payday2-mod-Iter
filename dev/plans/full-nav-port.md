@@ -141,8 +141,8 @@ Copied from LIES dev tooling (same author, reuse approved) and adapted:
 | `dev/test/cards/` | acceptance JSON consumed by `log-scan --card` |
 
 Commands: `!iter help | nav | patch | navdump <seg> | navdoors <a> <b> |
-navpath <from> <to> | probe [n] | path | ai | links | alarm | assault | state |
-setting <key> <value> | dump | reset`.
+navpath <from> <to> | p7 [auto on|off] | probe [n] | path | ai | links | alarm |
+assault | state | setting <key> <value> | dump | reset`.
 
 ## 9. Test cards
 

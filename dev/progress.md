@@ -103,6 +103,11 @@ Target: `e3a8b616` (248.2).
 - P7 A/B tool added: `!iter navpath <from> <to>` logs level, live patch
   setting, ok/steps/length, direct door count and segment ids. Harness test
   covers success/fail/error/missing-segment (LuaJIT, PASS).
+- P7 collection made automatic: the harness post-hooks
+  `NavigationManager:on_simulation_started` and dumps the pending level's
+  segments/doors/paths (plus a seal alternative) with `p7auto`. `!iter p7`
+  forces a run, `!iter p7 auto off` disables it. Harness test covers the plan,
+  header, seal alternative and the off switch.
 - Path-extender observability: `path_extend_ok` / `path_extend_skip` counters
   in `CopBrain:clbk_pathing_results`; `!iter ai` prints `extend(ok, skip)`.
 - Cards: new `dev/test/cards/T5-extender.{md,json}`; `P7-dumps.md` rewritten
