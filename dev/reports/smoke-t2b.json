@@ -1,0 +1,683 @@
+{
+  "file": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\PAYDAY 2\\mods\\logs\\2026_10_24_log.txt",
+  "setup": [
+    {
+      "line": 56,
+      "text": "01:08:35 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 128,
+      "text": "01:08:35 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 213,
+      "text": "01:08:35 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 358,
+      "text": "01:08:56 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 431,
+      "text": "01:08:56 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 503,
+      "text": "01:08:56 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 604,
+      "text": "01:09:43 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 677,
+      "text": "01:09:44 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 749,
+      "text": "01:09:44 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 887,
+      "text": "01:09:55 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 960,
+      "text": "01:09:56 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 1032,
+      "text": "01:09:56 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 1152,
+      "text": "01:10:28 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 1225,
+      "text": "01:10:28 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    },
+    {
+      "line": 1297,
+      "text": "01:10:29 PM Lua: [INFO] [BLT] Setting up mod 'Iter Lite'"
+    }
+  ],
+  "harness": [
+    {
+      "line": 577,
+      "text": "01:09:35 PM Lua: [ITER-TEST] probe pairs=28 search(ok=21 fail=7) streamline(ok=21 fail=0) points(raw=151 stream=172) avg_len(raw=6861.7 stream=6393.5)"
+    },
+    {
+      "line": 579,
+      "text": "01:09:38 PM Lua: [ITER-TEST] nav segments=160 keys(string=160 numeric=0) missing_neighbours=0 doors(vector=896 numeric=0 links=71 unknown=0) shim(rooms=3873 room_doors=6504 vis_groups=160) proxies(segments=160 choke=88 in=26 out=184) navlink_elements=71 covers=1519 bad_covers=0"
+    },
+    {
+      "line": 1125,
+      "text": "01:10:18 PM Lua: [ITER-TEST] probe pairs=30 search(ok=12 fail=18) streamline(ok=12 fail=0) points(raw=64 stream=76) avg_len(raw=3325.9 stream=2939.5)"
+    },
+    {
+      "line": 1127,
+      "text": "01:10:20 PM Lua: [ITER-TEST] nav segments=108 keys(string=108 numeric=0) missing_neighbours=0 doors(vector=594 numeric=0 links=34 unknown=0) shim(rooms=2037 room_doors=3283 vis_groups=108) proxies(segments=108 choke=74 in=30 out=170) navlink_elements=34 covers=957 bad_covers=0"
+    }
+  ],
+  "harnessErrors": [],
+  "fatal": [],
+  "luaErrors": [
+    {
+      "line": 317,
+      "text": "01:08:42 PM Log:  (D:\\a\\PAYDAY2-SuperBLT\\PAYDAY2-SuperBLT\\src\\InitiateState.cpp:98) mods/BeardLib/Modules/Utils/ModAssetsModule.lua:156: attempt to compare number with nil"
+    },
+    {
+      "line": 837,
+      "text": "01:09:47 PM Log:  (D:\\a\\PAYDAY2-SuperBLT\\PAYDAY2-SuperBLT\\src\\InitiateState.cpp:98) mods/BeardLib/Modules/Utils/ModAssetsModule.lua:156: attempt to compare number with nil"
+    },
+    {
+      "line": 1397,
+      "text": "01:10:32 PM Log:  (D:\\a\\PAYDAY2-SuperBLT\\PAYDAY2-SuperBLT\\src\\InitiateState.cpp:98) mods/BeardLib/Modules/Utils/ModAssetsModule.lua:156: attempt to compare number with nil"
+    }
+  ],
+  "iterErrors": [],
+  "navEvents": [
+    {
+      "v": 1,
+      "sid": "8f99",
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "false",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": "1bc2",
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "false",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": 6e+61,
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "false",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": "5a0b",
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "false",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": "5a0b",
+      "evt": "navdata",
+      "door_pairs": 176,
+      "doors_skipped": 0,
+      "doors_without_pair": 6023,
+      "fallback": 0,
+      "grid": 25,
+      "groups_without_seg": 0,
+      "room_doors": 6504,
+      "rooms": 3873,
+      "segments": 160,
+      "vis_groups": 160
+    },
+    {
+      "v": 1,
+      "sid": "5a0b",
+      "evt": "proxy",
+      "choke": 88,
+      "in_proxies": 26,
+      "ms": 0,
+      "no_doors": 0,
+      "out_proxies": 184,
+      "segments": 160
+    },
+    {
+      "v": 1,
+      "sid": "5a0b",
+      "evt": "heist",
+      "data_version": 5,
+      "fallback": 0,
+      "level": "kenaz",
+      "missing_neighbours": 0,
+      "numeric_keys": 0,
+      "room_doors": 6504,
+      "rooms": 3873,
+      "segments": 160,
+      "string_keys": 160,
+      "vis_groups": 160
+    },
+    {
+      "v": 1,
+      "sid": "5a0b",
+      "evt": "probe",
+      "pairs": 28,
+      "raw_points": 151,
+      "search_fail": 7,
+      "search_ok": 21,
+      "stream_fail": 0,
+      "stream_ok": 21,
+      "stream_points": 172
+    },
+    {
+      "v": 1,
+      "sid": "9d2c",
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "false",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": "971b",
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "false",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": 625,
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "false",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": "604e",
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "false",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": "604e",
+      "evt": "navdata",
+      "door_pairs": 135,
+      "doors_skipped": 0,
+      "doors_without_pair": 2980,
+      "fallback": 0,
+      "grid": 25,
+      "groups_without_seg": 0,
+      "room_doors": 3283,
+      "rooms": 2037,
+      "segments": 108,
+      "vis_groups": 108
+    },
+    {
+      "v": 1,
+      "sid": "604e",
+      "evt": "proxy",
+      "choke": 74,
+      "in_proxies": 30,
+      "ms": 0,
+      "no_doors": 0,
+      "out_proxies": 170,
+      "segments": 108
+    },
+    {
+      "v": 1,
+      "sid": "604e",
+      "evt": "heist",
+      "data_version": 5,
+      "fallback": 0,
+      "level": "big",
+      "missing_neighbours": 0,
+      "numeric_keys": 0,
+      "room_doors": 3283,
+      "rooms": 2037,
+      "segments": 108,
+      "string_keys": 108,
+      "vis_groups": 108
+    },
+    {
+      "v": 1,
+      "sid": "604e",
+      "evt": "probe",
+      "pairs": 30,
+      "raw_points": 64,
+      "search_fail": 18,
+      "search_ok": 12,
+      "stream_fail": 0,
+      "stream_ok": 12,
+      "stream_points": 76
+    },
+    {
+      "v": 1,
+      "sid": 4684,
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "false",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": 0,
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "nav_ai": "false",
+      "nav_overlay": "true",
+      "nav_search": "false",
+      "nav_streamline": "true",
+      "streamline_path": "true"
+    }
+  ],
+  "navEventLines": [
+    {
+      "line": 177,
+      "event": {
+        "v": 1,
+        "sid": "8f99",
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "false",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 262,
+      "event": {
+        "v": 1,
+        "sid": "1bc2",
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "false",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 407,
+      "event": {
+        "v": 1,
+        "sid": 6e+61,
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "false",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 552,
+      "event": {
+        "v": 1,
+        "sid": "5a0b",
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "false",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 573,
+      "event": {
+        "v": 1,
+        "sid": "5a0b",
+        "evt": "navdata",
+        "door_pairs": 176,
+        "doors_skipped": 0,
+        "doors_without_pair": 6023,
+        "fallback": 0,
+        "grid": 25,
+        "groups_without_seg": 0,
+        "room_doors": 6504,
+        "rooms": 3873,
+        "segments": 160,
+        "vis_groups": 160
+      }
+    },
+    {
+      "line": 574,
+      "event": {
+        "v": 1,
+        "sid": "5a0b",
+        "evt": "proxy",
+        "choke": 88,
+        "in_proxies": 26,
+        "ms": 0,
+        "no_doors": 0,
+        "out_proxies": 184,
+        "segments": 160
+      }
+    },
+    {
+      "line": 575,
+      "event": {
+        "v": 1,
+        "sid": "5a0b",
+        "evt": "heist",
+        "data_version": 5,
+        "fallback": 0,
+        "level": "kenaz",
+        "missing_neighbours": 0,
+        "numeric_keys": 0,
+        "room_doors": 6504,
+        "rooms": 3873,
+        "segments": 160,
+        "string_keys": 160,
+        "vis_groups": 160
+      }
+    },
+    {
+      "line": 578,
+      "event": {
+        "v": 1,
+        "sid": "5a0b",
+        "evt": "probe",
+        "pairs": 28,
+        "raw_points": 151,
+        "search_fail": 7,
+        "search_ok": 21,
+        "stream_fail": 0,
+        "stream_ok": 21,
+        "stream_points": 172
+      }
+    },
+    {
+      "line": 653,
+      "event": {
+        "v": 1,
+        "sid": "9d2c",
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "false",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 798,
+      "event": {
+        "v": 1,
+        "sid": "971b",
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "false",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 936,
+      "event": {
+        "v": 1,
+        "sid": 625,
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "false",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 1081,
+      "event": {
+        "v": 1,
+        "sid": "604e",
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "false",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 1122,
+      "event": {
+        "v": 1,
+        "sid": "604e",
+        "evt": "navdata",
+        "door_pairs": 135,
+        "doors_skipped": 0,
+        "doors_without_pair": 2980,
+        "fallback": 0,
+        "grid": 25,
+        "groups_without_seg": 0,
+        "room_doors": 3283,
+        "rooms": 2037,
+        "segments": 108,
+        "vis_groups": 108
+      }
+    },
+    {
+      "line": 1123,
+      "event": {
+        "v": 1,
+        "sid": "604e",
+        "evt": "proxy",
+        "choke": 74,
+        "in_proxies": 30,
+        "ms": 0,
+        "no_doors": 0,
+        "out_proxies": 170,
+        "segments": 108
+      }
+    },
+    {
+      "line": 1124,
+      "event": {
+        "v": 1,
+        "sid": "604e",
+        "evt": "heist",
+        "data_version": 5,
+        "fallback": 0,
+        "level": "big",
+        "missing_neighbours": 0,
+        "numeric_keys": 0,
+        "room_doors": 3283,
+        "rooms": 2037,
+        "segments": 108,
+        "string_keys": 108,
+        "vis_groups": 108
+      }
+    },
+    {
+      "line": 1126,
+      "event": {
+        "v": 1,
+        "sid": "604e",
+        "evt": "probe",
+        "pairs": 30,
+        "raw_points": 64,
+        "search_fail": 18,
+        "search_ok": 12,
+        "stream_fail": 0,
+        "stream_ok": 12,
+        "stream_points": 76
+      }
+    },
+    {
+      "line": 1201,
+      "event": {
+        "v": 1,
+        "sid": 4684,
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "false",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 1346,
+      "event": {
+        "v": 1,
+        "sid": 0,
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "nav_ai": "false",
+        "nav_overlay": "true",
+        "nav_search": "false",
+        "nav_streamline": "true",
+        "streamline_path": "true"
+      }
+    }
+  ],
+  "errEvents": [],
+  "ok": true,
+  "card": {
+    "pass": false,
+    "checks": [
+      {
+        "name": "setup",
+        "actual": true,
+        "expected": true,
+        "pass": true
+      },
+      {
+        "name": "fatal",
+        "actual": 0,
+        "expected": 0,
+        "pass": true
+      },
+      {
+        "name": "iterErrors",
+        "actual": 0,
+        "expected": 0,
+        "pass": true
+      },
+      {
+        "name": "fallback",
+        "actual": 0,
+        "expected": 0,
+        "pass": true
+      },
+      {
+        "name": "proxy.segments",
+        "actual": 268,
+        "expected": ">0",
+        "pass": true
+      },
+      {
+        "name": "proxy.ms",
+        "actual": 0,
+        "expected": "<2000",
+        "pass": true
+      },
+      {
+        "name": "probe.pairs",
+        "actual": 58,
+        "expected": ">0",
+        "pass": true
+      },
+      {
+        "name": "probe.search_ok",
+        "actual": 33,
+        "expected": ">0",
+        "pass": true
+      },
+      {
+        "name": "probe.search_fail",
+        "actual": 25,
+        "expected": "<=6",
+        "pass": false
+      },
+      {
+        "name": "probe.stream_ok",
+        "actual": 33,
+        "expected": ">0",
+        "pass": true
+      },
+      {
+        "name": "probe.stream_fail",
+        "actual": 0,
+        "expected": 0,
+        "pass": true
+      }
+    ]
+  }
+}

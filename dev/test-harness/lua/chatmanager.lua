@@ -196,16 +196,47 @@ function TH.dump_patch()
 	))
 end
 
+local function connected_segment_pool(segments)
+	local roots = {}
+
+	for key, segment in pairs(segments) do
+		if not segment.disabled and next(segment.neighbours or {}) then
+			roots[#roots + 1] = key
+		end
+	end
+
+	if #roots < 2 then
+		return {}
+	end
+
+	local start = roots[math.random(#roots)]
+	local seen = { [start] = true }
+	local queue = { start }
+	local pool = { start }
+	local head = 1
+
+	while head <= #queue do
+		local current = queue[head]
+		head = head + 1
+
+		for neighbour_id in pairs(segments[current].neighbours or {}) do
+			local neighbour = segments[neighbour_id]
+
+			if neighbour and not neighbour.disabled and not seen[neighbour_id] then
+				seen[neighbour_id] = true
+				queue[#queue + 1] = neighbour_id
+				pool[#pool + 1] = neighbour_id
+			end
+		end
+	end
+
+	return pool
+end
+
 local function random_segment_pairs(count)
 	local nav = nav_manager()
 	local segments = nav and nav._nav_segments or {}
-	local usable = {}
-
-	for key, segment in pairs(segments) do
-		if next(segment.neighbours or {}) then
-			usable[#usable + 1] = key
-		end
-	end
+	local usable = connected_segment_pool(segments)
 
 	if #usable < 2 then
 		return {}
