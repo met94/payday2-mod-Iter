@@ -48,7 +48,10 @@ all reach the v6 converter.
 ## Follow-up
 
 1. `skm_mallcrasher` is a no-op at 248.2: rewrite as a door/quad change or
-   drop it (candidate for `drop-log.md`).
+   drop it (candidate for `drop-log.md`). Runtime: the standard Vlad job
+   reports level id `mallcrasher`, not `skm_mallcrasher`; the patch now
+   resolves through `level_aliases` and logs `skip_dead` instead of
+   `skip_setting`.
 2. `dinner` and `flat` have no nav-data operations; their `add_obstacle`
    side effects now live in a per-call wrapper (not file-load overrides).
 3. PARTIAL levels need a per-level in-game check (T6): if the added doors

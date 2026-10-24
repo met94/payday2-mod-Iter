@@ -108,6 +108,13 @@ Target: `e3a8b616` (248.2).
   segments/doors/paths (plus a seal alternative) with `p7auto`. `!iter p7`
   forces a run, `!iter p7 auto off` disables it. Harness test covers the plan,
   header, seal alternative and the off switch.
+- Runtime check found two blockers, both fixed: the harness loads before
+  `NavigationManager` exists, so the first hook registration silently skipped
+  (now retried from `LocalizationManagerPostInit` / `GameSetupUpdate`); and
+  the standard Mallcrasher job reports level id `mallcrasher`, not
+  `skm_mallcrasher` (alias added in `_navdatapatches.lua`, still `skip_dead`).
+- First runtime pass (jolly/moon/peta/mallcrasher) produced patch/heist events
+  but no dumps; needs a rerun with the redeployed harness.
 - Path-extender observability: `path_extend_ok` / `path_extend_skip` counters
   in `CopBrain:clbk_pathing_results`; `!iter ai` prints `extend(ok, skip)`.
 - Cards: new `dev/test/cards/T5-extender.{md,json}`; `P7-dumps.md` rewritten

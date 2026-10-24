@@ -33,7 +33,11 @@ queue/direct on; path extender and map patches off.
   `NavigationManager:on_simulation_started`; loading one of the five pending
   levels logs `p7auto` + `navdump`/`navdoors`/`navpath` with the live
   `map_patches` state. `!iter p7` forces a re-run; `!iter p7 auto off`
-  disables it.
+  disables it. Hook registration is deferred to
+  `LocalizationManagerPostInit`/`GameSetupUpdate` because the harness loads
+  before `NavigationManager` exists.
+- Mallcrasher id: the Vlad job reports `mallcrasher`; `_navdatapatches` now
+  aliases it to the `skm_mallcrasher` block/setting and logs `skip_dead`.
 - `!iter navpath <from> <to>` added to the dev harness: logs `level`,
   live `patches` setting, `ok`, `steps`, `length`, `direct` (door count on the
   link) and the segment `ids`. This is the P7 A/B tool from

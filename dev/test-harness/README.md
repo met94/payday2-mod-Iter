@@ -41,8 +41,9 @@ All output is prefixed `[ITER-TEST]`; `dev/tools/log-scan.mjs` extracts it.
 ## P7 auto dump
 
 The harness post-hooks `NavigationManager:on_simulation_started`. When the
-level is one of `escape_street`, `jolly`, `moon`, `peta`, `skm_mallcrasher`
-and `!iter p7 auto` is on, it logs one block with:
+level is one of `escape_street`, `jolly`, `moon`, `peta`, `mallcrasher`
+(skirmish alias `skm_mallcrasher`) and `!iter p7 auto` is on, it logs one block
+with:
 
 - `p7auto level=… patches=on|off` and the patch status;
 - `navdump` for the card's segments (quads, neighbours, door kinds);

@@ -18,7 +18,7 @@ On heist start the harness runs `!iter p7` automatically for:
 | Aftershock (`jolly`) | `navdump 87 141`, `navdoors 87 141`, `navpath 141 87`, `navpath 87 <X>` |
 | Stealing Xmas (`moon`) | `navdump 22 23`, `navdoors 22 23`, `navpath 22 23`, `navpath 23 <X>` |
 | Goat Simulator D1 (`peta`) | `navdump 47 53 91`, `navdoors 47 91`, `navdoors 47 53`, `navpath 47 91`, `navpath 91 <X>` |
-| Mallcrasher (`skm_mallcrasher`) | `navdump 8 11`, `navdoors 8 11` (patch is `skip_dead`) |
+| Mallcrasher (`mallcrasher`; skirmish stage `skm_mallcrasher`) | `navdump 8 11`, `navdoors 8 11` (patch is `skip_dead`) |
 
 `<X>` is picked automatically as another neighbour of the sealed segment and
 logged as `p7auto seal seg=… exclude=… alt=…`. That pair is the seal test.

@@ -140,6 +140,8 @@ end
 
 local p7_nav = {
   _nav_segments = {
+    ['8'] = { pos = { x = 0, y = 0, z = 0 }, vis_groups = {}, neighbours = { ['11'] = { {} } } },
+    ['11'] = { pos = { x = 0, y = 0, z = 0 }, vis_groups = {}, neighbours = { ['8'] = { {} } } },
     ['48'] = { pos = { x = 0, y = 0, z = 0 }, vis_groups = {}, neighbours = {} },
     ['63'] = { pos = { x = 0, y = 0, z = 0 }, vis_groups = {}, neighbours = { ['48'] = { {}, {} } } },
     ['87'] = { pos = { x = 0, y = 0, z = 0 }, vis_groups = {}, neighbours = { ['141'] = { {} }, ['90'] = { {} } } },
@@ -179,6 +181,13 @@ Iter_TestHarness.p7_dump(true)
 p7_text = table.concat(lines, '\n')
 assert(p7_text:find('p7auto seal seg=87 exclude=141 alt=90', 1, true), 'p7 seal alternative wrong: ' .. p7_text)
 assert(p7_text:find('navpath level=jolly patches=on 87->90', 1, true), 'p7 seal path missing 87->90')
+
+current_level = 'mallcrasher'
+lines = {}
+Iter_TestHarness.p7_dump(true)
+p7_text = table.concat(lines, '\n')
+assert(p7_text:find('p7auto level=mallcrasher patches=on', 1, true), 'mallcrasher alias plan missing: ' .. p7_text)
+assert(p7_text:find('navdoors 8<->11', 1, true), 'mallcrasher doors missing')
 
 Iter_TestHarness.p7_auto_enabled = false
 lines = {}

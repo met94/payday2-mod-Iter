@@ -645,10 +645,17 @@ local P7_PLANS = {
 	skm_mallcrasher = {
 		dumps = { 8, 11 },
 		doors = { { 8, 11 } }
+	},
+	-- The standard Vlad job reports level_id "mallcrasher"; skm_mallcrasher is
+	-- the skirmish stage id. Keep both so either load collects the dump.
+	mallcrasher = {
+		dumps = { 8, 11 },
+		doors = { { 8, 11 } }
 	}
 }
 
 TH.p7_auto_enabled = true
+local p7_last_dump_t = 0
 
 local function first_other_neighbour(seg_id, exclude_id)
 	local nav = nav_manager()
@@ -690,6 +697,30 @@ function TH.p7_dump(force)
 	end
 
 	local patches = Iter and Iter.settings and Iter.settings.map_patches and 'on' or 'off'
+
+	if not force then
+		if not TH.p7_auto_enabled then
+			return
+		end
+
+		local now = 0
+
+		if TimerManager and TimerManager.game then
+			local t_ok, t = pcall(function()
+				return TimerManager:game():time()
+			end)
+
+			if t_ok and t then
+				now = t
+			end
+		end
+
+		if now - p7_last_dump_t < 5 then
+			return
+		end
+
+		p7_last_dump_t = now
+	end
 
 	quiet_log = not force
 
@@ -744,14 +775,36 @@ function TH.p7_auto_toggle(args)
 		TH.p7_auto_enabled = true
 	end
 
-	say(string.format('p7auto enabled=%s (levels: escape_street, jolly, moon, peta, skm_mallcrasher)', tostring(TH.p7_auto_enabled)))
+	say(string.format('p7auto enabled=%s (levels: escape_street, jolly, moon, peta, mallcrasher)', tostring(TH.p7_auto_enabled)))
 end
 
 -- on_simulation_started fires after nav data, shim and proxies are ready.
-if NavigationManager and NavigationManager.on_simulation_started then
+-- The harness loads before NavigationManager exists (mod priority 999), so the
+-- class hook is registered at GameSetup, when every game file is loaded.
+local function register_p7_autodump()
+	if TH._p7_hook_registered then
+		return
+	end
+
+	if not (NavigationManager and NavigationManager.on_simulation_started) then
+		return
+	end
+
 	Hooks:PostHook(NavigationManager, 'on_simulation_started', 'Iter_P7_AutoDump', function()
 		TH.p7_dump()
 	end)
+
+	TH._p7_hook_registered = true
+end
+
+register_p7_autodump()
+-- Both events fire after every game script is loaded (the harness itself
+-- loads before NavigationManager exists).
+Hooks:Add('LocalizationManagerPostInit', 'Iter_P7_AutoDumpRegister', register_p7_autodump)
+Hooks:Add('GameSetupUpdate', 'Iter_P7_AutoDumpRegister', register_p7_autodump)
+
+if log then
+	log(PREFIX .. 'harness loaded (p7auto + navpath)')
 end
 
 function TH.dump_path()

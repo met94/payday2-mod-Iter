@@ -22,6 +22,18 @@ local itr_original_navigationmanager_addobstacle = NavigationManager.add_obstacl
 local downed_obstacle_units = {}
 local last_obstacle_level
 
+-- The r200 patch tables are keyed by the old stage ids. At 248.2 the standard
+-- Mallcrasher job reports `mallcrasher` while the skirmish stage is
+-- `skm_mallcrasher`; both must reach the same block and setting key.
+local level_aliases = {
+	mallcrasher = 'skm_mallcrasher'
+}
+
+local function resolve_level_id()
+	local level_id = Iter:get_level_id()
+	return level_aliases[level_id] or level_id
+end
+
 local function _make_seg2vg(data)
 	seg2vg = {}
 	for i, vg in ipairs(data.vis_groups) do
@@ -32,7 +44,7 @@ end
 -- Per-call obstacle fixes for dinner/flat. These were file-load side effects
 -- in r200; keeping them in select_patch would leak across heists.
 function NavigationManager:add_obstacle(obstacle_unit, ...)
-	local level_id = Iter:get_level_id()
+	local level_id = resolve_level_id()
 
 	if last_obstacle_level ~= level_id then
 		last_obstacle_level = level_id
@@ -838,7 +850,7 @@ function NavigationManager:set_load_data(data)
 		return itr_original_navigationmanager_setloaddata(self, data)
 	end
 
-	local level_id = Iter:get_level_id()
+	local level_id = resolve_level_id()
 
 	if not Iter.settings['map_change_' .. level_id] then
 		patch_event(level_id, 'skip_setting')
