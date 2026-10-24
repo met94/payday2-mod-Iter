@@ -2,8 +2,7 @@
 
 Branch: `feat/iter-full-nav`
 Worktree: `.worktrees/Iter-iter-full-nav`
-Build: `dist/Iter` at `ca22c4a` (`202-dev`) — rebuild after the navpath/T5
-counter commits.
+Build: `dist/Iter` at `662834d` (`202-dev`)
 
 ## Where the port stands
 
@@ -111,8 +110,10 @@ Then read `dev/progress.md` and this file. Pick P7 or T5. End: update
 ## Key commits
 
 ```
-<new>  harness: navpath + path-extender counters
-<new>  docs: refresh P7 counts and release docs
+662834d chore: harness deploy hint
+c6a8204 docs: refresh P7 status and release defaults
+9cfaf38 P7: drop discarded neighbour writes from surviving blocks
+c2b2fae feat: add navpath A/B command and path-extender counters
 fca3be8 docs: record P7 validation method and confidence
 d7c2f12 docs: explain P7 terms and confirm Bomb level ids
 ca22c4a P7: confirm Dockyard survives via transfers
