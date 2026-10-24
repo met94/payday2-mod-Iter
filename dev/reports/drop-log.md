@@ -33,5 +33,8 @@ File is inert (`return` only) and its hook was removed from `mod.txt`.
 - `_navdatapatches` entries whose only effect was explicit `neighbours` writes
   (69 writes): the v6 converter recomputes neighbours and discards them. A
   level patch survives only if its doors/quads produce the intended topology.
+  Static audit: `dev/reports/p7-map-patch-audit.md`.
+  - `skm_mallcrasher` is DEAD_ONLY: rewrite as a door/quad change or drop.
+  - `dinner` and `flat` have no operations: drop the blocks.
 - Patches whose CRC no longer matches the shipped nav data: skip with a
   `patch` event; do not fail the heist.

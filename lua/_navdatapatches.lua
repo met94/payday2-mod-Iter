@@ -17,12 +17,42 @@ local transfer_room
 local append_vis_group
 
 local itr_original_navigationmanager_setloaddata = NavigationManager.set_load_data
+local itr_original_navigationmanager_addobstacle = NavigationManager.add_obstacle
+local downed_obstacle_units = {}
 
 local function _make_seg2vg(data)
 	seg2vg = {}
 	for i, vg in ipairs(data.vis_groups) do
 		seg2vg[vg.seg] = i
 	end
+end
+
+-- Per-call obstacle fixes for dinner/flat. These were file-load side effects
+-- in r200; keeping them in select_patch would leak across heists.
+function NavigationManager:add_obstacle(obstacle_unit, ...)
+	local level_id = Iter:get_level_id()
+
+	if Iter.settings['map_change_' .. level_id] then
+		if level_id == 'dinner' then
+			local unit_data = obstacle_unit:unit_data()
+
+			if unit_data and unit_data.unit_id == 102343 then
+				local pos = obstacle_unit:position()
+				mvector3.set_z(pos, pos.z - 10)
+				obstacle_unit:set_position(pos)
+			end
+		elseif level_id == 'flat' then
+			if not downed_obstacle_units[obstacle_unit] and obstacle_unit:name():key() == 'bc8566d71eae8505' then
+				local pos = obstacle_unit:position()
+				local z = pos.z
+				downed_obstacle_units[obstacle_unit] = true
+				mvector3.set_z(pos, z - 5)
+				obstacle_unit:set_position(pos)
+			end
+		end
+	end
+
+	return itr_original_navigationmanager_addobstacle(self, obstacle_unit, ...)
 end
 
 local function select_patch(level_id)
@@ -204,16 +234,7 @@ elseif level_id == 'crojob2' then
 
 elseif level_id == 'dinner' then
 
-	local itr_original_navigationmanager_addobstacle = NavigationManager.add_obstacle
-	function NavigationManager:add_obstacle(obstacle_unit, ...)
-		if obstacle_unit:unit_data().unit_id == 102343 then
-			local pos = obstacle_unit:position()
-			mvector3.set_z(pos, pos.z - 10)
-			obstacle_unit:set_position(pos)
-		end
-
-		itr_original_navigationmanager_addobstacle(self, obstacle_unit, ...)
-	end
+	return nil
 
 elseif level_id == 'escape_park' then
 
@@ -298,19 +319,7 @@ elseif level_id == 'firestarter_1' then
 
 elseif level_id == 'flat' then
 
-	local downed_obstacle_units = {}
-	local itr_original_navigationmanager_addobstacle = NavigationManager.add_obstacle
-	function NavigationManager:add_obstacle(obstacle_unit, ...)
-		if not downed_obstacle_units[obstacle_unit] and obstacle_unit:name():key() == 'bc8566d71eae8505' then
-			local pos = obstacle_unit:position()
-			local z = pos.z
-			downed_obstacle_units[obstacle_unit] = true
-			mvector3.set_z(pos, z - 5)
-			obstacle_unit:set_position(pos)
-		end
-
-		itr_original_navigationmanager_addobstacle(self, obstacle_unit, ...)
-	end
+	return nil
 
 elseif level_id == 'framing_frame_1' or level_id == 'gallery' then
 
@@ -794,6 +803,12 @@ end
 
 local patch_cache = {}
 
+-- v6 cannot honour neighbour writes; these blocks have no surviving effect
+-- until rewritten as doors/quads. See dev/reports/p7-map-patch-audit.md.
+local dead_patches = {
+	skm_mallcrasher = true
+}
+
 local function patch_event(level_id, result, extra)
 	local fields = {
 		level = level_id,
@@ -811,10 +826,20 @@ end
 local function prepare_helpers(data)
 	_make_seg2vg(data)
 
+	local stats = {
+		rooms = 0,
+		doors = 0,
+		segments = 0,
+		vis_groups = 0,
+		transfers = 0
+	}
+	Iter.nav_patch_stats = stats
+
 	transfer_room = function(id, from, to)
 		data.vis_groups[seg2vg[from]].rooms[id] = nil
 		data.vis_groups[seg2vg[to]].rooms[id] = true
 		data.room_vis_groups[id] = seg2vg[to]
+		stats.transfers = stats.transfers + 1
 	end
 
 	local rid = #data.room_borders_x_neg
@@ -833,6 +858,7 @@ local function prepare_helpers(data)
 		data.room_heights_xn_yn[rid] = heights_xn_yn
 		data.room_vis_groups[rid] = seg2vg[segment_id]
 		data.vis_groups[seg2vg[segment_id]].rooms[rid] = true
+		stats.rooms = stats.rooms + 1
 		return rid
 	end
 
@@ -844,6 +870,7 @@ local function prepare_helpers(data)
 		data.door_high_pos[did] = high_pos
 		data.door_low_rooms[did] = low_room_id
 		data.door_high_rooms[did] = high_room_id
+		stats.doors = stats.doors + 1
 		return did
 	end
 
@@ -859,6 +886,7 @@ local function prepare_helpers(data)
 			vg.vis_groups[k] = true
 		end
 		table.insert(data.vis_groups, vg)
+		stats.vis_groups = stats.vis_groups + 1
 
 		_make_seg2vg(data)
 
@@ -872,6 +900,7 @@ local function prepare_helpers(data)
 			vis_groups = { seg2vg[navseg_id] },
 			neighbours = {},
 		}
+		stats.segments = stats.segments + 1
 	end
 end
 
@@ -889,6 +918,11 @@ function NavigationManager:set_load_data(data)
 
 	if not Iter.settings['map_change_' .. level_id] then
 		patch_event(level_id, 'skip_setting')
+		return itr_original_navigationmanager_setloaddata(self, data)
+	end
+
+	if dead_patches[level_id] then
+		patch_event(level_id, 'skip_dead')
 		return itr_original_navigationmanager_setloaddata(self, data)
 	end
 
@@ -923,6 +957,6 @@ function NavigationManager:set_load_data(data)
 		return itr_original_navigationmanager_setloaddata(self, data)
 	end
 
-	patch_event(level_id, 'applied')
+	patch_event(level_id, 'applied', Iter.nav_patch_stats)
 	return true
 end
