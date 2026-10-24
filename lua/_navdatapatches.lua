@@ -528,6 +528,19 @@ elseif level_id == 'moon' then
 		mvec3_set_x(pos1, pos1.x + 1)
 		append_door(pos, pos1, 2777, 2758)
 
+		-- v6: the door is exactly on the shared edge, so a missing 22<->23
+		-- link is engine-side. Candidate gate: the two visibility groups may
+		-- not see each other; cross-link them both ways and keep this until
+		-- the A/B confirms (navpath see_fwd/see_rev).
+		local vg22 = seg2vg[22]
+		local vg23 = seg2vg[23]
+
+		if vg22 and vg23 and data.vis_groups[vg22] and data.vis_groups[vg23]
+			and data.vis_groups[vg22].vis_groups and data.vis_groups[vg23].vis_groups then
+			data.vis_groups[vg22].vis_groups[vg23] = true
+			data.vis_groups[vg23].vis_groups[vg22] = true
+		end
+
 		data.nav_segments[22].neighbours[23] = { #data.door_low_pos }
 		data.nav_segments[23].neighbours = { [22] = { #data.door_low_pos } }
 

@@ -85,8 +85,8 @@ One command per chat line, each with `!iter`, no semicolons.
 ## Reading the A/B
 
 `navpath` logs `level`, the live `patches` setting, `ok`, `steps`, `length`,
-`direct` (door count on the from->to link) and `ids` (segment sequence).
-Compare:
+`direct` (door count on the from->to link), `see_fwd`/`see_rev` (visibility
+groups list each other) and `ids` (segment sequence). Compare:
 
 - add link: `direct` > 0 with patch, 0 without; `length`/`ids` may still
   differ because of a detour;

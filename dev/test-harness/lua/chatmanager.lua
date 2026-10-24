@@ -539,6 +539,27 @@ function TH.probe(args)
 	end
 end
 
+local function segment_vis_groups(nav, seg_id)
+	local segment = nav and nav._nav_segments and nav._nav_segments[tostring(seg_id)]
+
+	return segment and segment.vis_groups or {}
+end
+
+local function groups_see(nav, source_groups, target_groups)
+	for _, source_id in ipairs(source_groups) do
+		local group = nav._visibility_groups and nav._visibility_groups[source_id]
+		local visible = group and (group.visible_groups or group.vis_groups) or {}
+
+		for _, target_id in ipairs(target_groups) do
+			if visible[target_id] or visible[tostring(target_id)] then
+				return 1
+			end
+		end
+	end
+
+	return 0
+end
+
 -- P7 topology A/B: coarse search between two known segment ids.
 -- Run once with "Dev: v6 map patches" on and once off; the line records the
 -- live setting, level and the direct door count so the two runs compare.
@@ -583,31 +604,38 @@ function TH.navpath(args)
 		end
 	end
 
+	local see_fwd = groups_see(nav, segment_vis_groups(nav, from_seg), segment_vis_groups(nav, to_seg))
+	local see_rev = groups_see(nav, segment_vis_groups(nav, to_seg), segment_vis_groups(nav, from_seg))
+
 	local ok, path = pcall(function()
 		return nav:search_coarse({ from_seg = from_seg, to_seg = to_seg })
 	end)
 
 	if not ok then
 		say(string.format(
-			'navpath level=%s patches=%s %s->%s ok=0 err=%s direct=%d',
+			'navpath level=%s patches=%s %s->%s ok=0 err=%s direct=%d see_fwd=%d see_rev=%d',
 			level_id,
 			patches,
 			from_seg,
 			to_seg,
 			tostring(path),
-			direct
+			direct,
+			see_fwd,
+			see_rev
 		))
 		return
 	end
 
 	if not path then
 		say(string.format(
-			'navpath level=%s patches=%s %s->%s ok=0 fail=search direct=%d',
+			'navpath level=%s patches=%s %s->%s ok=0 fail=search direct=%d see_fwd=%d see_rev=%d',
 			level_id,
 			patches,
 			from_seg,
 			to_seg,
-			direct
+			direct,
+			see_fwd,
+			see_rev
 		))
 		return
 	end
@@ -627,7 +655,7 @@ function TH.navpath(args)
 	local positions = path_positions(path)
 
 	say(string.format(
-		'navpath level=%s patches=%s %s->%s ok=1 steps=%d positions=%d length=%.1f direct=%d ids=%s',
+		'navpath level=%s patches=%s %s->%s ok=1 steps=%d positions=%d length=%.1f direct=%d see_fwd=%d see_rev=%d ids=%s',
 		level_id,
 		patches,
 		from_seg,
@@ -636,6 +664,8 @@ function TH.navpath(args)
 		positions,
 		length,
 		direct,
+		see_fwd,
+		see_rev,
 		table.concat(ids, ';')
 	))
 
@@ -649,7 +679,9 @@ function TH.navpath(args)
 			steps = #path,
 			positions = positions,
 			length = string.format('%.1f', length),
-			direct = direct
+			direct = direct,
+			see_fwd = see_fwd,
+			see_rev = see_rev
 		})
 	end
 end

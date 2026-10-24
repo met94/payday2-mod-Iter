@@ -56,13 +56,15 @@ also runs manually and prints one line per call:
 
 ```
 navpath level=<level> patches=<on|off> <from>-><to> ok=1 steps=N positions=N
-        length=<m> direct=<door count> ids=<seg;seg;...>
+        length=<m> direct=<door count> see_fwd=<0|1> see_rev=<0|1> ids=<seg;seg;...>
 ```
 
 `direct` is the number of doors on the `from -> to` neighbour entry in the
 loaded graph; it is read without searching, so it separates "graph changed"
-from "search found a detour". `ids` is the returned segment sequence (first 32
-steps).
+from "search found a detour". `see_fwd`/`see_rev` say whether the from/to
+visibility groups list each other (1) or not (0) — the engine needs mutual
+visibility for a door to become a segment link. `ids` is the returned segment
+sequence (first 32 steps).
 
 Run once with `map_patches=true`, once with `false`, on the same heist and the
 same segment pair. Reload the heist after the toggle: patches apply in

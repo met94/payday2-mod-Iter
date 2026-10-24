@@ -75,9 +75,13 @@ end
 
 local fake_nav = {
   _nav_segments = {
-    ['48'] = { neighbours = {} },
-    ['63'] = { neighbours = { ['48'] = { {}, {} } } },
+    ['48'] = { vis_groups = { '21' }, neighbours = {} },
+    ['63'] = { vis_groups = { '20' }, neighbours = { ['48'] = { {}, {} } } },
     ['99'] = { neighbours = {} }
+  },
+  _visibility_groups = {
+    ['20'] = { visible_groups = { ['21'] = true } },
+    ['21'] = { visible_groups = {} }
   },
   search_coarse = function(self, params)
     if params.from_seg == '63' and params.to_seg == '48' then
@@ -104,6 +108,7 @@ assert(line:find('level=test_level patches=on 63->48 ok=1 steps=2', 1, true), 'n
 assert(line:find('positions=2', 1, true), 'navpath positions wrong: ' .. line)
 assert(line:find('length=5.0', 1, true), 'navpath length wrong: ' .. line)
 assert(line:find('direct=2', 1, true), 'navpath direct count wrong: ' .. line)
+assert(line:find('see_fwd=1 see_rev=0', 1, true), 'navpath visibility flags wrong: ' .. line)
 assert(line:find('ids=63;48', 1, true), 'navpath ids wrong: ' .. line)
 
 Iter = {

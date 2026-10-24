@@ -22,7 +22,7 @@ One command per chat line.
 | `!iter navdump <seg>` | Segment position, neighbours with door kinds, vis groups and quad ids. |
 | `!iter navdoors <a> <b>` | Doors that join two segments, with quad ids and positions. |
 | `!iter navquad <id...>` | Quad borders (world units), heights, vis group and owning segment. |
-| `!iter navpath <from> <to>` | Coarse search between two segments; logs level, live `map_patches`, ok/steps/length, direct door count, segment ids. |
+| `!iter navpath <from> <to>` | Coarse search between two segments; logs level, live `map_patches`, ok/steps/length, direct door count, visibility flags, segment ids. |
 | `!iter p7` | Force the P7 dump for the current level (same output as the auto run). |
 | `!iter p7 auto on\|off` | Enable/disable the auto P7 dump on heist start. Default: on for the five pending levels. |
 | `!iter force <level_id>` | Host-only level jump (uses the tweak-data world name). Used for `escape_street`, which is not in Crime.net. |
