@@ -50,6 +50,11 @@ Important mapping (cost us a wrong test):
 
 Card: `dev/test/cards/P7-dumps.md`.
 
+Validation method and confidence levels: `dev/reports/p7-validation.md`.
+Short version: applying a patch is not proof of intent; we verify topology
+now, then add `!iter navpath` for A/B path tests (patch on/off) before
+calling P7 complete.
+
 - Escape: Street (`escape_street`): `navdump 48`, `63`; `navdoors 48 63`
 - Aftershock (`jolly`): `navdump 87`, `141`; `navdoors 87 141`
 - Stealing Xmas (`moon`): `navdump 22`, `23`; `navdoors 22 23`
