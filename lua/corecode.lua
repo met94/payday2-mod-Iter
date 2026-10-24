@@ -11,6 +11,7 @@ Iter.settings = {
 	-- See dev/plans/full-nav-port.md.
 	nav_overlay = true,
 	nav_streamline = false,
+	nav_search = false,
 	nav_ai = false,
 	streamline_path = false,
 	navlink_queue = false,
@@ -108,6 +109,7 @@ Iter.diag.event('boot', {
 	diag_version = Iter.diag.version,
 	nav_overlay = tostring(Iter.settings.nav_overlay),
 	nav_streamline = tostring(Iter.settings.nav_streamline),
+	nav_search = tostring(Iter.settings.nav_search),
 	nav_ai = tostring(Iter.settings.nav_ai),
 	streamline_path = tostring(Iter.settings.streamline_path),
 	debug_log = Iter.settings.debug_log

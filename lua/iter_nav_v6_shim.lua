@@ -292,11 +292,63 @@ local function build(nav, load_data)
 		end
 	end
 
+	-- Map physical doors to the segment pair they connect. 248.2 stores
+	-- neighbour entries as engine positions, not door ids, so the ported
+	-- flood/proxy code needs this topology index to recover door ids.
+	local function seg_of_quad(i_quad)
+		local room = i_quad and rooms[i_quad]
+		local i_vis_group = room and room.vis_group
+		local group = i_vis_group and visibility_groups[i_vis_group]
+
+		return group and group.seg
+	end
+
+	local door_by_pair = {}
+	local doors_without_pair = 0
+	local door_pairs = 0
+
+	for i_door, door in ipairs(room_doors) do
+		local seg_a = seg_of_quad(door.rooms[1])
+		local seg_b = seg_of_quad(door.rooms[2])
+
+		if seg_a and seg_b and seg_a ~= seg_b then
+			local forward = door_by_pair[seg_a]
+
+			if not forward then
+				forward = {}
+				door_by_pair[seg_a] = forward
+			end
+
+			local reverse = door_by_pair[seg_b]
+
+			if not reverse then
+				reverse = {}
+				door_by_pair[seg_b] = reverse
+			end
+
+			if not forward[seg_b] then
+				forward[seg_b] = {}
+				door_pairs = door_pairs + 1
+			end
+
+			if not reverse[seg_a] then
+				reverse[seg_a] = {}
+			end
+
+			t_ins(forward[seg_b], i_door)
+			t_ins(reverse[seg_a], i_door)
+		else
+			doors_without_pair = doors_without_pair + 1
+		end
+	end
+
 	local stats = {
 		rooms = #rooms,
 		room_doors = #room_doors,
 		vis_groups = #visibility_groups,
 		doors_skipped = doors_skipped,
+		doors_without_pair = doors_without_pair,
+		door_pairs = door_pairs,
 		groups_without_seg = groups_without_seg,
 		segments = segments_seen,
 		grid = grid_size,
@@ -308,6 +360,7 @@ local function build(nav, load_data)
 		rooms = rooms,
 		room_doors = room_doors,
 		visibility_groups = visibility_groups,
+		door_by_pair = door_by_pair,
 		stats = stats
 	}
 end
@@ -331,6 +384,7 @@ function IterNavShim.rebuild(nav, load_data)
 	nav._rooms = result.rooms
 	nav._room_doors = result.room_doors
 	nav._visibility_groups = result.visibility_groups
+	nav.itr_shim_door_by_pair = result.door_by_pair
 	nav[K_STATS] = result.stats
 
 	diag_event('navdata', result.stats)
@@ -346,6 +400,7 @@ function IterNavShim.clear(nav)
 	nav._rooms = {}
 	nav._room_doors = {}
 	nav._visibility_groups = {}
+	nav.itr_shim_door_by_pair = nil
 	nav[K_STATS] = nil
 end
 

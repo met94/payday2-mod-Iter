@@ -38,8 +38,15 @@ Target: `e3a8b616` (248.2).
 - N-02 complete: string-key bookkeeping and guards in the nav overlay;
   feature split `nav_overlay` / `nav_streamline` / `nav_ai`; `evt=heist`
   post-hook. Gates PASS; audit errors still 11.
-- Next: user runs T0/T1; implementation continues with S-01 (segment doors on
-  quads) and S-02 (flood/contiguity/choke).
+- S-01/S-02 implemented (awaiting runtime): shim door→segment-pair index;
+  `itr_find_proxies` uses it; `itr_copy_door_data` from the shim;
+  `itr_prepare_nav_data` after `_resolve_segment_neighbours` (host only) with
+  `evt=proxy`; Vector3 door branches in door lookup/accessibility;
+  `nav_search` split from `nav_streamline`.
+  - Offline shim tests: 144 checks / 11 tests PASS.
+  - Audit baseline 11 -> 12 (R6, one expected shim-backed `_room_doors` line).
+- Next: S-03/S-04 (proxy/choke verification, door selection) and S-05
+  (streamline application); T1/T2 runtime data pending from the user.
 
 ## Rulings
 

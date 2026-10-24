@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-24T11:20:41.187Z
+Generated: 2026-10-24T11:31:41.849Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -11,10 +11,9 @@ Scope: top-level function definitions only. Nested helpers are folded into their
 
 | category | count |
 |---|---:|
-| MOD_EDIT_VANILLA_CHANGED | 7 |
-| MOD_ONLY_HOOK | 3 |
-| MOD_ONLY | 54 |
-| VANISHED_IN_NEW | 1 |
+| MOD_EDIT_VANILLA_CHANGED | 6 |
+| MOD_ONLY_HOOK | 4 |
+| MOD_ONLY | 56 |
 | MOD_EDIT_CLEAN | 33 |
 
 ## lua/coreworldinstancemanager.lua
@@ -70,12 +69,12 @@ No function definitions (hook/overlay file).
 
 | done | status | function | mod L | old L | new L | note |
 |---:|---|---|---:|---:|---:|---|
-| [ ] | **PORT** | `NavigationManager._execute_coarce_search` | 172 | 103 | 95 |  |
 | [ ] | **PORT** | `NavigationManager.clbk_navfield` | 32 | 163 | 176 |  |
 | [ ] | **PORT** | `NavigationManager.register_cover_units` | 27 | 80 | 75 |  |
 | [ ] | **PORT** | `NavigationManager.set_nav_segment_state` | 12 | 36 | 38 |  |
 | [ ] | **PORT** | `NavigationManager.unregister_anim_nav_link` | 7 | 63 | 69 |  |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._clear:Iter_nav_shim_clear` | 3 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
+| [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._resolve_segment_neighbours:Iter_nav_prepare` | 3 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._send_nav_field_to_engine:Iter_nav_shim_rebuild` | 3 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.set_load_data:Iter_nav_heist` | 13 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit | `get_coarse_dis` | 8 | 0 | 0 |  |
@@ -84,23 +83,24 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `itr_get_navlink_usage` | 16 | 0 | 0 |  |
 | [ ] | audit | `itr_get_rooms_having_access_to_next_level` | 16 | 0 | 0 |  |
 | [ ] | audit | `itr_log_navlink_usage` | 12 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_copy_door_data` | 14 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_copy_door_data` | 11 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_execute_coarce_search` | 172 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_find_best_navlink` | 46 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_find_choke_point` | 24 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_find_proxies` | 128 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_find_proxies` | 152 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_flood` | 50 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_get_accessibility` | 28 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_get_accessibility` | 30 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_get_all_doors_of_segment` | 30 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_get_closest_door_to_pos` | 69 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_get_closest_door_to_pos` | 78 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_get_coarse_pos_between` | 24 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_get_door_between` | 6 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_get_door_between` | 31 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_get_room_to_doors` | 16 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_is_contiguous` | 41 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_make_neighbours_list` | 16 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_prepare_streamline_data` | 17 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_prepare_nav_data` | 34 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_prepare_streamline_data` | 18 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_streamline` | 53 | 0 | 0 |  |
 | [ ] | audit | `path_copy` | 12 | 0 | 0 |  |
-| [ ] | drop/rewrite | `NavigationManager.send_nav_field_to_engine` | 10 | 73 | 0 | function exists in 246.1 but not in 248.2; drop or re-home |
 | [ ] | keep | `NavigationManager.register_anim_nav_link` | 55 | 45 | 45 |  |
 
 ## lua/groupaistatebase.lua

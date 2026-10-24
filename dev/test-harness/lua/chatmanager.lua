@@ -550,9 +550,10 @@ function TH.dump()
 	local stats = TH.nav_stats()
 
 	say(string.format(
-		'dump: overlay=%s streamline=%s ai=%s path=%s navlink_queue=%s extender=%s direct=%s debug_log=%s segments=%d rooms=%d room_doors=%d navlink_elements=%d',
+		'dump: overlay=%s streamline=%s search=%s ai=%s path=%s navlink_queue=%s extender=%s direct=%s debug_log=%s segments=%d rooms=%d room_doors=%d navlink_elements=%d',
 		tostring(ITER.settings.nav_overlay),
 		tostring(ITER.settings.nav_streamline),
+		tostring(ITER.settings.nav_search),
 		tostring(ITER.settings.nav_ai),
 		tostring(ITER.settings.streamline_path),
 		tostring(ITER.settings.navlink_queue),

@@ -37,6 +37,7 @@ end)
 
 local mvec3_add = mvector3.add
 local mvec3_ang = mvector3.angle
+local mvec3_cpy = mvector3.copy
 local mvec3_dis = mvector3.distance
 local mvec3_dis_sq = mvector3.distance_sq
 local mvec3_div = mvector3.divide
@@ -426,8 +427,27 @@ function NavigationManager:itr_find_proxies(segment_id)
 	local segment = all_nav_segments[segment_id]
 	local all_seg_doors, room_neighbours = self:itr_get_all_doors_of_segment(segment_id)
 	local room_to_doors = self:itr_get_room_to_doors(segment_id, all_seg_doors)
+	local door_by_pair = self.itr_shim_door_by_pair
+	local proxy_no_doors = 0
 
-	for neighbour_seg_id, door_list in pairs(segment.neighbours) do
+	for neighbour_seg_id, engine_doors in pairs(segment.neighbours) do
+		local door_list = door_by_pair and door_by_pair[segment_id] and door_by_pair[segment_id][neighbour_seg_id]
+
+		if not door_list then
+			-- v5 data had numeric door ids in the neighbour list; v6 has engine
+			-- positions. The shim index is the source of truth.
+			door_list = {}
+
+			for _, door in ipairs(engine_doors or {}) do
+				if type(door) == 'number' then
+					table_insert(door_list, door)
+				end
+			end
+		end
+
+		if #door_list == 0 then
+			proxy_no_doors = proxy_no_doors + 1
+		end
 		local best_level
 		local min_count = 1000
 		local level1_contiguous
@@ -477,7 +497,8 @@ function NavigationManager:itr_find_proxies(segment_id)
 			end
 		end
 
-		local neighbour_in_proxies = all_nav_segments[neighbour_seg_id].in_proxies
+		local neighbour_segment = all_nav_segments[neighbour_seg_id]
+		local neighbour_in_proxies = neighbour_segment and neighbour_segment.in_proxies
 		local already_done = neighbour_in_proxies and neighbour_in_proxies[segment_id]
 		if already_done ~= nil then
 			in_proxies[neighbour_seg_id] = already_done
@@ -543,6 +564,10 @@ function NavigationManager:itr_find_proxies(segment_id)
 		end
 	end
 
+	if proxy_no_doors > 0 then
+		Iter.diag.count('proxy_no_doors', proxy_no_doors)
+	end
+
 	return choke_points, choke_point_proxies, in_proxies, out_proxies
 end
 
@@ -555,8 +580,9 @@ function NavigationManager:itr_prepare_streamline_data()
 		for neighbour_seg_id in pairs(segment.neighbours) do
 			local choke_point_proxy = segment.choke_point_proxies[neighbour_seg_id]
 			if choke_point_proxy then
-				local neighbour_choke_point_proxies = self._nav_segments[neighbour_seg_id].choke_point_proxies
-				if not neighbour_choke_point_proxies[segment_id] then
+				local neighbour = self._nav_segments[neighbour_seg_id]
+				local neighbour_choke_point_proxies = neighbour and neighbour.choke_point_proxies
+				if neighbour_choke_point_proxies and not neighbour_choke_point_proxies[segment_id] then
 					neighbour_choke_point_proxies[segment_id] = choke_point_proxy
 				end
 			end
@@ -567,29 +593,55 @@ end
 function NavigationManager:itr_copy_door_data()
 	self.itr_room_doors = {}
 
-	for _, segment in pairs(self._nav_segments) do
-		for _, door_list in pairs(segment.neighbours) do
-			for _, door_id in pairs(door_list) do
-				local data = self._room_doors[door_id]
-				local center = Vector3()
-				mvector3.lerp(center, data.pos, data.pos1, 0.5)
-				self.itr_room_doors[door_id] = { center, data.pos, data.pos1 }
-			end
+	for door_id, door in pairs(self._room_doors or {}) do
+		local center = door.center and mvec3_cpy(door.center) or Vector3()
+		if not door.center then
+			mvec3_lerp(center, door.pos, door.pos1, 0.5)
 		end
+		self.itr_room_doors[door_id] = { center, door.pos, door.pos1 }
 	end
 end
 
-local itr_original_navigationmanager_sendnavfieldtoengine = NavigationManager.send_nav_field_to_engine
-function NavigationManager:send_nav_field_to_engine()
-	self:itr_prepare_streamline_data()
+-- Proxies need segment.neighbours, which are filled by
+-- _resolve_segment_neighbours after the shim rebuilds the geometry tables.
+function NavigationManager:itr_prepare_nav_data()
+	if not Network:is_server() then
+		return
+	end
+
+	local t0 = Iter.diag.now()
 	self:itr_copy_door_data()
 
 	for navseg_id in pairs(self._nav_segments) do
 		self:itr_make_neighbours_list(navseg_id)
 	end
 
-	return itr_original_navigationmanager_sendnavfieldtoengine(self)
+	self:itr_prepare_streamline_data()
+
+	local proxy_segments, choke_points, in_proxies, out_proxies = 0, 0, 0, 0
+
+	for _, segment in pairs(self._nav_segments) do
+		if segment.choke_points then
+			proxy_segments = proxy_segments + 1
+			choke_points = choke_points + table.size(segment.choke_points)
+			in_proxies = in_proxies + table.size(segment.in_proxies or {})
+			out_proxies = out_proxies + table.size(segment.out_proxies or {})
+		end
+	end
+
+	Iter.diag.observe_ms('proxy_ms', Iter.diag.span_ms(t0))
+	Iter.diag.event('proxy', {
+		segments = proxy_segments,
+		choke = choke_points,
+		in_proxies = in_proxies,
+		out_proxies = out_proxies,
+		ms = Iter.diag.span_ms(t0)
+	})
 end
+
+Hooks:PostHook(NavigationManager, '_resolve_segment_neighbours', 'Iter_nav_prepare', function(self)
+	self:itr_prepare_nav_data()
+end)
 
 local function itr_log_navlink_usage(navlink, t)
 	local key = navlink:key()
@@ -645,6 +697,15 @@ function NavigationManager:itr_get_closest_door_to_pos(all_doors, door_list, pos
 				end
 			end
 
+		elseif i_door and i_door.x then
+			local dis = (pos_from and mvec3_dis(pos_from, i_door) or 0) + mvec3_dis(i_door, pos_to)
+
+			if dis <= best_dis then
+				best_pos = i_door
+				best_dis = dis
+				is_direct = true
+			end
+
 		elseif is_direct then
 			-- qued
 
@@ -693,6 +754,31 @@ function NavigationManager:itr_get_closest_door_to_pos(all_doors, door_list, pos
 end
 
 function NavigationManager:itr_get_door_between(segment1_id, segment2_id, near_pos)
+	local door_by_pair = self.itr_shim_door_by_pair
+	local door_ids = door_by_pair and door_by_pair[segment1_id] and door_by_pair[segment1_id][segment2_id]
+
+	if door_ids then
+		local best_pos, best_dis
+
+		for _, door_id in ipairs(door_ids) do
+			local door = self._room_doors[door_id]
+
+			if door then
+				local pos = door.center or mvec3_lerp(Vector3(), door.pos, door.pos1, 0.5)
+				local dis = near_pos and mvec3_dis(pos, near_pos) or 0
+
+				if not best_dis or dis < best_dis then
+					best_pos = pos
+					best_dis = dis
+				end
+			end
+		end
+
+		if best_pos then
+			return best_pos
+		end
+	end
+
 	local door_list = self._nav_segments[segment1_id].neighbours[segment2_id]
 	if door_list then
 		return self:itr_get_closest_door_to_pos(self._room_doors, door_list, nil, near_pos, nil, true)
@@ -855,6 +941,8 @@ function NavigationManager:itr_get_accessibility(door_list, access_pos, access_n
 		local i_door = door_list[i]
 		if type(i_door) == 'number' then
 			return 0
+		elseif i_door and i_door.x then
+			return 0
 		elseif i_door and i_door:alive() and not i_door:is_obstructed() and i_door:check_access(access_pos, access_neg) then
 			t = t or TimerManager:game():time()
 			local element = _navlink_elements[i_door:key()]
@@ -905,7 +993,7 @@ NavigationManager.itr_coarse_cache_lifetime = 2
 NavigationManager.itr_coarse_fail_retry_t = 3
 NavigationManager.itr_coarse_cache = {}
 
-function NavigationManager:_execute_coarce_search(search_data)
+function NavigationManager:itr_execute_coarce_search(search_data)
 	local t = TimerManager:game():time()
 	local access_pos = search_data.access_pos
 	local next_seg_id = search_data.start_i_seg
@@ -1076,4 +1164,10 @@ function NavigationManager:_execute_coarce_search(search_data)
 	end
 
 	return search_data.results_callback and result or self:itr_streamline(result)
+end
+
+-- The custom search is a separate gate from the streamliner so proxies can be
+-- tested on vanilla/LIES searches before Iter's search replaces them.
+if Iter.settings.nav_search then
+	NavigationManager._execute_coarce_search = NavigationManager.itr_execute_coarce_search
 end

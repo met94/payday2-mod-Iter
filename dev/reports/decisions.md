@@ -56,3 +56,14 @@ consumes or delegate to LIES when it is present.
 
 Cost if wrong: LIES cover approach could degrade when both mods are installed;
 the T7 card catches it.
+
+## R6. API-audit baseline 11 -> 12
+
+`itr_get_door_between` now reads `self._room_doors[door_id]` from the N-01
+shim. The audit symbol is still an error until S-04 removes the v5 numeric
+branch, so the recorded baseline is 12.
+
+Cost if wrong: one expected error can mask a regression in that file; the
+review and ledger cover the line, and the baseline drops again when the v5
+branch is deleted.
+

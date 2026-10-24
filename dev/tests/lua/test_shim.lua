@@ -486,6 +486,27 @@ function tests.survives_bad_optional_data()
 	check_equal(find_event('err'), nil, 'no internal error logged')
 end
 
+function tests.door_by_pair_index()
+	reset_events()
+
+	local nav = make_nav(100)
+	local data = make_load_data()
+	data.door_low_quads = { 2, 99 }
+	data.door_high_quads = { 4, 99 }
+
+	check(IterNavShim.rebuild(nav, data) == true, 'rebuild with a cross-segment door')
+
+	local stats = IterNavShim.stats(nav)
+	check_equal(stats.room_doors, 1, 'one valid door')
+	check_equal(stats.door_pairs, 1, 'one segment pair')
+	check_equal(stats.doors_without_pair, 0, 'door belongs to a segment pair')
+
+	local pair = nav.itr_shim_door_by_pair
+	check(pair and pair['1'] and pair['1']['2'], 'forward pair exists')
+	check(pair['1']['2'][1] == 1, 'forward pair holds the door id')
+	check(pair['2'] and pair['2']['1'] and pair['2']['1'][1] == 1, 'reverse pair exists')
+end
+
 local function main()
 	local names = {}
 
