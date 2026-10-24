@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-24T12:54:09.088Z
+Generated: 2026-10-24T13:09:05.032Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -72,7 +72,7 @@ No function definitions (hook/overlay file).
 | [ ] | **PORT** | `NavigationManager.clbk_navfield` | 35 | 163 | 176 |  |
 | [ ] | **PORT** | `NavigationManager.register_cover_units` | 27 | 80 | 75 |  |
 | [ ] | **PORT** | `NavigationManager.set_nav_segment_state` | 13 | 36 | 38 |  |
-| [ ] | **PORT** | `NavigationManager.unregister_anim_nav_link` | 14 | 63 | 69 |  |
+| [ ] | **PORT** | `NavigationManager.unregister_anim_nav_link` | 15 | 63 | 69 |  |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._clear:Iter_nav_shim_clear` | 12 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._resolve_segment_neighbours:Iter_nav_prepare` | 3 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._send_nav_field_to_engine:Iter_nav_shim_rebuild` | 3 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
@@ -82,16 +82,16 @@ No function definitions (hook/overlay file).
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.update:Iter_nav_heartbeat` | 35 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit | `get_coarse_dis` | 8 | 0 | 0 |  |
 | [ ] | audit | `is_vec3` | 9 | 0 | 0 |  |
-| [ ] | audit | `itr_add_door_pos_to` | 10 | 0 | 0 |  |
+| [ ] | audit | `itr_add_door_pos_to` | 13 | 0 | 0 |  |
 | [ ] | audit | `itr_get_door_in_alignment` | 31 | 0 | 0 |  |
 | [ ] | audit | `itr_get_navlink_usage` | 17 | 0 | 0 |  |
 | [ ] | audit | `itr_get_rooms_having_access_to_next_level` | 16 | 0 | 0 |  |
 | [ ] | audit | `itr_log_navlink_usage` | 12 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_copy_door_data` | 11 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_execute_coarce_search` | 197 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_execute_coarce_search` | 231 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_find_best_navlink` | 47 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_find_choke_point` | 24 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_find_proxies` | 153 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_find_proxies` | 156 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_flood` | 50 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_get_accessibility` | 34 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_get_all_doors_of_segment` | 30 | 0 | 0 |  |
@@ -103,7 +103,7 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `NavigationManager.itr_make_neighbours_list` | 16 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_prepare_nav_data` | 36 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_prepare_streamline_data` | 18 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_streamline` | 64 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_streamline` | 76 | 0 | 0 |  |
 | [ ] | audit | `path_copy` | 12 | 0 | 0 |  |
 | [ ] | keep | `NavigationManager.register_anim_nav_link` | 66 | 45 | 45 |  |
 

@@ -13,12 +13,14 @@ local mvec3_z = mvector3.z
 local seg2vg
 local add_segment
 local append_room
+local append_door
 local transfer_room
 local append_vis_group
 
 local itr_original_navigationmanager_setloaddata = NavigationManager.set_load_data
 local itr_original_navigationmanager_addobstacle = NavigationManager.add_obstacle
 local downed_obstacle_units = {}
+local last_obstacle_level
 
 local function _make_seg2vg(data)
 	seg2vg = {}
@@ -31,6 +33,11 @@ end
 -- in r200; keeping them in select_patch would leak across heists.
 function NavigationManager:add_obstacle(obstacle_unit, ...)
 	local level_id = Iter:get_level_id()
+
+	if last_obstacle_level ~= level_id then
+		last_obstacle_level = level_id
+		downed_obstacle_units = {}
+	end
 
 	if Iter.settings['map_change_' .. level_id] then
 		if level_id == 'dinner' then
@@ -54,6 +61,11 @@ function NavigationManager:add_obstacle(obstacle_unit, ...)
 
 	return itr_original_navigationmanager_addobstacle(self, obstacle_unit, ...)
 end
+
+Hooks:PostHook(NavigationManager, '_clear', 'Iter_patch_obstacle_clear', function()
+	downed_obstacle_units = {}
+	last_obstacle_level = nil
+end)
 
 local function select_patch(level_id)
 	if not Iter.settings['map_change_' .. level_id] then
@@ -240,10 +252,10 @@ elseif level_id == 'escape_park' then
 
 	return function(self, data)
 		local pos_match = function(pos)
-			x = mvec3_x(low_pos)
-			y = mvec3_y(low_pos)
+			local x = mvec3_x(pos)
+			local y = mvec3_y(pos)
 			if x >= -57 and x <= 84 and y >= -99 and y <= -21 then
-				z = mvec3_z(low_pos)
+				local z = mvec3_z(pos)
 				if z < -150 then
 					return true
 				end
@@ -255,8 +267,8 @@ elseif level_id == 'escape_park' then
 		local delta = Vector3(delta_i, 0, 0)
 
 		for did = #data.door_low_pos, 1, -1 do
-			low_pos = data.door_low_pos[did]
-			high_pos = data.door_high_pos[did]
+			local low_pos = data.door_low_pos[did]
+			local high_pos = data.door_high_pos[did]
 			if pos_match(low_pos) and pos_match(high_pos) then
 				mvec3_add(low_pos, delta)
 				mvec3_add(high_pos, delta)
@@ -940,7 +952,14 @@ function NavigationManager:set_load_data(data)
 	local patch = patch_cache[level_id]
 
 	if patch == nil then
-		patch = select_patch(level_id) or false
+		local select_ok, selected = pcall(select_patch, level_id)
+
+		if not select_ok then
+			Iter.diag.err('navdatapatches.select.' .. tostring(level_id), selected)
+			selected = false
+		end
+
+		patch = selected or false
 		patch_cache[level_id] = patch
 	end
 
@@ -958,7 +977,13 @@ function NavigationManager:set_load_data(data)
 		return itr_original_navigationmanager_setloaddata(self, data)
 	end
 
-	prepare_helpers(data)
+	local prep_ok, prep_err = pcall(prepare_helpers, data)
+
+	if not prep_ok then
+		Iter.diag.err('navdatapatches.prepare.' .. tostring(level_id), prep_err)
+		patch_event(level_id, 'error')
+		return itr_original_navigationmanager_setloaddata(self, data)
+	end
 
 	local ok, err = pcall(patch, self, data)
 

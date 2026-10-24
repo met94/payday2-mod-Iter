@@ -20,19 +20,19 @@ card checks were adapted for Iter.
 
 Cost if wrong: none; this is a tooling reuse decision, not runtime code.
 
-## R3. Overlay stays inert until its flag is enabled
+## R3. Overlay default and inertness
 
-The restored r200 overlay is gated by `Iter.settings.nav_overlay`, an internal
-master switch that defaults to false. `streamline_path` remains the future
-user-facing toggle. `groupaistatebase` and the nav overlay return before
-installing anything.
+`nav_overlay` is the internal master switch. It defaults to **true** in the
+202-dev line because the v6 geometry shim and bookkeeping are the tested
+foundation (T1/T2/T3/T4). Behaviour is still controlled by the individual
+feature flags; the overlay alone only rebuilds geometry and guarded
+bookkeeping. The menu toggle remains the emergency off switch.
 
-Why: a saved Iter Lite settings file may contain `streamline_path=true`; without
-a new internal key, the next build would run unported v5 code on 248.2 and crash
-on heist load. The new key cannot be enabled accidentally by an old save file.
+Early in the port the default was false to keep unported v5 code inert; that
+is no longer the case.
 
-Cost if wrong: a test session that forgets `nav_overlay` behaves like Iter Lite;
-no crash, just no nav changes.
+Cost if wrong: a bad shim build runs on every heist; the toggle and the
+fallback event are the escape hatches.
 
 ## R4. v6 geometry shim before any feature work
 

@@ -70,6 +70,10 @@ NavigationManager = {
 	end
 }
 
+Hooks = {
+	PostHook = function() end
+}
+
 dofile('lua/_navdatapatches.lua')
 
 check(type(NavigationManager.set_load_data) == 'function', 'wrapper installed')

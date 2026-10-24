@@ -1,6 +1,6 @@
 ﻿# Iter 248.2 full-nav static gates
 
-Generated: 2026-10-24 13:54:07Z
+Generated: 2026-10-24 14:09:02Z
 
 ## Node tool tests
 
@@ -11,7 +11,7 @@ Result: PASS
 Γä╣ cancelled 0
 Γä╣ skipped 0
 Γä╣ todo 0
-Γä╣ duration_ms 129.593
+Γä╣ duration_ms 135.443
 
 ## Test-harness parser
 
@@ -66,7 +66,7 @@ wrote D:\Programowanie\payday\2\v2\.worktrees\Iter-iter-full-nav\dev\reports\por
 
 Result: PASS
 
-hooks=14/14 methods=7/7 errors=12 review=32 suppressed=12 allowUnused=0
+hooks=14/14 methods=8/8 errors=12 review=32 suppressed=12 allowUnused=0
 Baseline errors: 12 (current: 12)
 Unused allowlist entries: 0
 

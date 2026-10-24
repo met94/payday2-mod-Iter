@@ -12,6 +12,10 @@ if Iter.settings.map_patches then
 end
 dofile(Iter._path .. 'lua/iter_nav_v6_shim.lua')
 
+-- Nav-link maps must exist before the _clear hook below is registered.
+local _navlink_elements = {}
+local _navlink_planned_use = {}
+
 -- Rebuild the v5 geometry tables from the converted load data, then drop them
 -- again when the manager is cleared. Geometry only; see iter_nav_v6_shim.lua.
 Hooks:PostHook(NavigationManager, '_send_nav_field_to_engine', 'Iter_nav_shim_rebuild', function(self, load_data)
@@ -92,9 +96,6 @@ local function is_vec3(value)
 
 	return type(x) == 'number' and type(y) == 'number' and type(z) == 'number'
 end
-
-local _navlink_elements = {}
-local _navlink_planned_use = {}
 
 local itr_original_navigationmanager_registercoverunits = NavigationManager.register_cover_units
 function NavigationManager:register_cover_units()
@@ -264,6 +265,7 @@ function NavigationManager:unregister_anim_nav_link(element)
 
 	if nav_link then
 		_navlink_elements[nav_link:key()] = nil
+		_navlink_planned_use[nav_link:key()] = nil
 		Iter.diag.count('navlink_unregistered')
 
 		if Iter.settings.nav_streamline then
@@ -348,13 +350,13 @@ function NavigationManager:set_nav_segment_state(id, ...)
 	end
 end
 
-if not Iter.settings.nav_streamline then
+if not Iter.settings.nav_streamline and not Iter.settings.nav_search then
 	return
 end
 
 function NavigationManager:itr_get_all_doors_of_segment(segment_id)
 	local room_mask = {}
-	if self._nav_segments[segment_id] and next(self._nav_segments[segment_id].vis_groups) then
+	if self._nav_segments[segment_id] and next(self._nav_segments[segment_id].vis_groups or {}) then
 		for _, i_vis_group in ipairs(self._nav_segments[segment_id].vis_groups) do
 			local vis_group_rooms = self._visibility_groups[i_vis_group].rooms
 			for i_room, _ in pairs(vis_group_rooms) do
@@ -525,8 +527,11 @@ local function itr_add_door_pos_to(sum_pos, all_doors, i_door)
 		mvec3_lerp(tmp_vec, door.pos, door.pos1, 0.5)
 		mvec3_add(sum_pos, tmp_vec)
 	elseif alive(i_door) then
-		local start_pos = _navlink_elements[i_door:key()]:value('position')
-		mvec3_add(sum_pos, start_pos)
+		local element = _navlink_elements[i_door:key()]
+
+		if element then
+			mvec3_add(sum_pos, element:value('position'))
+		end
 	end
 end
 
@@ -648,7 +653,11 @@ function NavigationManager:itr_find_proxies(segment_id)
 						mvec3_lerp(tmp_vec, door.pos, door.pos1, 0.5)
 						dis = mvec3_dis_sq(frontier_center, tmp_vec)
 					elseif alive(door_id) then
-						dis = mvec3_dis_sq(frontier_center, _navlink_elements[door_id:key()]:value('position'))
+						local element = _navlink_elements[door_id:key()]
+
+						if element then
+							dis = mvec3_dis_sq(frontier_center, element:value('position'))
+						end
 					end
 					if dis and dis > metawidth then
 						metawidth = dis
@@ -661,7 +670,6 @@ function NavigationManager:itr_find_proxies(segment_id)
 		if #door_list > 1 then
 			local choke_point_pos, lower_levels_contiguity = self:itr_find_choke_point(room_flood_levels, room_level_counts, room_to_doors, door_flood_levels, important_rooms)
 			if choke_point_pos then
-				local choke_pos = choke_point
 				choke_points[neighbour_seg_id] = choke_point_pos
 
 				if lower_levels_contiguity then
@@ -1056,9 +1064,9 @@ function NavigationManager:itr_streamline(path, access_pos)
 		return path
 	end
 
-	-- Already streamlined paths end with a positionless duplicate step; do not
-	-- streamline them twice (probe calls search_coarse and then itr_streamline).
-	if not is_vec3(path[#path][2]) then
+	-- Already streamlined paths end with a positionless duplicate step and carry
+	-- the marker; do not streamline them twice (probe does search + streamline).
+	if path.itr_streamlined or not is_vec3(path[#path][2]) then
 		Iter.diag.count('streamline_skip_done')
 		return path
 	end
@@ -1070,7 +1078,13 @@ function NavigationManager:itr_streamline(path, access_pos)
 	local step2
 
 	if not is_vec3(step1[2]) then
-		step1[2] = all_segs[step1[1]].pos
+		local start_seg = all_segs[step1[1]]
+
+		if not start_seg then
+			return false
+		end
+
+		step1[2] = start_seg.pos
 	end
 
 	for i = 2, path_nr do
@@ -1078,18 +1092,23 @@ function NavigationManager:itr_streamline(path, access_pos)
 
 		local segment1 = all_segs[step1[1]]
 		local segment2_id = step2[1]
+		local segment2 = all_segs[segment2_id]
+
+		if not segment1 or not segment2 then
+			return false
+		end
+
 		local door_list = segment1.neighbours[segment2_id]
 		if door_list then
 			local navlink
-			local segment2 = all_segs[segment2_id]
 			local step3 = path[i + 1]
 			local segment3 = step3 and all_segs[step3[1]]
 
 			local best_pos = segment1.choke_point_proxies and segment1.choke_point_proxies[step2[1]]
 
 			if not best_pos then
-				local out_proxy = step3 and ((segment3.choke_points and segment3.choke_points[step2[1]]) or (segment2.out_proxies and segment2.out_proxies[step3[1]]))
-				local in_proxy = (segment2.in_proxies and segment2.in_proxies[step1[1]]) or (step3 and all_segs[step3[1]].pos)
+				local out_proxy = step3 and segment3 and ((segment3.choke_points and segment3.choke_points[step2[1]]) or (segment2.out_proxies and segment2.out_proxies[step3[1]]))
+				local in_proxy = (segment2.in_proxies and segment2.in_proxies[step1[1]]) or (segment3 and segment3.pos)
 				best_pos = itr_get_door_in_alignment(all_doors, door_list, step1[2], out_proxy or in_proxy)
 			end
 
@@ -1113,6 +1132,7 @@ function NavigationManager:itr_streamline(path, access_pos)
 		path[path_nr + 1] = { path[path_nr][1] }
 		path[path_nr][1] = path[path_nr - 1][1]
 	end
+	path.itr_streamlined = true
 	return path
 end
 
@@ -1228,6 +1248,14 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 	local access_neg = search_data.access_neg
 	local navlink_coef = self.itr_navlink_coef
 
+	local start_segment = all_nav_segments[next_seg_id]
+
+	if not start_segment then
+		self.itr_coarse_cache[path_key] = t
+		Iter.diag.count('search_fail')
+		return false
+	end
+
 	local potential_paths = {}
 	local seg_to_search = {}
 	local discovered_seg = {
@@ -1236,16 +1264,38 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 			delay = 0,
 			steps_nr = 0,
 			coarse_dis = 0,
-			pos = search_data.from_pos or all_nav_segments[next_seg_id].pos
+			pos = search_data.from_pos or start_segment.pos
 		}
 	}
 
 	local candidate
+	local expanded = {}
+	local distinct_expanded = 0
+	local iterations = 0
 	repeat
+		iterations = iterations + 1
+
+		if iterations > 5000 then
+			self.itr_coarse_cache[path_key] = t
+			Iter.diag.count('search_cap_hard')
+			return false
+		end
+
 		local navseg = all_nav_segments[next_seg_id]
 
 		if not navseg then
 			break
+		end
+
+		if not expanded[next_seg_id] then
+			expanded[next_seg_id] = true
+			distinct_expanded = distinct_expanded + 1
+
+			if distinct_expanded > 500 then
+				self.itr_coarse_cache[path_key] = t
+				Iter.diag.count('search_cap')
+				return false
+			end
 		end
 
 		local neighbours = navseg.neighbours
@@ -1356,12 +1406,16 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 	local i = 1
 	local result = {}
 	for idseg in string.gmatch(best_path.path, '([^;]+)') do
-		result[i] = { idseg }
+		local discovered = discovered_seg[idseg]
+		result[i] = {
+			idseg,
+			discovered and discovered.pos and mvec3_cpy(discovered.pos) or nil
+		}
 		i = i + 1
 	end
 	result[i] = {
 		tostring(end_i_seg),
-		search_data.to_pos
+		search_data.to_pos or all_nav_segments[end_i_seg].pos
 	}
 	result.has_navlinks = best_path.delay > 0
 	result.coarse_dis = best_path.coarse_dis
