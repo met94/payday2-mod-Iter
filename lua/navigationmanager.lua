@@ -7,7 +7,9 @@ if not Iter.settings.nav_overlay then
 	return
 end
 
-dofile(Iter._path .. 'lua/_navdatapatches.lua')
+if Iter.settings.map_patches then
+	dofile(Iter._path .. 'lua/_navdatapatches.lua')
+end
 dofile(Iter._path .. 'lua/iter_nav_v6_shim.lua')
 
 -- Rebuild the v5 geometry tables from the converted load data, then drop them

@@ -1,3 +1,7 @@
+if not Iter.settings.map_patches then
+	return
+end
+
 local mvec3_add = mvector3.add
 local mvec3_cpy = mvector3.copy
 local mvec3_set_x = mvector3.set_x
