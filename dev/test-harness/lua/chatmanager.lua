@@ -196,6 +196,71 @@ function TH.dump_patch()
 	))
 end
 
+function TH.dump_segment(args)
+	local nav = nav_manager()
+	local segment_id = args[1] and tostring(args[1])
+
+	if not nav or not segment_id then
+		say('navdump: usage !iter navdump <segment_id>')
+		return
+	end
+
+	local segment = nav._nav_segments[segment_id]
+
+	if not segment then
+		say('navdump: no segment ' .. segment_id)
+		return
+	end
+
+	say(string.format(
+		'navdump seg=%s pos=%s vis_groups=%s neighbours=%d rooms=%d',
+		segment_id,
+		tostring(segment.pos),
+		table.concat(segment.vis_groups or {}, ','),
+		table.size(segment.neighbours or {}),
+		table.size(nav._rooms or {})
+	))
+
+	for neighbour_id, doors in pairs(segment.neighbours or {}) do
+		local counts = { vector = 0, navlink = 0, numeric = 0, other = 0 }
+
+		for _, door in ipairs(doors or {}) do
+			local kind = door_kind(door)
+			counts[kind] = (counts[kind] or 0) + 1
+		end
+
+		say(string.format(
+			'navdump seg=%s -> %s doors=%d vector=%d navlink=%d numeric=%d other=%d',
+			segment_id,
+			tostring(neighbour_id),
+			#(doors or {}),
+			counts.vector,
+			counts.navlink,
+			counts.numeric,
+			counts.other
+		))
+	end
+
+	for _, vis_group_id in ipairs(segment.vis_groups or {}) do
+		local group = nav._visibility_groups and nav._visibility_groups[vis_group_id]
+
+		if group then
+			local quads = {}
+
+			for quad_id in pairs(group.rooms or {}) do
+				quads[#quads + 1] = tostring(quad_id)
+			end
+
+			say(string.format(
+				'navdump seg=%s vg=%s quads=%s',
+				segment_id,
+				tostring(vis_group_id),
+				table.concat(quads, ',')
+			))
+		end
+	end
+end
+
 local function connected_segment_pool(segments)
 	local roots = {}
 
@@ -648,7 +713,7 @@ function TH.reset()
 end
 
 function TH.help()
-	say('commands: nav | patch | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset | help')
+	say('commands: nav | patch | navdump <seg> | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset | help')
 end
 
 function TH.execute_string(message)
@@ -673,6 +738,8 @@ function TH.execute(command)
 		TH.dump_nav()
 	elseif name == 'patch' then
 		TH.dump_patch()
+	elseif name == 'navdump' then
+		TH.dump_segment(args)
 	elseif name == 'probe' then
 		TH.probe(args)
 	elseif name == 'path' then
