@@ -1,7 +1,7 @@
 local key = ModPath .. '	' .. RequiredScript
 if _G[key] then return else _G[key] = true end
 
-if not Iter.settings.nav_ai and not Iter.settings.nav_streamline then
+if not Iter.settings.nav_overlay or (not Iter.settings.nav_ai and not Iter.settings.nav_streamline) then
 	return
 end
 
@@ -49,6 +49,7 @@ end
 
 local _search_path_queued
 
+if Iter.settings.nav_search then
 function CopBrain:search_for_coarse_path(search_id, to_seg, verify_clbk, access_neg)
 	local to_pos
 	local objective = self._logic_data.objective
@@ -86,6 +87,7 @@ function CopBrain:search_for_coarse_path(search_id, to_seg, verify_clbk, access_
 
 	return true
 end
+end
 
 local itr_original_copbrain_clbkcoarsepathingresults = CopBrain.clbk_coarse_pathing_results
 function CopBrain:clbk_coarse_pathing_results(search_id, path)
@@ -102,11 +104,11 @@ function CopBrain:clbk_coarse_pathing_results(search_id, path)
 			path.has_navlinks = nil
 			my_data.itr_direct_to_pos = nil
 
-		elseif objective and objective.pos and managers.groupai:state():whisper_mode() then
+		elseif Iter.settings.direct_to_pos and objective and objective.pos and managers.groupai:state():whisper_mode() then
 			my_data.itr_direct_to_pos = objective.pos
 		end
 
-		if not my_data.itr_direct_to_pos then
+		if not my_data.itr_direct_to_pos and Iter.settings.nav_streamline then
 			path[1][2] = data.m_pos
 
 			if objective and objective.follow_unit then
@@ -121,6 +123,7 @@ function CopBrain:clbk_coarse_pathing_results(search_id, path)
 end
 
 local itr_original_copbrain_clbkpathingresults = CopBrain.clbk_pathing_results
+if Iter.settings.path_extender then
 function CopBrain:clbk_pathing_results(search_id, path)
 	itr_original_copbrain_clbkpathingresults(self, search_id, path)
 	if path then
@@ -141,4 +144,5 @@ function CopBrain:clbk_pathing_results(search_id, path)
 			end
 		end
 	end
+end
 end

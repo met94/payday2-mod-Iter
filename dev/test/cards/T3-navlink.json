@@ -1,0 +1,16 @@
+{
+  "id": "T3",
+  "name": "nav-link queue + AI cluster",
+  "description": "First live AI card: nav-link elements registered, reservations/queue state present, no Iter errors, no fallback. Enable streamline, nav-link queue, AI cluster, and path extender in Mod Options; leave direct-to-pos off.",
+  "maps": ["mia_1", "pbr2"],
+  "commands": ["!iter alarm", "!iter links", "!iter ai", "!iter path"],
+  "expect": {
+    "setup": true,
+    "fatal": 0,
+    "iterErrors": 0,
+    "fallback": 0,
+    "navlink.elements": ">0",
+    "summary.navlink_registered": ">0",
+    "summary.err": 0
+  }
+}

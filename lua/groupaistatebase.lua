@@ -1,7 +1,7 @@
 local key = ModPath .. '	' .. RequiredScript
 if _G[key] then return else _G[key] = true end
 
-if not Iter.settings.nav_ai then
+if not Iter.settings.nav_overlay or not Iter.settings.nav_ai then
 	return
 end
 

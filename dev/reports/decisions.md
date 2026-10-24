@@ -95,4 +95,23 @@ before calling it.
 Cost if wrong: the prepare step is skipped on a client that somehow reaches
 the wrapper; vanilla path init still runs.
 
+## R10. Civilian/team-AI overrides are dropped
+
+`CivilianBrain.clbk_pathing_results` and `TeamAIBrain.clbk_pathing_results`
+do not exist at 248.2 (both inherit `CopBrain:clbk_pathing_results`).
+`CivilianLogicTravel._optimize_path` predates the 242 statics improvements.
+The files are inert and unhooked; hook count 17 -> 14.
+
+Cost if wrong: a civilian/team-AI nav behaviour from r200 is lost; vanilla
+248.2 pathing is the fallback and is considered better.
+
+## R11. AI features require the overlay
+
+Every AI file now checks `nav_overlay` as well as its own flag
+(`nav_ai`/`cop_idle_fix`). Enabling AI without the shim cannot call missing
+`itr_*` helpers.
+
+Cost if wrong: a test that enables only `nav_ai` behaves as vanilla; no crash.
+
+
 

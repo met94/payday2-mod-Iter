@@ -1,7 +1,7 @@
 local key = ModPath .. '	' .. RequiredScript
 if _G[key] then return else _G[key] = true end
 
-if not Iter.settings.nav_ai then
+if not Iter.settings.nav_overlay or not Iter.settings.nav_ai then
 	return
 end
 
@@ -67,7 +67,7 @@ function CopLogicTravel._get_exact_move_pos(data, nav_index)
 	local coarse_path = my_data.coarse_path
 	local nr = #coarse_path
 
-	if nr > 2 and nav_index == 2 and my_data.itr_direct_to_pos then
+	if nr > 2 and nav_index == 2 and Iter.settings.direct_to_pos and my_data.itr_direct_to_pos then
 		if my_data.moving_to_cover then
 			managers.navigation:release_cover(my_data.moving_to_cover[1])
 			my_data.moving_to_cover = nil
@@ -104,6 +104,7 @@ function CopLogicTravel._get_exact_move_pos(data, nav_index)
 end
 
 local itr_original_coplogictravel_getallowedtravelnavsegs = CopLogicTravel._get_allowed_travel_nav_segs
+if Iter.settings.direct_to_pos or Iter.settings.path_extender then
 function CopLogicTravel._get_allowed_travel_nav_segs(data, my_data, to_pos)
 	local itr_nav_segs = my_data.itr_nav_segs
 	if itr_nav_segs then
@@ -112,6 +113,7 @@ function CopLogicTravel._get_allowed_travel_nav_segs(data, my_data, to_pos)
 	end
 
 	return itr_original_coplogictravel_getallowedtravelnavsegs(data, my_data, to_pos)
+end
 end
 
 local function _update_destination(my_data, follow_unit_nav_seg, pos_rsrv_id)
@@ -174,7 +176,7 @@ function CopLogicTravel.itr_simplify_coarse_path(data, my_data)
 				if seg ~= coarse_path[j - 1][1] then
 					local doors = neighbours[seg]
 					if doors then
-						local delay = nav:itr_get_accessibility(doors, data.SO_access)
+						local delay = nav.itr_get_accessibility and nav:itr_get_accessibility(doors, data.SO_access)
 						if not delay or delay < 0.1 then
 							must_cancel_next_path = must_cancel_next_path or i <= my_data.coarse_path_index + 1
 							path_backup = path_backup or deep_clone(coarse_path)
@@ -253,7 +255,7 @@ function CopLogicTravel.itr_simplify_coarse_path(data, my_data)
 
 	if path_backup then
 		table_remove(coarse_path, coarse_path_nr)
-		if not nav:itr_streamline(coarse_path, data.brain._SO_access) then
+		if not nav.itr_streamline or not nav:itr_streamline(coarse_path, data.brain._SO_access) then
 			my_data.coarse_path = path_backup
 		end
 	end
@@ -293,7 +295,8 @@ function CopLogicTravel._chk_stop_for_follow_unit(data, my_data)
 		data.logic.on_new_objective(data)
 
 	elseif data.itr_follow_unit_nav_seg and data.itr_follow_unit_nav_seg ~= follow_unit_nav_seg and coarse_path[coarse_path_nr][1] ~= follow_unit_nav_seg then
-		local pos = not managers.navigation._quad_field:is_nav_segment_blocked(follow_unit_nav_seg, data.SO_access) and managers.navigation:itr_get_door_between(data.itr_follow_unit_nav_seg, follow_unit_nav_seg, follow_unit:position())
+		local nav = managers.navigation
+		local pos = nav.itr_get_door_between and not nav._quad_field:is_nav_segment_blocked(follow_unit_nav_seg, data.SO_access) and nav:itr_get_door_between(data.itr_follow_unit_nav_seg, follow_unit_nav_seg, follow_unit:position())
 		if pos then
 			coarse_path[coarse_path_nr][1] = follow_unit_nav_seg
 			coarse_path[coarse_path_nr][2] = pos
@@ -327,6 +330,7 @@ DelayedCalls:Add('DelayedModIter_actioncompleteclbk', 0, function()
 	TeamAILogicTravel.action_complete_clbk = CopLogicTravel.action_complete_clbk
 end)
 
+if Iter.settings.path_extender then
 local itr_original_coplogictravel_chkrequestactionwalktoadvancepos = CopLogicTravel._chk_request_action_walk_to_advance_pos
 function CopLogicTravel._chk_request_action_walk_to_advance_pos(data, my_data, ...)
 	if not _is_loud then
@@ -398,6 +402,7 @@ function CopLogicTravel.upd_advance(data)
 	else
 		itr_original_coplogictravel_updadvance(data)
 	end
+end
 end
 
 local itr_original_coplogictravel_begincoarsepathing = CopLogicTravel._begin_coarse_pathing

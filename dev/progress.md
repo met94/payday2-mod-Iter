@@ -59,8 +59,12 @@ Target: `e3a8b616` (248.2).
 - T2 PASS (Jewelry): proxy choke=27 in=12 out=24; 37/37 streamline successes,
   0 streamline failures; avg path length -16.2% / -13.0%. One random
   unreachable pair in 20 accepted (probe now logs fail_from/fail_to).
-- Next: T2b dense maps (Golden Grin + Big Bank) for proxy cost and
-  door-pair ownership; then L-03/L-04.
+- P4/P6 implemented (awaiting T3): nav-link reservation/queue/alternate
+  methods, path extender, CopBrain/AI wrappers with sub-gates; dropped
+  civilian/team-AI functions and `_optimize_path` (files inert, hooks
+  removed, hook count 17 -> 14). `evt=summary` at simulation end.
+- Next: build for T3 (streamline + navlink_queue + nav_ai + path_extender,
+  direct-to-pos off).
 
 ## Rulings
 

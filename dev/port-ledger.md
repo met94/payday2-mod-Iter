@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-24T12:11:33.279Z
+Generated: 2026-10-24T12:16:09.534Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -12,9 +12,9 @@ Scope: top-level function definitions only. Nested helpers are folded into their
 | category | count |
 |---|---:|
 | MOD_EDIT_VANILLA_CHANGED | 6 |
-| MOD_ONLY_HOOK | 5 |
-| MOD_ONLY | 56 |
-| MOD_EDIT_CLEAN | 33 |
+| MOD_ONLY_HOOK | 6 |
+| MOD_ONLY | 54 |
+| MOD_EDIT_CLEAN | 32 |
 
 ## lua/coreworldinstancemanager.lua
 
@@ -77,6 +77,7 @@ No function definitions (hook/overlay file).
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._resolve_segment_neighbours:Iter_nav_prepare` | 3 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._send_nav_field_to_engine:Iter_nav_shim_rebuild` | 3 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.on_simulation_ended:Iter_nav_link_summary` | 21 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
+| [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.on_simulation_ended:Iter_nav_summary` | 5 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.set_load_data:Iter_nav_heist` | 31 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit | `get_coarse_dis` | 8 | 0 | 0 |  |
 | [ ] | audit | `itr_add_door_pos_to` | 10 | 0 | 0 |  |
@@ -117,18 +118,6 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `Iter.get_navlink_vector` | 11 | 0 | 0 |  |
 | [ ] | keep | `ElementSpecialObjective._finalize_values` | 19 | 105 | 105 |  |
 
-## lua/civilianbrain.lua
-
-| done | status | function | mod L | old L | new L | note |
-|---:|---|---|---:|---:|---:|---|
-| [ ] | audit | `CivilianBrain.clbk_pathing_results` | 10 | 0 | 0 |  |
-
-## lua/civilianlogictravel.lua
-
-| done | status | function | mod L | old L | new L | note |
-|---:|---|---|---:|---:|---:|---|
-| [ ] | keep | `CivilianLogicTravel._optimize_path` | 64 | 57 | 57 |  |
-
 ## lua/copbrain.lua
 
 | done | status | function | mod L | old L | new L | note |
@@ -149,17 +138,17 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `CopActionWalk.itr_delete_path_ahead` | 22 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_get_alternate_navlink` | 11 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_get_wait_pos` | 5 | 0 | 0 |  |
-| [ ] | audit | `CopActionWalk.itr_prepare_for_upcoming_navlink` | 32 | 0 | 0 |  |
-| [ ] | audit | `CopActionWalk.itr_reserve_navlink` | 24 | 0 | 0 |  |
+| [ ] | audit | `CopActionWalk.itr_prepare_for_upcoming_navlink` | 36 | 0 | 0 |  |
+| [ ] | audit | `CopActionWalk.itr_reserve_navlink` | 28 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_set_navlink_delay` | 10 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_switch_to_sibling_navlink` | 51 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_update_navlink_queue_data` | 17 | 0 | 0 |  |
-| [ ] | audit | `CopActionWalk.itr_update_wait_for_navlink_availability` | 20 | 0 | 0 |  |
-| [ ] | keep | `CopActionWalk._advance_simplified_path` | 20 | 11 | 11 |  |
+| [ ] | audit | `CopActionWalk.itr_update_wait_for_navlink_availability` | 27 | 0 | 0 |  |
+| [ ] | keep | `CopActionWalk._advance_simplified_path` | 22 | 11 | 11 |  |
 | [ ] | keep | `CopActionWalk._chk_correct_pose` | 8 | 28 | 28 |  |
-| [ ] | keep | `CopActionWalk._chk_shortcut_pos_to_pos` | 46 | 11 | 11 |  |
+| [ ] | keep | `CopActionWalk._chk_shortcut_pos_to_pos` | 50 | 11 | 11 |  |
 | [ ] | keep | `CopActionWalk._init` | 23 | 160 | 160 |  |
-| [ ] | keep | `CopActionWalk._play_nav_link_anim` | 7 | 93 | 93 |  |
+| [ ] | keep | `CopActionWalk._play_nav_link_anim` | 11 | 93 | 93 |  |
 | [ ] | keep | `CopActionWalk._upd_nav_link_first_frame` | 8 | 9 | 9 |  |
 
 ## lua/coplogicidle.lua
@@ -178,19 +167,13 @@ No function definitions (hook/overlay file).
 | [ ] | keep | `CopLogicTravel._begin_coarse_pathing` | 8 | 19 | 19 |  |
 | [ ] | keep | `CopLogicTravel._check_start_path_ahead` | 41 | 26 | 26 |  |
 | [ ] | keep | `CopLogicTravel._chk_request_action_walk_to_advance_pos` | 13 | 31 | 31 |  |
-| [ ] | keep | `CopLogicTravel._chk_stop_for_follow_unit` | 49 | 25 | 25 |  |
+| [ ] | keep | `CopLogicTravel._chk_stop_for_follow_unit` | 50 | 25 | 25 |  |
 | [ ] | keep | `CopLogicTravel._get_allowed_travel_nav_segs` | 9 | 37 | 37 |  |
 | [ ] | keep | `CopLogicTravel._get_exact_move_pos` | 40 | 98 | 98 |  |
 | [ ] | keep | `CopLogicTravel._upd_pathing` | 29 | 44 | 44 |  |
 | [ ] | keep | `CopLogicTravel.action_complete_clbk` | 11 | 104 | 104 |  |
 | [ ] | keep | `CopLogicTravel.enter` | 11 | 150 | 150 |  |
 | [ ] | keep | `CopLogicTravel.upd_advance` | 14 | 71 | 71 |  |
-
-## lua/teamaibrain.lua
-
-| done | status | function | mod L | old L | new L | note |
-|---:|---|---|---:|---:|---:|---|
-| [ ] | audit | `TeamAIBrain.clbk_pathing_results` | 10 | 0 | 0 |  |
 
 ## lua/drill.lua
 
@@ -199,6 +182,14 @@ No function definitions (hook/overlay file).
 | [ ] | keep | `Drill._unregister_investigate_SO` | 25 | 19 | 19 |  |
 | [ ] | keep | `Drill.clbk_investigate_SO_verification` | 18 | 25 | 25 |  |
 | [ ] | keep | `Drill.on_investigate_SO_administered` | 7 | 8 | 8 |  |
+
+## lua/civilianbrain.lua
+
+**UNHOOKED FILE** — not referenced by mod.txt; it never loads.
+
+## lua/civilianlogictravel.lua
+
+**UNHOOKED FILE** — not referenced by mod.txt; it never loads.
 
 ## lua/corecode.lua
 
@@ -209,6 +200,10 @@ No function definitions (hook/overlay file).
 **UNHOOKED FILE** — not referenced by mod.txt; it never loads.
 
 ## lua/iter_nav_v6_shim.lua
+
+**UNHOOKED FILE** — not referenced by mod.txt; it never loads.
+
+## lua/teamaibrain.lua
 
 **UNHOOKED FILE** — not referenced by mod.txt; it never loads.
 

@@ -125,6 +125,12 @@ end
 NavigationManager.itr_navlink_elements = _navlink_elements
 NavigationManager.itr_navlink_planned_use = _navlink_planned_use
 
+Hooks:PostHook(NavigationManager, 'on_simulation_ended', 'Iter_nav_summary', function(self)
+	Iter.diag.summary({
+		level = Iter:get_level_id()
+	})
+end)
+
 local itr_original_navigationmanager_registeranimnavlink = NavigationManager.register_anim_nav_link
 function NavigationManager:register_anim_nav_link(element)
 	local values = element._values

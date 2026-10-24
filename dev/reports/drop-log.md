@@ -10,13 +10,23 @@ the player loses.
 | `CivilianBrain.clbk_pathing_results` | function no longer exists at 248.2; nothing calls it | none; vanilla civilian pathing |
 | `TeamAIBrain.clbk_pathing_results` | function no longer exists at 248.2 | none; vanilla team-AI pathing |
 
+Both files are now inert (`return` only) and their hooks were removed from
+`mod.txt` (hook count 17 -> 14). Git history keeps the r200 bodies.
+
 ## Deferred
 
 | Item | Why | Revisit |
 |---|---|---|
-| `CopLogicIdle._perform_objective_action` | cosmetic animation variant (`e_so_ntl_idle_look3` -> `look2`); no nav impact | P6 |
-| `CivilianLogicTravel._optimize_path` | r200 body predates the 242 vanilla improvements; likely inferior | P6 dossier, then drop or re-baseline |
-| `CopActionWalk._chk_correct_pose` | 8-line r200 body vs 29-line 248.2 body; intent unclear without dossier | P6 |
+| `CopLogicIdle._perform_objective_action` | cosmetic animation variant (`e_so_ntl_idle_look3` -> `look2`); no nav impact | gated by `cop_idle_fix=false` |
+| `CopActionWalk._chk_correct_pose` | reviewed: 8-line wrapper around an unchanged 28-line body; PORT in P4, not a drop | P4 done |
+
+## Dropped in P6 (static decision, confirmed by dossier)
+
+| Item | Why | Player impact |
+|---|---|---|
+| `CivilianLogicTravel._optimize_path` | r200 body predates the 242 statics raycast + padding improvements | civilians keep the better vanilla 248.2 pathing |
+
+File is inert (`return` only) and its hook was removed from `mod.txt`.
 
 ## Candidate drops (confirm during P7)
 

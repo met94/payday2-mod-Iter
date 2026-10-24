@@ -18,6 +18,7 @@ Iter.settings = {
 	path_extender = false,
 	direct_to_pos = false,
 	map_patches = false,
+	cop_idle_fix = false,
 	debug_log = 1,
 	rebuild_navlinks = true,
 	map_change_alex_1 = true,

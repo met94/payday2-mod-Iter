@@ -1,7 +1,7 @@
 local key = ModPath .. '	' .. RequiredScript
 if _G[key] then return else _G[key] = true end
 
-if not Iter.settings.nav_ai then
+if not Iter.settings.nav_overlay or not Iter.settings.nav_ai then
 	return
 end
 
@@ -15,7 +15,7 @@ local mvec3_z = mvector3.z
 local itr_original_copactionwalk_init = CopActionWalk._init
 function CopActionWalk:_init()
 	local nav_path = self._nav_path
-	if nav_path and not nav_path[2] then
+	if Iter.settings.path_extender and nav_path and not nav_path[2] then
 		local expand_nav_path
 		local action_desc = self._action_desc
 		if action_desc.path_simplified and action_desc.persistent then
@@ -30,7 +30,7 @@ function CopActionWalk:_init()
 
 	local result = itr_original_copactionwalk_init(self)
 
-	if result and self._sync and self.itr_prepare_for_upcoming_navlink then
+	if result and self._sync and Iter.settings.navlink_queue and self.itr_prepare_for_upcoming_navlink then
 		self:itr_prepare_for_upcoming_navlink()
 	end
 
@@ -63,7 +63,7 @@ if Network:is_server() then
 			return
 		end
 
-		processed_path = {}
+		local processed_path = {}
 		for _, nav_point in ipairs(path) do
 			if nav_point.x then
 				table.insert(processed_path, nav_point)
@@ -113,6 +113,10 @@ if Network:is_server() then
 
 	local itr_original_copactionwalk_playnavlinkanim = CopActionWalk._play_nav_link_anim
 	function CopActionWalk:_play_nav_link_anim(t)
+		if not Iter.settings.navlink_queue then
+			return itr_original_copactionwalk_playnavlinkanim(self, t)
+		end
+
 		if self:itr_check_navlink_delay(t) then
 			self:itr_set_navlink_delay(t)
 			self:itr_clear_navlink_reservation(self._next_is_nav_link.element)
@@ -133,6 +137,10 @@ if Network:is_server() then
 	end
 
 	function CopActionWalk:itr_reserve_navlink(navlink_element)
+		if not navlink_element or not navlink_element._values then
+			return true
+		end
+
 		if navlink_element._values.itr_interval == 0 then
 			return true
 		end
@@ -242,7 +250,7 @@ if Network:is_server() then
 			navlink_element.itr_navlink_queue_length_in_progress = navlink_element.itr_navlink_queue_length_in_progress + 1
 		end
 
-		if self.itr_wait_for_navlink_availability_t < navlink_element.itr_navlink_queue_oldest_t then
+		if self.itr_wait_for_navlink_availability_t and self.itr_wait_for_navlink_availability_t < navlink_element.itr_navlink_queue_oldest_t then
 			navlink_element.itr_navlink_queue_oldest_t = self.itr_wait_for_navlink_availability_t
 		end
 	end
@@ -259,6 +267,10 @@ if Network:is_server() then
 		end
 
 		local navlink_element = upcoming_navlink.element
+		if not navlink_element then
+			return
+		end
+
 		if self:itr_reserve_navlink(navlink_element) then
 			self.itr_wait_for_navlink = nil
 		elseif self:itr_switch_to_sibling_navlink(navlink_element) then
@@ -282,7 +294,7 @@ if Network:is_server() then
 
 	local itr_original_copactionwalk_advancesimplifiedpath = CopActionWalk._advance_simplified_path
 	function CopActionWalk:_advance_simplified_path()
-		if self:itr_check_extensible() then
+		if Iter.settings.path_extender and self:itr_check_extensible() then
 			self.fs_wanted_walk_dir_cached = nil
 			self.fs_move_dir_norm_cached = nil
 			if self._nav_point_pos(self._simplified_path[2]) == self.itr_step_pos then
@@ -292,18 +304,27 @@ if Network:is_server() then
 			end
 		end
 
-		self:itr_prepare_for_upcoming_navlink()
+		if Iter.settings.navlink_queue then
+			self:itr_prepare_for_upcoming_navlink()
+		end
 
 		itr_original_copactionwalk_advancesimplifiedpath(self)
 
-		if self.itr_wait_for_navlink and self._next_is_nav_link == self.itr_wait_for_navlink then
+		if Iter.settings.navlink_queue and self.itr_wait_for_navlink and self._next_is_nav_link == self.itr_wait_for_navlink then
 			self:_set_updator('itr_update_wait_for_navlink_availability')
 			self.itr_wait_for_navlink_availability_t = self._last_upd_t
 		end
 	end
 
 	function CopActionWalk:itr_update_wait_for_navlink_availability(t)
-		local navlink_element = self._next_is_nav_link.element
+		local navlink_element = self._next_is_nav_link and self._next_is_nav_link.element
+
+		if not navlink_element then
+			self.itr_wait_for_navlink = nil
+			self:_set_updator(self._start_run and '_upd_start_anim_first_frame' or nil)
+			return
+		end
+
 		if self:itr_reserve_navlink(navlink_element) then
 			-- qued
 		elseif self:itr_switch_to_sibling_navlink(navlink_element) then
@@ -345,7 +366,7 @@ function CopActionWalk:itr_delete_path_ahead()
 	end
 
 	for i = 2, #s_path do
-		pos = s_path[i]
+		local pos = s_path[i]
 		if pos == self.itr_step_pos then
 			i = i + 1
 			while s_path[i] do
@@ -360,6 +381,7 @@ local tmp_vec1 = Vector3()
 local tmp_vec2 = Vector3()
 
 local _chk_shortcut_pos_to_pos_params = CopActionWalk._chk_shortcut_pos_to_pos_params
+local itr_original_shortcut_pos_to_pos = CopActionWalk._chk_shortcut_pos_to_pos
 local _qf, _obstacle_mask
 DelayedCalls:Add('DelayedModITR_quadfield', 0, function()
 	_qf = managers.navigation._quad_field
@@ -367,6 +389,10 @@ DelayedCalls:Add('DelayedModITR_quadfield', 0, function()
 end)
 
 function CopActionWalk._chk_shortcut_pos_to_pos(from, to, trace)
+	if not Iter.settings.path_extender then
+		return itr_original_shortcut_pos_to_pos(from, to, trace)
+	end
+
 	local params = _chk_shortcut_pos_to_pos_params
 	params.pos_from = from
 	params.pos_to = to
