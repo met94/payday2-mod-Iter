@@ -35,8 +35,9 @@ reimplemented on the v6 load data, with development gates for each subsystem.
   still runs.
 - **NavFixes:** do not run together. NavFixes replaces
   `register_anim_nav_link` and would break Iter's nav-link map.
-- **The Fixes:** replaces `CopActionWalk._init`; path expansion is lost,
-  nav-link queue still works.
+- **The Fixes:** replaces `CopActionWalk._init`; Iter re-wraps the winning
+  function after all mods load, so path expansion and nav-link prepare still
+  run. Verify with `path_extender=true` (T5).
 - **Keepers:** direct-to-pos is live again; needs a converted-keeper smoke.
 
 See `dev/reports/compatibility-iter.md` for the function-level matrix.

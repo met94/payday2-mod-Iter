@@ -1,7 +1,7 @@
 {
   "oldRev": "a3180fc",
   "newRev": "e3a8b616",
-  "generated": "2026-10-24T19:23:46.046Z",
+  "generated": "2026-10-25T06:00:59.146Z",
   "files": [
     {
       "file": "lua/coreworldinstancemanager.lua",
@@ -1068,7 +1068,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 304
+          "startLine": 350
         },
         {
           "name": "CopActionWalk._chk_correct_pose",
@@ -1083,7 +1083,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 461
+          "startLine": 507
         },
         {
           "name": "CopActionWalk._chk_shortcut_pos_to_pos",
@@ -1098,22 +1098,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 399
-        },
-        {
-          "name": "CopActionWalk._init",
-          "category": "MOD_EDIT_CLEAN",
-          "modLines": 23,
-          "oldLines": 160,
-          "newLines": 160,
-          "modParams": "",
-          "oldParams": "",
-          "newParams": "",
-          "isLocal": false,
-          "isHook": false,
-          "form": "colon",
-          "note": "",
-          "startLine": 16
+          "startLine": 445
         },
         {
           "name": "CopActionWalk._play_nav_link_anim",
@@ -1128,7 +1113,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 115
+          "startLine": 161
         },
         {
           "name": "CopActionWalk._upd_nav_link_first_frame",
@@ -1143,7 +1128,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 451
+          "startLine": 497
         },
         {
           "name": "CopActionWalk.itr_append_next_step",
@@ -1158,7 +1143,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 61
+          "startLine": 107
         },
         {
           "name": "CopActionWalk.itr_check_extensible",
@@ -1173,7 +1158,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 41
+          "startLine": 87
         },
         {
           "name": "CopActionWalk.itr_check_navlink_delay",
@@ -1188,7 +1173,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 93
+          "startLine": 139
         },
         {
           "name": "CopActionWalk.itr_clear_navlink_reservation",
@@ -1203,7 +1188,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 226
+          "startLine": 272
         },
         {
           "name": "CopActionWalk.itr_delete_path_ahead",
@@ -1218,7 +1203,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 365
+          "startLine": 411
         },
         {
           "name": "CopActionWalk.itr_get_alternate_navlink",
@@ -1233,7 +1218,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 127
+          "startLine": 173
         },
         {
           "name": "CopActionWalk.itr_get_wait_pos",
@@ -1248,7 +1233,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 240
+          "startLine": 286
         },
         {
           "name": "CopActionWalk.itr_prepare_for_upcoming_navlink",
@@ -1263,7 +1248,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 264
+          "startLine": 310
         },
         {
           "name": "CopActionWalk.itr_reserve_navlink",
@@ -1278,7 +1263,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 139
+          "startLine": 185
         },
         {
           "name": "CopActionWalk.itr_set_navlink_delay",
@@ -1293,7 +1278,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 103
+          "startLine": 149
         },
         {
           "name": "CopActionWalk.itr_switch_to_sibling_navlink",
@@ -1308,7 +1293,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 172
+          "startLine": 218
         },
         {
           "name": "CopActionWalk.itr_update_navlink_queue_data",
@@ -1323,7 +1308,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 246
+          "startLine": 292
         },
         {
           "name": "CopActionWalk.itr_update_wait_for_navlink_availability",
@@ -1338,7 +1323,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 327
+          "startLine": 373
         },
         {
           "name": "CopActionWalk.on_exit",
@@ -1353,13 +1338,73 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 356
+          "startLine": 402
+        },
+        {
+          "name": "itr_expand_one_point_path",
+          "category": "MOD_ONLY",
+          "modLines": 24,
+          "oldLines": 0,
+          "newLines": 0,
+          "modParams": "self",
+          "oldParams": "",
+          "newParams": "",
+          "isLocal": true,
+          "isHook": false,
+          "form": "decl",
+          "note": "",
+          "startLine": 15
+        },
+        {
+          "name": "itr_prepare_init_navlink",
+          "category": "MOD_ONLY",
+          "modLines": 5,
+          "oldLines": 0,
+          "newLines": 0,
+          "modParams": "self",
+          "oldParams": "",
+          "newParams": "",
+          "isLocal": true,
+          "isHook": false,
+          "form": "decl",
+          "note": "",
+          "startLine": 40
+        },
+        {
+          "name": "itr_wrap_init",
+          "category": "MOD_ONLY",
+          "modLines": 17,
+          "oldLines": 0,
+          "newLines": 0,
+          "modParams": "original_init, thefixes",
+          "oldParams": "",
+          "newParams": "",
+          "isLocal": true,
+          "isHook": false,
+          "form": "decl",
+          "note": "",
+          "startLine": 48
+        },
+        {
+          "name": "rewrap_copactionwalk_init",
+          "category": "MOD_ONLY",
+          "modLines": 10,
+          "oldLines": 0,
+          "newLines": 0,
+          "modParams": "",
+          "oldParams": "",
+          "newParams": "",
+          "isLocal": true,
+          "isHook": false,
+          "form": "decl",
+          "note": "",
+          "startLine": 72
         }
       ],
       "errors": [],
       "totals": {
-        "MOD_EDIT_CLEAN": 6,
-        "MOD_ONLY": 13,
+        "MOD_EDIT_CLEAN": 5,
+        "MOD_ONLY": 17,
         "MOD_EDIT_VANILLA_CHANGED": 1
       }
     },

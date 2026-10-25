@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-24T19:23:46.045Z
+Generated: 2026-10-25T06:00:59.145Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -13,8 +13,8 @@ Scope: top-level function definitions only. Nested helpers are folded into their
 |---|---:|
 | MOD_EDIT_VANILLA_CHANGED | 6 |
 | MOD_ONLY_HOOK | 7 |
-| MOD_ONLY | 55 |
-| MOD_EDIT_CLEAN | 32 |
+| MOD_ONLY | 59 |
+| MOD_EDIT_CLEAN | 31 |
 
 ## lua/coreworldinstancemanager.lua
 
@@ -146,10 +146,13 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `CopActionWalk.itr_switch_to_sibling_navlink` | 53 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_update_navlink_queue_data` | 17 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_update_wait_for_navlink_availability` | 27 | 0 | 0 |  |
+| [ ] | audit | `itr_expand_one_point_path` | 24 | 0 | 0 |  |
+| [ ] | audit | `itr_prepare_init_navlink` | 5 | 0 | 0 |  |
+| [ ] | audit | `itr_wrap_init` | 17 | 0 | 0 |  |
+| [ ] | audit | `rewrap_copactionwalk_init` | 10 | 0 | 0 |  |
 | [ ] | keep | `CopActionWalk._advance_simplified_path` | 22 | 11 | 11 |  |
 | [ ] | keep | `CopActionWalk._chk_correct_pose` | 8 | 28 | 28 |  |
 | [ ] | keep | `CopActionWalk._chk_shortcut_pos_to_pos` | 50 | 11 | 11 |  |
-| [ ] | keep | `CopActionWalk._init` | 23 | 160 | 160 |  |
 | [ ] | keep | `CopActionWalk._play_nav_link_anim` | 11 | 93 | 93 |  |
 | [ ] | keep | `CopActionWalk._upd_nav_link_first_frame` | 8 | 9 | 9 |  |
 

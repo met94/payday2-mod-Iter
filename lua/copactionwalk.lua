@@ -12,30 +12,76 @@ local mvec3_set = mvector3.set
 local mvec3_set_z = mvector3.set_z
 local mvec3_z = mvector3.z
 
-local itr_original_copactionwalk_init = CopActionWalk._init
-function CopActionWalk:_init()
-	local nav_path = self._nav_path
-	if Iter.settings.path_extender and nav_path and not nav_path[2] then
-		local expand_nav_path
-		local action_desc = self._action_desc
-		if action_desc.path_simplified and action_desc.persistent then
-			expand_nav_path = true
-		elseif not managers.groupai:state():enemy_weapons_hot() then
-			expand_nav_path = true
-		end
-		if expand_nav_path then
-			table.insert(nav_path, 1, mvector3.copy(self._common_data.pos))
-		end
+local function itr_expand_one_point_path(self)
+	if not Iter.settings.path_extender then
+		return
 	end
 
-	local result = itr_original_copactionwalk_init(self)
+	local nav_path = self._nav_path
 
-	if result and self._sync and Iter.settings.navlink_queue and self.itr_prepare_for_upcoming_navlink then
+	if not nav_path or nav_path[2] then
+		return
+	end
+
+	local action_desc = self._action_desc
+	local expand_nav_path
+
+	if action_desc.path_simplified and action_desc.persistent then
+		expand_nav_path = true
+	elseif not managers.groupai:state():enemy_weapons_hot() then
+		expand_nav_path = true
+	end
+
+	if expand_nav_path then
+		table.insert(nav_path, 1, mvec3_cpy(self._common_data.pos))
+	end
+end
+
+local function itr_prepare_init_navlink(self)
+	if self._sync and Iter.settings.navlink_queue and self.itr_prepare_for_upcoming_navlink then
 		self:itr_prepare_for_upcoming_navlink()
 	end
-
-	return result
 end
+
+local itr_init_wrapper
+
+local function itr_wrap_init(original_init, thefixes)
+	return function(self)
+		-- The Fixes already prepends the current position on clients (its
+		-- non-sync branch); only host/sync one-point paths need Iter's expand.
+		if not (thefixes and not self._sync) then
+			itr_expand_one_point_path(self)
+		end
+
+		local result = original_init(self)
+
+		if result then
+			itr_prepare_init_navlink(self)
+		end
+
+		return result
+	end
+end
+
+itr_init_wrapper = itr_wrap_init(CopActionWalk._init, _G.TheFixesPreventer ~= nil)
+CopActionWalk._init = itr_init_wrapper
+
+-- The Fixes (priority -10) loads after Iter and bare-replaces _init from a
+-- post hook. Re-wrap whatever function won after all mods have loaded, so
+-- Iter's host-side path expansion and navlink prepare still run.
+local function rewrap_copactionwalk_init()
+	local current = CopActionWalk._init
+
+	if current == itr_init_wrapper then
+		return
+	end
+
+	itr_init_wrapper = itr_wrap_init(current, _G.TheFixesPreventer ~= nil)
+	CopActionWalk._init = itr_init_wrapper
+end
+
+Hooks:Add('LocalizationManagerPostInit', 'Iter_rewrap_copactionwalk_init', rewrap_copactionwalk_init)
+Hooks:Add('GameSetupUpdate', 'Iter_rewrap_copactionwalk_init', rewrap_copactionwalk_init)
 
 if Network:is_server() then
 	function CopActionWalk:itr_check_extensible()
