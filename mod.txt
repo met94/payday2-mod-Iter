@@ -6,7 +6,7 @@
 	"image" : "tdlq.dds",
 	"color" : "0.52 1 0",
 	"contact" : "https://github.com/met94/payday2-mod-Iter",
-	"version" : "200.1",
+	"version" : "200.2",
 	"updates" : [
 		{
 			"identifier" : "Iter",

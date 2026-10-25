@@ -7,8 +7,9 @@ Iter._data_path = SavePath .. 'iter.txt'
 Iter.settings = {
 	-- r200 nav port to nav v6. All subsystem cards have passed; release
 	-- defaults match original Iter (path extender, map patches and the idle
-	-- cosmetic on). `streamline_path` is a legacy unused key; the live flag is
-	-- `nav_streamline`. See dev/plans/full-nav-port.md.
+	-- cosmetic on). `streamline_path` is a legacy key; the live flag is
+	-- `nav_streamline`, and `load()` publishes the legacy alias for other mods.
+	-- See dev/plans/full-nav-port.md.
 	nav_overlay = true,
 	nav_streamline = true,
 	nav_search = true,
@@ -113,6 +114,10 @@ function Iter:get_level_id()
 end
 
 Iter:load()
+
+-- Compatibility: Useful Bots 2.4.3 reads this legacy key at load time.
+-- The live flag is nav_streamline; keep the alias in sync for other mods.
+Iter.settings.streamline_path = Iter.settings.nav_streamline
 
 dofile(Iter._path .. 'lua/iter_diag.lua')
 

@@ -1,3 +1,10 @@
+Revision 200.2 (AI suite compatibility):
+- published the legacy `streamline_path` settings alias after `Iter:load()`, mirroring `nav_streamline`, so Useful Bots 2.4.3's load-time nav guard sees Iter's live flag instead of a nil key
+- documented the cross-mod ownership split for LIES, Keepers, Monkeepers, Useful Bots and The Fixes in `dev/reports/compatibility-iter.md`; no navigation behaviour change
+- static gate: `dev/tools/test/compat.test.mjs` pins the alias, the version and the compatibility docs
+
+Player notes: with Useful Bots installed, bots no longer double-check path updates after Iter streamlines them; without Useful Bots nothing changes.
+
 Revision 200.1 (248.2 navigation port):
 - restored the r200 navigation core against nav v6: v5 geometry shim, choke-point proxies, path streamliner, nav-link reservation/queue/alternates, Iter coarse search, direct-to-pos, path extender
 - kept the existing level and mission fixes, drill, menu, localization, and SO nav-link rebuild
