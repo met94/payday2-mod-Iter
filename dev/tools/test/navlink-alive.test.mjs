@@ -1,6 +1,6 @@
-// Nav-link / door alive() guard (Car Shop crash).
+// Nav-link / door alive() guard (Santa's Workshop crash).
 //
-// Crash (release blocker, Car Shop `cane`, heavy assault, 276 nav-link
+// Crash (release blocker, Santa's Workshop `cane`, heavy assault, 276 nav-link
 // elements):
 //
 //   [string "core/lib/utils/corecode.lua"]:100: attempt to call method 'alive' (a nil value)
@@ -17,10 +17,10 @@
 // units keeps working (units always implement it), so those calls stay.
 //
 // Static checks only: Node cannot execute Lua, and the engine userdata types
-// only exist in-game. The runtime regression test is the in-game Car Shop card
-// of the AI-suite compatibility suite: play Car Shop loud for 10+ minutes
-// through a heavy assault and confirm no crash in `mods/logs/*.txt` and no
-// `crash.txt`.
+// only exist in-game. The runtime regression test is the in-game Santa's
+// Workshop (`cane`) card of the AI-suite compatibility suite: play Santa's
+// Workshop loud for 10+ minutes through a heavy assault and confirm no crash
+// in `mods/logs/*.txt` and no `crash.txt`.
 
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -176,7 +176,7 @@ test('copactionwalk keeps alive(user) in itr_reserve_navlink', () => {
 test('helper truth table: non-userdata is absent, missing alive() means present', () => {
   // JS mirror of itr_alive's decision order (Lua `type(obj) ~= 'userdata'`
   // then the missing-method early return). This documents the intended
-  // behaviour; the authoritative proof is the in-game Car Shop card.
+  // behaviour; the authoritative proof is the in-game Santa's Workshop card.
   class Userdata {}
 
   const itrAlive = (obj, isVec3 = () => false) => {
@@ -187,7 +187,7 @@ test('helper truth table: non-userdata is absent, missing alive() means present'
     return Boolean(aliveMethod(obj));
   };
 
-  const door = new Userdata(); // Car Shop door: no alive() method
+  const door = new Userdata(); // Santa's Workshop door: no alive() method
   assert.equal(itrAlive(null), false, 'nil is not alive');
   assert.equal(itrAlive('door'), false, 'a non-userdata value is not alive');
   assert.equal(itrAlive(door), true, 'userdata without alive() counts as existing');

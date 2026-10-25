@@ -25,10 +25,10 @@ reimplemented on the v6 load data, with the subsystem switches documented in
 | Path extender | working (T5 PASS on counters; no visible slide/stuck) |
 | Map patches | 21 clean blocks (22 level ids), 2 accepted losses, 1 dead, 2 no-op |
 
-**200.3** fixes the Car Shop nav-link crash: door and nav-link userdata that
-does not implement `alive()` (Car Shop's sibling-nav-link switch on a heavy
-assault) now goes through `itr_alive` / `itr_alive_navpoint` instead of the
-game helper. See `changelog.txt`.
+**200.3** fixes the Santa's Workshop (`cane`) nav-link crash: door and nav-link
+userdata that does not implement `alive()` (Santa's Workshop's sibling-nav-link
+switch on a heavy assault) now goes through `itr_alive` / `itr_alive_navpoint`
+instead of the game helper. See `changelog.txt`.
 
 ## Requirements
 

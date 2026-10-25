@@ -251,18 +251,18 @@ Target: `e3a8b616` (248.2).
   emit repo-relative paths and skip timestamp-only ledger rewrites. Cross-mod
   ownership work remains in Phases 2-4.
 
-## 2026-10-25 — session 3 (Car Shop nav-link crash)
+## 2026-10-25 — session 3 (Santa's Workshop nav-link crash)
 
-- Release-blocker from the AI-suite Car Shop card (`cane`,
-  `skip_nopatch`, heavy assault, 276 nav-link elements):
+- Release-blocker from the AI-suite Santa's Workshop (`cane`) card
+  (`skip_nopatch`, heavy assault, 276 nav-link elements):
   `corecode.lua:100: attempt to call method 'alive' (a nil value)` via
   `itr_find_best_navlink` (`lua/navigationmanager.lua:961`) ←
   `itr_get_alternate_navlink` (`lua/copactionwalk.lua:179`) ←
   `itr_switch_to_sibling_navlink` (`lua/copactionwalk.lua:226`).
 - Cause: the game's `alive(obj)` is `if obj and obj:alive() then ... end`
   (`core/lib/utils/corecode.lua:86-92`). Door/nav-link userdata is not a unit
-  and Car Shop's nav-link objects do not implement `alive()`, so the game
-  helper raised instead of returning false.
+  and Santa's Workshop's nav-link objects do not implement `alive()`, so the
+  game helper raised instead of returning false.
 - Fix (version **200.3**): `itr_alive` in `lua/navigationmanager.lua` (after
   `is_vec3`, keeps rejecting Vector3 userdata) and `itr_alive_navpoint` in
   `lua/copactionwalk.lua`; both call `alive()` only when the method exists and
@@ -276,9 +276,9 @@ Target: `e3a8b616` (248.2).
 - Static proof: `dev/tools/test/navlink-alive.test.mjs` (helper shape, eight
   guarded sites, surviving unit calls, helper truth table). Gates: see
   `dev/reports/static-gates.md`.
-- **Retest pending:** Car Shop loud, 10+ minutes of heavy assault, no crash and
-  no `[ITER-ERR]` in `mods/logs/`. Runtime regression card is the AI-suite
-  Car Shop entry.
+- **Retest pending:** Santa's Workshop (`cane`) loud, 10+ minutes of heavy
+  assault, no crash and no `[ITER-ERR]` in `mods/logs/`. Runtime regression
+  card is the AI-suite Santa's Workshop (`cane`) entry.
 
 ## Rulings
 
