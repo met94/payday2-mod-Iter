@@ -22,9 +22,10 @@ const menuOptions = fs.readFileSync(path.join(repoRoot, 'MENU_OPTIONS.md'), 'utf
 
 const ALIAS = /Iter\.settings\.streamline_path\s*=\s*\(?\s*Iter\.settings\.nav_overlay\s+and\s+Iter\.settings\.nav_streamline\s*\)?\s*or\s+nil/;
 
-// Strip Lua comments so a commented-out statement cannot satisfy a check.
-// Strings are preserved; long comments (`--[[ ]]`, `--[==[ ]==]`) and line
-// comments are removed.
+// Strip Lua comments and long-bracket strings so a commented-out statement or a
+// string literal cannot satisfy a check. Short strings are preserved; long
+// comments (`--[[ ]]`, `--[==[ ]==]`) and line comments are removed, and
+// `[[...]]` / `[=[...]=]` literals are blanked out like comments.
 function stripLuaComments(source) {
   let out = '';
   let i = 0;
@@ -63,6 +64,15 @@ function stripLuaComments(source) {
       continue;
     }
 
+    const longString = c === '[' && /^\[(=*)\[/.exec(source.slice(i));
+    if (longString) {
+      const close = ']' + longString[1] + ']';
+      const end = source.indexOf(close, i + longString[0].length);
+      i = end === -1 ? source.length : end + close.length;
+      out += '\n';
+      continue;
+    }
+
     out += c;
     i++;
   }
@@ -75,6 +85,21 @@ function functionBody(code, name) {
   const end = code.indexOf('\nend', start);
   assert.ok(end > start, `${name} body is not terminated`);
   return code.slice(start, end);
+}
+
+// The mirror assignment inside `save()`. Lua `and`/`or` on booleans map onto
+// `&&`/`||`, so the expression can be evaluated in JS to prove the toggle
+// cases without the game.
+const SAVE_MIRROR = /self\.settings\.streamline_path\s*=\s*([^\n;]+)/;
+
+function evaluateMirror(expression) {
+  // `nil` stays an identifier so it can be passed in as null.
+  const js = expression
+    .replace(/self\.settings\./g, '')
+    .replace(/\band\b/g, '&&')
+    .replace(/\bor\b/g, '||');
+  // eslint-disable-next-line no-new-func
+  return new Function('nav_overlay', 'nav_streamline', 'nil', `return (${js});`);
 }
 
 const code = stripLuaComments(corecode);
@@ -127,14 +152,51 @@ test('load() still clears the persisted legacy key before the mirror is set', ()
   assert.ok(alias > loadEnd, 'load() must run before the mirror is published');
 });
 
-test('save() keeps the runtime mirror out of the saved settings', () => {
+test('long-bracket strings are stripped, so a literal cannot satisfy the alias check', () => {
+  const sample = [
+    'local before = true',
+    'local text = [==[ Iter.settings.streamline_path = (Iter.settings.nav_overlay and Iter.settings.nav_streamline) or nil ]==]',
+    'local after = true',
+    ''
+  ].join('\n');
+  const stripped = stripLuaComments(sample);
+  assert.doesNotMatch(stripped, /streamline_path/, 'a long-bracket string must not survive stripping');
+  assert.match(stripped, /local before = true/);
+  assert.match(stripped, /local after = true/);
+});
+
+test('save() recomputes the runtime mirror from the live switches', () => {
   const saveBody = functionBody(code, 'Iter:save');
-  const hide = saveBody.indexOf('self.settings.streamline_path = nil');
+  const assignment = SAVE_MIRROR.exec(saveBody);
+  assert.ok(assignment, 'save() must assign streamline_path instead of hiding it');
+  assert.match(assignment[1], /nav_overlay/, 'save() mirror must read the master switch');
+  assert.match(assignment[1], /nav_streamline/, 'save() mirror must read nav_streamline');
+  assert.doesNotMatch(
+    saveBody,
+    /self\.settings\.streamline_path\s*=\s*nil|local mirror\s*=/,
+    'save() must not hide the mirror behind nil or restore a stale local copy'
+  );
+
   const encode = saveBody.indexOf('json.encode');
-  const restore = saveBody.indexOf('self.settings.streamline_path = mirror');
-  assert.ok(hide > 0, 'save() must hide the mirror before writing');
-  assert.ok(encode > hide, 'save() must clear the mirror before json.encode');
-  assert.ok(restore > encode, 'save() must restore the mirror after writing');
+  assert.ok(encode > assignment.index, 'save() must recompute the mirror before json.encode');
+});
+
+test('a toggle then save persists the effective mirror (both switches off cases)', () => {
+  const saveBody = functionBody(code, 'Iter:save');
+  const assignment = SAVE_MIRROR.exec(saveBody);
+  assert.ok(assignment, 'save() mirror assignment missing');
+  const evaluate = evaluateMirror(assignment[1]);
+
+  assert.equal(evaluate(true, true, null), true, 'both switches on must persist a truthy mirror');
+
+  for (const [overlay, streamline] of [[false, true], [true, false], [false, false]]) {
+    const value = evaluate(overlay, streamline, null);
+    assert.ok(
+      value === false || value === null,
+      `mirror must be false/nil for nav_overlay=${overlay}, nav_streamline=${streamline} (got ${String(value)})`
+    );
+    assert.ok(!value, 'reason: a falsy mirror is what Useful Bots and upstream r200 both read as off');
+  }
 });
 
 test(`changelog has a Revision ${version} block with player notes`, () => {
@@ -143,6 +205,11 @@ test(`changelog has a Revision ${version} block with player notes`, () => {
   assert.ok(block, `Revision ${version} block missing`);
   assert.match(block[1], /^Player notes: .+/m, `Revision ${version} needs a Player notes line`);
   assert.match(block[1], /streamline_path/, `Revision ${version} must name the legacy mirror`);
+  assert.match(
+    block[1],
+    /pathing off set before launch/,
+    `Revision ${version} player notes must say Useful Bots needs pathing off set before launch`
+  );
 });
 
 test('README documents the Useful Bots legacy-key compatibility', () => {
@@ -151,7 +218,9 @@ test('README documents the Useful Bots legacy-key compatibility', () => {
   assert.match(compat[1], /Useful Bots/, 'Useful Bots bullet missing');
   assert.match(compat[1], /streamline_path/, 'legacy streamline_path note missing');
   assert.match(compat[1], /mirror/i, 'README must explain the mirror, not just name the key');
-  assert.match(compat[1], /never saved|not saved/i, 'README must say the mirror is not persisted');
+  assert.match(compat[1], /recomput/i, 'README must say the mirror is recomputed from the live switches');
+  assert.match(compat[1], /saved|persist/i, 'README must say the mirror is persisted');
+  assert.match(compat[1], /restart/i, 'README must say a toggle reaches Useful Bots only after a restart');
   assert.doesNotMatch(
     compat[1],
     /Iter never fills LIES's `\[4\]`/,
@@ -162,4 +231,6 @@ test('README documents the Useful Bots legacy-key compatibility', () => {
 test('MENU_OPTIONS documents the runtime mirror', () => {
   assert.match(menuOptions, /`streamline_path`[^]*runtime mirror/, 'MENU_OPTIONS must describe the runtime mirror');
   assert.match(menuOptions, /do not stick/, 'MENU_OPTIONS must say manual edits do not stick');
+  assert.match(menuOptions, /persists|saved/i, 'MENU_OPTIONS must say save() persists the mirror');
+  assert.match(menuOptions, /restart/i, 'MENU_OPTIONS must say Useful Bots needs a restart');
 });

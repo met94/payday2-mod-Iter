@@ -67,13 +67,21 @@ lines stay on unless `error_log=false`. Neither setting is in the menu.
 To silence caught errors, add `"error_log": false` to
 `mods\saves\iter.txt` (game closed) or use `!iter setting error_log false`.
 
-`streamline_path` is a legacy original-Iter key. It is removed on load; an
-old file with `streamline_path=false` and no `nav_overlay` key is migrated to
+`streamline_path` is a legacy original-Iter key. It is republished after
+`Iter:load()` as a **runtime mirror** of `nav_overlay and nav_streamline` for
+Useful Bots, which reads it once, at load. `Iter:save()` recomputes the mirror
+from the live switches and persists it (`true` when pathing is on, `false` when
+it is off), so the in-memory value never goes stale and a downgrade to original
+Iter keeps the effective setting. Manual edits to `streamline_path` in
+`iter.txt` do not stick: `load()` drops the saved value and rebuilds the mirror
+from `nav_overlay`/`nav_streamline`. Use those two keys instead.
+
+An old file with `streamline_path=false` and no `nav_overlay` key is migrated to
 `nav_overlay=false` so a player who disabled original Iter stays disabled.
-After `Iter:load()` the key is republished as a **runtime mirror** of
-`nav_overlay and nav_streamline` for Useful Bots (which reads it at load time).
-It is not saved: manual edits to `streamline_path` in `iter.txt` do not stick.
-Use `nav_overlay` and `nav_streamline` instead.
+
+Useful Bots only notices a menu change after a game restart: its guard runs at
+load. Turning **Improve NPC pathing** off takes effect in Iter on the next heist
+load, but Useful Bots keeps the decision it read at launch.
 
 ## Notes
 

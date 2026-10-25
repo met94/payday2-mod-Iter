@@ -81,9 +81,13 @@ publish it with a `meta.json` asset from a release tagged `v<version>`.
   `cop_idle_fix` only changes an idle animation variant, so the two do not
   collide.
 - **Useful Bots:** priority 0. Iter publishes the legacy `streamline_path`
-  runtime mirror at load (`nav_overlay and nav_streamline`; never saved), so
-  Useful Bots 2.4.3's load-time guard recognises Iter's streamliner and skips
-  its own path re-check. Useful Bots itself is untouched.
+  runtime mirror (`nav_overlay and nav_streamline`), so Useful Bots 2.4.3's
+  load-time guard recognises Iter's streamliner and skips its own path
+  re-check. `Iter:save()` recomputes the mirror from the live switches and
+  persists it (`true` when pathing is on, `false` when it is off), so the
+  in-memory value never goes stale and a downgrade to upstream r200 keeps the
+  effective setting. Useful Bots reads the key once, at load: a menu toggle
+  only reaches it after a game restart. Useful Bots itself is untouched.
 
 See `dev/reports/compatibility-iter.md` for the function-level matrix.
 

@@ -17,9 +17,17 @@ $lines += ''
 $failed = $false
 
 # Gate output must be identical across worktrees/sessions: never print an
-# absolute worktree path (it causes merge conflicts in dev/reports).
+# absolute worktree path (it causes merge conflicts in dev/reports). Mirrors
+# fn-ledger.mjs's displayPath guard: a path outside the repo falls back to the
+# full path instead of throwing on Substring.
 function Get-RepoRelative([string]$Path) {
-    $relative = $Path.Substring($RepoRoot.Length).TrimStart('\', '/')
+    $full = [System.IO.Path]::GetFullPath($Path)
+    $root = [System.IO.Path]::GetFullPath($RepoRoot)
+    $prefix = $root.TrimEnd([char[]]@('\', '/')) + [System.IO.Path]::DirectorySeparatorChar
+    if (-not $full.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+        return $full
+    }
+    $relative = $full.Substring($prefix.Length)
     return ($relative -replace '\\', '/')
 }
 

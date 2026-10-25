@@ -113,12 +113,17 @@ wanted back, it has to be re-implemented on top of Iter's body.
 - No navigation behaviour change: nothing in Iter reads the mirror. It reflects
   the *effective* state, so with pathing turned off it is `nil` and UB's own
   re-check is harmless.
-- Save-file hygiene: `load()` nils the saved value (`lua/corecode.lua:98`,
-  after the pre-port migration at `:94`), and the earlier Phase 1 revision then
-  persisted the mirror from `Iter:save()`, which resurrected
-  `streamline_path=true` for a player migrated to `nav_overlay=false`. `save()`
-  now removes the key, writes the file and restores it, so the mirror never
-  lands in `iter.txt`. Migration order and `load()` semantics are unchanged.
+- Save-file hygiene: `load()` nils the saved value (`lua/corecode.lua`, after
+  the pre-port migration) and then rebuilds the mirror. `save()` recomputes the
+  mirror from the live switches before writing and **persists** it
+  (`true`/`false`, never nil), so a menu toggle cannot leave a stale in-memory
+  mirror. The persisted value is the effective state: with `nav_overlay=false`
+  the file carries `streamline_path=false`, and a downgrade to upstream r200
+  reads that instead of its own `true` default. Re-loading is safe because the
+  pre-port migration only fires when `nav_overlay` is absent.
+- Restart semantics: Useful Bots reads the key once, at its load. A menu toggle
+  updates `iter.txt` and Iter's in-memory mirror immediately, but UB keeps the
+  decision from launch until the next game restart.
 
 ## Load order
 

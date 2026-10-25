@@ -44,6 +44,17 @@ local function check_equal(actual, expected, message)
 	checks = checks + 1
 end
 
+-- The mirror is nil right after load and `false` after a save, so "off" is
+-- asserted as either falsy value. Both are read as off by Useful Bots and by
+-- upstream r200.
+local function check_off(value, message)
+	if value ~= nil and value ~= false then
+		error(string.format('%s (expected nil or false, got %s)', message, tostring(value)), 2)
+	end
+
+	checks = checks + 1
+end
+
 local function copy_table(source)
 	local copy = {}
 
@@ -114,43 +125,79 @@ local function run_scenario(tag, saved_settings)
 	return scenario
 end
 
--- 1. Fresh install: defaults on, mirror tracks the effective state.
-run_scenario('fresh', nil)
+-- 1. Fresh install: defaults on, mirror tracks the effective state. The
+-- returned scenario is asserted too: a missing file is never read and load()
+-- alone never writes.
+local fresh = run_scenario('fresh', nil)
+check_equal(fresh.read_ops, 0, 'fresh install does not read a settings file')
+check_equal(fresh.written, nil, 'load() alone does not write the settings file')
 check_equal(Iter.settings.nav_overlay, true, 'default nav_overlay')
 check_equal(Iter.settings.nav_streamline, true, 'default nav_streamline')
 check_equal(Iter.settings.streamline_path, true, 'mirror is on when both flags are on')
 
--- 2. Pre-port save with pathing off: migration wins, mirror is nil.
+-- 2. Pre-port save with pathing off: migration wins, mirror is nil, and save()
+-- persists the effective false (downgrade compatibility).
 local legacy = run_scenario('legacy_off', {
 	streamline_path = false,
 	nav_streamline = true
 })
+check_equal(legacy.read_ops, 1, 'a saved file is read once at load')
 check_equal(Iter.settings.nav_overlay, false, 'legacy streamline_path=false migrates nav_overlay off')
-check_equal(Iter.settings.streamline_path, nil, 'mirror is nil when the master switch is off')
+check_off(Iter.settings.streamline_path, 'mirror is off when the master switch is off')
 
 Iter:save()
 check(legacy.written ~= nil, 'save() wrote a settings table')
-check_equal(legacy.written.streamline_path, nil, 'save() must not persist streamline_path')
+check_equal(legacy.written.streamline_path, false, 'save() persists the effective false')
 check_equal(legacy.written.nav_overlay, false, 'save() keeps the migrated master switch off')
-check_equal(Iter.settings.streamline_path, nil, 'save() restores the nil mirror')
+check_off(Iter.settings.streamline_path, 'save() leaves the in-memory mirror off')
 
--- 3. Save from the default state: the key never reaches the file, the runtime
--- value survives the write (arbitrary sentinel proves the restore).
-local defaults = run_scenario('save_default', nil)
+-- 3. Menu toggle then save: the mirror is recomputed from the live switches,
+-- never restored from a stale load-time copy (a sentinel proves the rewrite).
+local toggle = run_scenario('toggle_save', nil)
+check_equal(toggle.read_ops, 0, 'fresh install read count is unchanged by save()')
+
 Iter.settings.streamline_path = 'sentinel'
+Iter.settings.nav_overlay = false
 Iter:save()
-check_equal(defaults.written.streamline_path, nil, 'save() must not persist streamline_path')
-check_equal(Iter.settings.streamline_path, 'sentinel', 'save() restores the runtime mirror')
+check_off(Iter.settings.streamline_path, 'save() recomputes the mirror when nav_overlay is off')
+check_equal(toggle.written.streamline_path, false, 'save() persists false when nav_overlay is off')
 
--- 4. Master switch turned off at runtime: mirror nil, key still excluded.
+Iter.settings.nav_overlay = true
+Iter:save()
+check_equal(Iter.settings.streamline_path, true, 'save() recomputes the mirror when nav_overlay is back on')
+check_equal(toggle.written.streamline_path, true, 'save() persists true when both switches are on')
+
+Iter.settings.streamline_path = 'sentinel'
+Iter.settings.nav_streamline = false
+Iter:save()
+check_off(Iter.settings.streamline_path, 'save() recomputes the mirror when nav_streamline is off')
+check_equal(toggle.written.streamline_path, false, 'save() persists false when nav_streamline is off')
+
+-- 4. Saved master switch off: mirror off at load, and save() writes false.
 local off = run_scenario('save_off', {
 	nav_overlay = false,
 	nav_streamline = true
 })
-check_equal(Iter.settings.streamline_path, nil, 'mirror is nil with nav_overlay=false')
+check_equal(off.read_ops, 1, 'saved master switch is read once at load')
+check_off(Iter.settings.streamline_path, 'mirror is off with nav_overlay=false')
 Iter:save()
-check_equal(off.written.streamline_path, nil, 'save() must not persist streamline_path when off')
-check_equal(Iter.settings.streamline_path, nil, 'save() keeps the mirror nil when off')
+check_equal(off.written.streamline_path, false, 'save() persists false with nav_overlay=false')
+check_off(Iter.settings.streamline_path, 'save() leaves the mirror off with nav_overlay=false')
+
+-- 5. Resurrection guard: a file that still says streamline_path=true while
+-- nav_overlay=false must not resurrect pathing (downgrade round-trip).
+local resurrect = run_scenario('resurrect', {
+	streamline_path = true,
+	nav_overlay = false,
+	nav_streamline = true
+})
+check_equal(resurrect.read_ops, 1, 'resurrection fixture is read once at load')
+check_equal(Iter.settings.nav_overlay, false, 'nav_overlay=false survives a stale true alias')
+check_off(Iter.settings.streamline_path, 'stale true alias is recomputed to off at load')
+Iter:save()
+check_equal(resurrect.written.streamline_path, false, 'save() overwrites a stale true alias with false')
+check_equal(resurrect.written.nav_overlay, false, 'save() keeps nav_overlay=false')
+check_off(Iter.settings.streamline_path, 'mirror stays off after saving the resurrected file')
 
 io.open = real_open
 

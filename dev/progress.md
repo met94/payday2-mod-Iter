@@ -234,9 +234,12 @@ Target: `e3a8b616` (248.2).
 - Phase 1 of the AI-suite compatibility work (2026-10-25, version 200.2):
   publishes the legacy `streamline_path` key after `Iter:load()` as a runtime
   mirror of `nav_overlay and nav_streamline` (nil when pathing is off) so
-  Useful Bots 2.4.3's load-time guard stops being dead, and `Iter:save()` now
-  hides it so it never lands in `iter.txt`; documented the cross-mod ownership
-  split (LIES enemy AI vs Iter nav congestion/coarse search/nav-link queue) in
+  Useful Bots 2.4.3's load-time guard stops being dead; `Iter:save()`
+  recomputes the mirror from the live switches and persists the effective
+  value (`true`/`false`, never nil) so a menu toggle cannot leave a stale
+  alias and a downgrade to r200 keeps the setting (r200 reads it once, at
+  load, so UB needs a restart after a menu change); documented the cross-mod
+  ownership split (LIES enemy AI vs Iter nav congestion/coarse search/nav-link queue) in
   README and `dev/reports/compatibility-iter.md`, including Option 1 (LIES's
   `[4]` multi-navlink slot is dead on its own — it never assigns
   `has_multiple_navlink_elements` — while its `[3]` wait reads the one link

@@ -111,7 +111,9 @@ first path request                    -> search/streamline/navlink logic
 | `debug_log` | 0 | 0 off, 1 on, 2 reserved for verbose |
 | `error_log` | true | `[ITER-ERR]` lines |
 
-`streamline_path` is a legacy original-Iter key, removed on load.
+`streamline_path` is a legacy original-Iter key. The saved copy is dropped on
+load and republished as a runtime mirror of `nav_overlay and nav_streamline`;
+`Iter:save()` recomputes and persists it (effective `true`/`false`).
 
 ## 7. Diagnostics
 
