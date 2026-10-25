@@ -185,6 +185,10 @@ Target: `e3a8b616` (248.2).
   Deferred minors: CRC table duplicate/no door positions is intentional r200
   CRC input (commented); seal plans log `alt=none` by data (documented).
 - Gates PASS after the fix pass (49 Node, harness, 17+144 Lua checks).
+- Final toggle smoke PASS (2026-10-25): Jewelry Store with map_patches OFF loads
+  with no `evt=patch`; toggling ON and reloading logs
+  `evt=patch level=jewelry_store result=applied`. No Iter errors.
+  Report: `dev/reports/smoke-final-toggle-2026-10-25.md`.
 - Next: merge only on explicit user approval.
 
 ## Rulings
