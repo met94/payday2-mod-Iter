@@ -77,3 +77,14 @@ patches, idle cosmetic) are settings-only for troubleshooting and default on.
 - Original mod and AI design: TdlQ
 - 248.2 x64 navigation port: workspace
 - Decompiled game reference: steam-test1/Payday-2-LuaJIT-Complete
+
+## License
+
+The original Iter archive (r200) ships no license file, and the original mod
+page states none. The fork changes in this repository are released under the
+**Unlicense** (public-domain dedication); see [LICENSE](LICENSE).
+
+The original mod name, code, localization files, icons and any retained
+original content remain credited to their original authors. No ownership is
+claimed over those parts. If you are an original author and want different
+terms, open an issue.
