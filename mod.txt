@@ -2,11 +2,11 @@
 	"blt_version" : 2,
 	"name" : "Iter",
 	"description" : "Improved navigation for all AIs, fixed a few levels. 248.2 x64 navigation port.",
-	"author" : "TdlQ\n    248.2 x64 nav port\n    thai translation by NewPJzuza\n    swedish translation by TheBreakingBenny\n    chinese translation by LR_Daring\n    spanish translation by Kilowide",
+	"author" : "TdlQ\n    248.2 x64 nav port\n    thai translation by NewPJzuza\n    swedish translation by TheBreakingBenny\n    chinese translation by LR_Daring\n    spanish translation by Kilowide\n    248.2 fork maintenance by met94",
 	"image" : "tdlq.dds",
 	"color" : "0.52 1 0",
-	"contact" : "",
-	"version" : "202-dev",
+	"contact" : "https://github.com/met94/payday2-mod-Iter",
+	"version" : "200.1",
 	"priority" : 40,
 	"pre_hooks" : [
 		{

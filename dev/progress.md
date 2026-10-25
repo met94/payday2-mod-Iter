@@ -227,6 +227,10 @@ Target: `e3a8b616` (248.2).
   settings-only `error_log=true` controls `[ITER-ERR]`; removed the raw
   missionmanager debug line and the outdated-patch raw log (the CRC value is
   now in the `mismatch` event). `Iter.diag` test covers both gates.
+- Fork versioning adopted (R17): upstream base r200, first full-nav fork
+  release **200.1**; future as `200.2`, ... and `201.1` after an upstream
+  rebase. Release tags mirror `v<version>`. `202-dev` is historical; Iter Lite
+  r201 was a separate mod name/branch. `mod.txt`, changelog, README updated.
 
 ## Rulings
 

@@ -1,4 +1,16 @@
-Revision 202-dev (248.2 navigation port):
+Iter fork versioning: `<upstream revision>.<fork release>`.
+
+- Upstream base: r200 (`98940fb`).
+- `200.1` is the first full-nav fork release on r200 (this 248.2 port);
+  `200.2`, `200.3`, ... are later fork releases on the same base.
+- After merging a new upstream revision the base changes (`201.1`).
+- Upstream integer revisions are never reused, so a future TdlQ release
+  cannot collide with a fork build. Release tags mirror the version
+  (`v200.1`).
+- The earlier `202-dev` label was a pre-scheme development tag. Iter Lite
+  (r201) was a separate mod name/branch and is not part of this sequence.
+
+Revision 200.1 (248.2 navigation port):
 - restored the r200 navigation core against nav v6: v5 geometry shim, choke-point proxies, path streamliner, nav-link reservation/queue/alternates, Iter coarse search, direct-to-pos, path extender
 - kept the Lite level and mission fixes, drill, menu, localization, and SO nav-link rebuild
 - added per-call map-patch selection with version/CRC gates; 21 clean blocks (22 level ids), 2 accepted losses, 1 dead (skirmish Mallcrasher), 2 no-op

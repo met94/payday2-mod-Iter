@@ -3,12 +3,14 @@
 Iter improves NPC navigation: long-path weighting, path streamlining, nav-link
 queueing, direct-to-pos, path extension, and a set of per-level nav fixes.
 
-This branch is the r200 port to the Diesel 3 / nav-v6 game build (248.2). The
+This repository is the 248.2 fork of the r200 port (Diesel 3 / nav-v6). The
 original mod was written against the v5 nav model; the core has been
-reimplemented on the v6 load data, with development gates for each subsystem.
+reimplemented on the v6 load data, with the subsystem switches documented in
+`MENU_OPTIONS.md`.
 
-- Version: `202-dev`
-- Base: Iter r200 (`98940fb`) by TdlQ
+- Version: `200.1`
+- Base: upstream Iter r200 (`98940fb`) by TdlQ
+- Fork maintenance: met94
 - Target: PAYDAY 2 248.2 (`e3a8b616`), SuperBLT
 
 ## Status
@@ -28,6 +30,20 @@ reimplemented on the v6 load data, with development gates for each subsystem.
 - PAYDAY 2 248.2 x64 (Diesel 3)
 - SuperBLT
 - No BeardLib requirement
+
+## Auto-updates and versioning
+
+Versions use `<upstream revision>.<fork release>`:
+
+- `200.1` is the first full-nav fork release on upstream r200;
+- `200.2`, `200.3`, ... are later fork releases on the same upstream base;
+- after merging a new upstream revision the base changes (`201.1`).
+
+Upstream integer revisions are never reused, so a future TdlQ release cannot
+collide with a fork build. Release tags mirror the version (`v200.1`). The
+fork does not point SuperBLT at the upstream update endpoint: upstream knows
+only its own package and would overwrite the fork. The pre-scheme `202-dev`
+label was a development tag; Iter Lite (r201) was a separate mod name/branch.
 
 ## Compatibility
 

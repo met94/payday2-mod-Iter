@@ -191,6 +191,21 @@ was judged riskier and slower than the failure mode.
 Cost if wrong: one heist could load with partial nav geometry until the block
 is fixed; no crash is introduced by the error path itself.
 
+## R17. Fork versioning
+
+Adopt the Keepers/Monkeepers `<upstream revision>.<fork release>` scheme.
+Upstream base is Iter r200 (`98940fb`); `200.1` is the first full-nav fork
+release. Later fork releases are `200.2`, `200.3`, ...; a new upstream revision
+moves the base (`201.1`). Release tags mirror the version (`v200.1`).
+
+The pre-scheme `202-dev` label is historical. Iter Lite r201 was a separate
+mod name/branch (`Iter Lite`), not a release in this sequence, so renaming the
+full fork to `200.1` does not move backwards relative to an Iter release.
+
+Cost if wrong: an already-published `202-dev` artifact would look newer than
+`200.1`; the fork has not published a release under that label, and the
+changelog/README now state the mapping.
+
 
 
 

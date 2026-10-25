@@ -1,8 +1,7 @@
 # Handoff — Iter full-nav port (next session)
 
-Branch: `feat/iter-full-nav`
-Worktree: `.worktrees/Iter-iter-full-nav`
-Build: `dist/Iter` at `662834d` (`202-dev`)
+Merged: `master` `dfd127b`, fork version `200.1` (upstream base r200).
+The old `feat/iter-full-nav` worktree is removed.
 
 ## Where the port stands
 
