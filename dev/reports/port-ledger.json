@@ -1,7 +1,7 @@
 {
   "oldRev": "a3180fc",
   "newRev": "e3a8b616",
-  "generated": "2026-10-25T06:34:30.321Z",
+  "generated": "2026-10-25T06:43:42.675Z",
   "files": [
     {
       "file": "lua/coreworldinstancemanager.lua",
@@ -284,7 +284,7 @@
         {
           "name": "ElementChangeBodyProperty._change",
           "category": "MOD_ONLY",
-          "modLines": 14,
+          "modLines": 12,
           "oldLines": 0,
           "newLines": 0,
           "modParams": "unit, params",
@@ -339,7 +339,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 62
+          "startLine": 60
         },
         {
           "name": "ElementDeleteVehicle.on_executed",

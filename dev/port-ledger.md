@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-25T06:34:30.320Z
+Generated: 2026-10-25T06:43:42.674Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -59,7 +59,7 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `ElementAINavSeg.client_on_executed` | 3 | 0 | 0 |  |
 | [ ] | audit | `ElementAINavSeg.init` | 3 | 0 | 0 |  |
 | [ ] | audit | `ElementAINavSeg.on_executed` | 12 | 0 | 0 |  |
-| [ ] | audit | `ElementChangeBodyProperty._change` | 14 | 0 | 0 |  |
+| [ ] | audit | `ElementChangeBodyProperty._change` | 12 | 0 | 0 |  |
 | [ ] | audit | `ElementChangeBodyProperty.client_on_executed` | 3 | 0 | 0 |  |
 | [ ] | audit | `ElementChangeBodyProperty.init` | 3 | 0 | 0 |  |
 | [ ] | audit | `ElementChangeBodyProperty.on_executed` | 14 | 0 | 0 |  |

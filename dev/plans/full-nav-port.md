@@ -99,13 +99,19 @@ first path request                    -> search/streamline/navlink logic
 
 | Flag | Default | Subsystem |
 |---|---|---|
-| `nav_overlay` | false | internal master gate for the restored overlay |
-| `streamline_path` | false | user-facing master toggle, proxies + streamline |
-| `navlink_queue` | false | congestion/queue/alternates/reservations |
-| `path_extender` | false | live path appending |
-| `direct_to_pos` | false | straight-line objective movement |
-| `map_patches` | false | `_navdatapatches` |
-| `debug_log` | 0 | 0 off, 1 summaries+errors, 2 verbose |
+| `nav_overlay` | true | internal master gate for the restored overlay |
+| `nav_streamline` | true | proxies + streamline |
+| `nav_search` | true | Iter coarse search + cache |
+| `nav_ai` | true | AI wrappers |
+| `navlink_queue` | true | congestion/queue/alternates/reservations |
+| `path_extender` | true | live path appending + shortcut finder |
+| `direct_to_pos` | true | straight-line objective movement |
+| `map_patches` | true | nav-data blocks in `_navdatapatches` |
+| `cop_idle_fix` | true | cosmetic idle animation variant |
+| `debug_log` | 0 | debug events: 0 off, 1 summaries/events, 2 verbose |
+| `error_log` | true | `[ITER-ERR]` lines |
+
+`streamline_path` is a legacy original-Iter key, removed on load.
 
 ## 7. Diagnostics
 
@@ -120,11 +126,13 @@ Required events: `boot`, `heist`, `navdata`, `patch`, `proxy`, `search`,
 
 Rules:
 
-- `err` is only emitted from a `pcall` boundary; `log-scan` fails on `[ITER-ERR]`.
+- `err` is only emitted from a `pcall` boundary and is on by default;
+  `error_log=false` silences it. `log-scan` fails on `[ITER-ERR]` while on.
 - `fallback` means a subsystem saw a contract it could not satisfy and used
   vanilla behaviour. Fallbacks are counted, not silently swallowed.
-- `debug_log=1` logs summaries and discrete failures; `=2` logs every event.
-- Per-heist summaries at start/end and every 60 s in level 1.
+- `debug_log=0` disables `[ITER-NAV]` events, `=1` logs summaries and discrete
+  events, `=2` logs every event.
+- Per-heist summaries at start/end and every 30 s.
 
 ## 8. Harness
 

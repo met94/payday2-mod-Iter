@@ -52,8 +52,6 @@ function ElementChangeBodyProperty:_change(unit, params)
 			local value = params[4]
 			if body[property_writer] then
 				body[property_writer](body, value)
-			else
-				log('[ElementChangeBodyProperty] uh?... ' .. tostring(property_writer))
 			end
 		end
 	end

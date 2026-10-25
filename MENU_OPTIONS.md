@@ -57,7 +57,15 @@ then relaunch. Missing keys fall back to the defaults below.
 | `direct_to_pos` | `true` | whisper-mode straight-line objectives |
 | `map_patches` | `true` | gates the nav-data blocks only; world/mission fixes follow `map_change_*` |
 | `cop_idle_fix` | `true` | cosmetic idle animation variant |
-| `debug_log` | `1` | 0 errors only, 1 summaries/errors, 2 verbose |
+| `debug_log` | `0` | debug events: 0 off, 1 summaries/patch/nav events, 2 verbose |
+| `error_log` | `true` | `[ITER-ERR]` lines; set `false` to silence caught errors |
+
+Debug events are off by default. Set `debug_log=1` (or `2`) in `iter.txt` when
+running the dev harness/cards; `!iter ai`/`p7` output then appears. Error
+lines stay on unless `error_log=false`. Neither setting is in the menu.
+
+To silence caught errors, add `"error_log": false` to
+`mods\saves\iter.txt` (game closed) or use `!iter setting error_log false`.
 
 `streamline_path` is a legacy original-Iter key. It is removed on load; an
 old file with `streamline_path=false` and no `nav_overlay` key is migrated to

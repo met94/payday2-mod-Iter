@@ -37,5 +37,7 @@ test('release defaults match original Iter', () => {
     'path_extender', 'direct_to_pos', 'map_patches', 'cop_idle_fix']) {
     assert.match(corecode, new RegExp(`^\\s*${key} = true`, 'm'), `${key} must default to true`);
   }
+  assert.match(corecode, /^\s*debug_log = 0/m, 'debug_log must default to 0');
+  assert.match(corecode, /^\s*error_log = true/m, 'error_log must default to true');
   assert.ok(!/^\s*streamline_path\s*=/m.test(corecode), 'legacy streamline_path default must be gone');
 });

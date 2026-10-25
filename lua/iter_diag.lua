@@ -69,6 +69,12 @@ end
 function D.err(where, message)
 	D.counters.err = (D.counters.err or 0) + 1
 
+	-- Errors are on by default, but a player can silence them with
+	-- error_log=false in iter.txt.
+	if Iter.settings and Iter.settings.error_log == false then
+		return
+	end
+
 	emit(string.format(
 		'[ITER-ERR] where=%s msg=%s',
 		sanitize(where),

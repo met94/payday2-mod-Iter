@@ -223,6 +223,10 @@ Target: `e3a8b616` (248.2).
   - menu/master/cover/test-comment/changelog docs corrected.
   - R16: map-patch apply is non-transactional; accepted risk, CRC+offline
     wrapper test cover the normal path.
+- Logging cleanup: `debug_log` defaults to 0 (no `[ITER-NAV]` events); new
+  settings-only `error_log=true` controls `[ITER-ERR]`; removed the raw
+  missionmanager debug line and the outdated-patch raw log (the CRC value is
+  now in the `mismatch` event). `Iter.diag` test covers both gates.
 
 ## Rulings
 

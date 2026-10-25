@@ -711,13 +711,8 @@ local function _is_expected_data(data, level_id)
 	end
 
 	local is_ok = sig == nav_data_sigs[level_id]
-	if not is_ok then
-		log()
-		log(('[Iter] outdated navigation patch! (%i)'):format(sig))
-		log()
-	end
 
-	return is_ok
+	return is_ok, sig
 end
 
 local patch_cache = {}
@@ -872,11 +867,12 @@ function NavigationManager:set_load_data(data)
 		return itr_original_navigationmanager_setloaddata(self, data)
 	end
 
-	local expected_ok, expected = pcall(_is_expected_data, data, level_id)
+	local expected_ok, expected, sig = pcall(_is_expected_data, data, level_id)
 
 	if not expected_ok or not expected then
 		patch_event(level_id, 'mismatch', {
-			error = expected_ok and nil or tostring(expected)
+			error = expected_ok and nil or tostring(expected),
+			sig = sig
 		})
 		return itr_original_navigationmanager_setloaddata(self, data)
 	end

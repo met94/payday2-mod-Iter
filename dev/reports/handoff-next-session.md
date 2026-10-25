@@ -51,6 +51,9 @@ navlink queue/direct/path extender/map patches and `cop_idle_fix` on.
   Rebuild NavLinks + all 55 map toggles; subsystem flags are settings-only.
   The eight map toggles missing from the port menu are restored. Test:
   `dev/tools/test/menu.test.mjs`.
+- Per-map toggles are separated from subsystem settings; menu is master +
+  Rebuild NavLinks + map toggles. `debug_log` defaults 0 (events off);
+  `error_log` defaults true and can be turned off in `iter.txt`.
 - The Fixes compatibility: Iter re-wraps `CopActionWalk._init` after all mods
   load; T5 PASS with The Fixes and `path_extender=true`.
 - T5 path extender PASS on counters and visual check.
