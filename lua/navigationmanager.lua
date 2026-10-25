@@ -98,8 +98,8 @@ local function is_vec3(value)
 	return type(x) == 'number' and type(y) == 'number' and type(z) == 'number'
 end
 
--- Some door/nav-link userdata (e.g. Car Shop) has no alive() method, so the
--- game's alive() would raise "attempt to call method 'alive'". Treat a
+-- Some door/nav-link userdata (e.g. Santa's Workshop `cane`) has no alive()
+-- method, so the game's alive() would raise "attempt to call method 'alive'". Treat a
 -- non-unit userdata as existing; only call alive() when the method exists.
 local function itr_alive(obj)
 	if not obj then
