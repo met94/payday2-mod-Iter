@@ -15,13 +15,13 @@ streamline, coarse search, nav-link queue, AI wrappers, direct-to-pos, path
 extender).
 
 - Default: **ON**.
-- Off: Iter behaves like Iter Lite; no nav rebuild or nav hooks.
-- **Game restart required** (the master flag is read at load; the other
+- Off: the nav core is disabled; vanilla navigation.
+- Game restart required (the master flag is read at load; the other
   toggles apply on the next heist load).
 
 ### Rebuild NavLinks (`rebuild_navlinks`)
 
-The r200 SO nav-link vector rebuild kept from the Lite build.
+The r200 SO nav-link vector rebuild.
 
 - Default: **ON**.
 - Takes effect on the next heist load.
@@ -29,7 +29,7 @@ The r200 SO nav-link vector rebuild kept from the Lite build.
 ### Map toggles (`map_change_<level>`)
 
 One toggle per level, grouped after a divider. A toggle gates both the
-nav-data block and the Lite world/mission fix for that level. The
+nav-data block and the existing world/mission fix for that level. The
 settings-only `map_patches` flag gates only the nav-data blocks; the
 world/mission fixes still follow each `map_change_*` toggle.
 

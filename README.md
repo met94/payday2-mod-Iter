@@ -44,8 +44,7 @@ collide with a fork build. Release tags mirror the version (`v200.1`).
 `mod.txt` points SuperBLT's updater at
 `releases/latest/download/meta.json` in this repository. Upstream's own update
 endpoint is not referenced: it only knows its own package and would overwrite
-the fork. The pre-scheme `202-dev` label was a development tag; Iter Lite
-(r201) was a separate mod name/branch.
+the fork.
 
 Release checklist: bump `version` in `mod.txt`, prepend a `Revision <version>:`
 block to `changelog.txt`, build a zip whose single root folder is `Iter`, and
