@@ -201,16 +201,18 @@ test('a toggle then save persists the effective mirror (both switches off cases)
   }
 });
 
-test(`changelog has a Revision ${version} block with player notes`, () => {
-  const escaped = version.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const block = changelog.match(new RegExp(`^Revision ${escaped} \\([^)]*\\):([\\s\\S]*?)(?=\\r?\\nRevision )`, 'm'));
-  assert.ok(block, `Revision ${version} block missing`);
-  assert.match(block[1], /^Player notes: .+/m, `Revision ${version} needs a Player notes line`);
-  assert.match(block[1], /streamline_path/, `Revision ${version} must name the legacy mirror`);
+// The legacy-key contract belongs to the release that introduced it (200.2);
+// later releases add their own blocks, so pin this check to that revision
+// instead of whatever the newest version happens to be.
+test('Revision 200.2 documents the legacy mirror (phase 1 contract)', () => {
+  const block = changelog.match(/^Revision 200\.2 \([^)]*\):([\s\S]*?)(?=\r?\nRevision )/m);
+  assert.ok(block, 'Revision 200.2 block missing');
+  assert.match(block[1], /^Player notes: .+/m, 'Revision 200.2 needs a Player notes line');
+  assert.match(block[1], /streamline_path/, 'Revision 200.2 must name the legacy mirror');
   assert.match(
     block[1],
     /off before launch/,
-    `Revision ${version} player notes must say Useful Bots needs pathing off before launch`
+    'Revision 200.2 player notes must say Useful Bots needs pathing off before launch'
   );
 });
 

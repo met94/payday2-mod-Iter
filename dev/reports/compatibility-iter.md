@@ -1,6 +1,6 @@
 # Iter full-nav port — compatibility matrix
 
-Scope: **full Iter** (`priority 40`, version 200.2) against the
+Scope: **full Iter** (`priority 40`, version 200.3) against the
 installed/workspace mods. "Full Iter" means every subsystem is on:
 streamline, Iter coarse search, nav-link queue, direct-to-pos, path extender
 and map patches. Static analysis plus the live runs so far (LIES installed in
@@ -124,6 +124,36 @@ wanted back, it has to be re-implemented on top of Iter's body.
 - Restart semantics: Useful Bots reads the key once, at its load. A menu toggle
   updates `iter.txt` and Iter's in-memory mirror immediately, but UB keeps the
   decision from launch until the next game restart.
+
+## Phase 2: Car Shop nav-link crash (200.3)
+
+Found by the AI-suite Car Shop card (`cane`, `skip_nopatch`, heavy assault,
+276 nav-link elements) — release blocker, crash in the live game:
+
+```
+core/lib/utils/corecode.lua:100: attempt to call method 'alive' (a nil value)
+itr_find_best_navlink()      lua/navigationmanager.lua:961
+itr_get_alternate_navlink()  lua/copactionwalk.lua:179
+itr_switch_to_sibling_navlink() lua/copactionwalk.lua:226
+update()                     lib/units/enemies/cop/copmovement.lua:842
+```
+
+Cause: the game's `alive(obj)` calls `obj:alive()` unconditionally
+(`core/lib/utils/corecode.lua:86-92`). Door and nav-link userdata is not a
+unit, and Car Shop's nav-link objects have no `alive()` method, so the helper
+raised instead of returning false.
+
+Fix: `itr_alive` (`lua/navigationmanager.lua`, next to `is_vec3`, so Vector3
+userdata is still rejected) and `itr_alive_navpoint`
+(`lua/copactionwalk.lua`). Both delegate to `alive()` only when the userdata
+exposes the method and otherwise treat the object as existing. Five door
+call sites in `navigationmanager.lua` and three nav-point/nav-link sites in
+`copactionwalk.lua` were switched; unit checks (`alive(user)`,
+`alive(element.itr_reserved_by_unit)`) keep using the game helper.
+
+**Retest pending:** Car Shop loud, 10+ minutes of heavy assault, no crash and
+no `[ITER-ERR]` in `mods/logs/`. The other cards are unaffected by this
+change; re-run them with the same build before release.
 
 ## Load order
 

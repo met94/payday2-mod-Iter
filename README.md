@@ -8,7 +8,7 @@ original mod was written against the v5 nav model; the core has been
 reimplemented on the v6 load data, with the subsystem switches documented in
 `MENU_OPTIONS.md`.
 
-- Version: `200.2`
+- Version: `200.3`
 - Base: upstream Iter r200 (`98940fb`) by TdlQ
 - Fork maintenance: met94
 - Target: PAYDAY 2 248.2 (`e3a8b616`), SuperBLT
@@ -24,6 +24,11 @@ reimplemented on the v6 load data, with the subsystem switches documented in
 | Direct-to-pos | working (T4 PASS) |
 | Path extender | working (T5 PASS on counters; no visible slide/stuck) |
 | Map patches | 21 clean blocks (22 level ids), 2 accepted losses, 1 dead, 2 no-op |
+
+**200.3** fixes the Car Shop nav-link crash: door and nav-link userdata that
+does not implement `alive()` (Car Shop's sibling-nav-link switch on a heavy
+assault) now goes through `itr_alive` / `itr_alive_navpoint` instead of the
+game helper. See `changelog.txt`.
 
 ## Requirements
 

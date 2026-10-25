@@ -251,6 +251,35 @@ Target: `e3a8b616` (248.2).
   emit repo-relative paths and skip timestamp-only ledger rewrites. Cross-mod
   ownership work remains in Phases 2-4.
 
+## 2026-10-25 — session 3 (Car Shop nav-link crash)
+
+- Release-blocker from the AI-suite Car Shop card (`cane`,
+  `skip_nopatch`, heavy assault, 276 nav-link elements):
+  `corecode.lua:100: attempt to call method 'alive' (a nil value)` via
+  `itr_find_best_navlink` (`lua/navigationmanager.lua:961`) ←
+  `itr_get_alternate_navlink` (`lua/copactionwalk.lua:179`) ←
+  `itr_switch_to_sibling_navlink` (`lua/copactionwalk.lua:226`).
+- Cause: the game's `alive(obj)` is `if obj and obj:alive() then ... end`
+  (`core/lib/utils/corecode.lua:86-92`). Door/nav-link userdata is not a unit
+  and Car Shop's nav-link objects do not implement `alive()`, so the game
+  helper raised instead of returning false.
+- Fix (version **200.3**): `itr_alive` in `lua/navigationmanager.lua` (after
+  `is_vec3`, keeps rejecting Vector3 userdata) and `itr_alive_navpoint` in
+  `lua/copactionwalk.lua`; both call `alive()` only when the method exists and
+  otherwise treat the object as existing. Five `navigationmanager` call sites
+  (`itr_add_door_pos_to`, `itr_find_choke_point` important doors,
+  `itr_get_closest_door_to_pos`, `itr_find_best_navlink`,
+  `itr_get_accessibility`) and three `copactionwalk` sites
+  (`itr_append_next_step`, `itr_check_navlink_delay`, `itr_set_navlink_delay`)
+  switched. Unit checks (`alive(user)`,
+  `alive(element.itr_reserved_by_unit)`) untouched.
+- Static proof: `dev/tools/test/navlink-alive.test.mjs` (helper shape, eight
+  guarded sites, surviving unit calls, helper truth table). Gates: see
+  `dev/reports/static-gates.md`.
+- **Retest pending:** Car Shop loud, 10+ minutes of heavy assault, no crash and
+  no `[ITER-ERR]` in `mods/logs/`. Runtime regression card is the AI-suite
+  Car Shop entry.
+
 ## Rulings
 
 - R1: use `a3180fc` as the old baseline for parsing; `b36f5fbb` restyle text

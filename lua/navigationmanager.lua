@@ -98,6 +98,26 @@ local function is_vec3(value)
 	return type(x) == 'number' and type(y) == 'number' and type(z) == 'number'
 end
 
+-- Some door/nav-link userdata (e.g. Car Shop) has no alive() method, so the
+-- game's alive() would raise "attempt to call method 'alive'". Treat a
+-- non-unit userdata as existing; only call alive() when the method exists.
+local function itr_alive(obj)
+	if not obj then
+		return false
+	end
+
+	if type(obj) ~= 'userdata' or is_vec3(obj) then
+		return false
+	end
+
+	local alive_method = obj.alive
+	if type(alive_method) ~= 'function' then
+		return true
+	end
+
+	return alive_method(obj) and true or false
+end
+
 local itr_original_navigationmanager_registercoverunits = NavigationManager.register_cover_units
 function NavigationManager:register_cover_units()
 	if not Iter.settings.nav_streamline then
@@ -527,7 +547,7 @@ local function itr_add_door_pos_to(sum_pos, all_doors, i_door)
 		local door = all_doors[i_door]
 		mvec3_lerp(tmp_vec, door.pos, door.pos1, 0.5)
 		mvec3_add(sum_pos, tmp_vec)
-	elseif alive(i_door) then
+	elseif itr_alive(i_door) then
 		local element = _navlink_elements[i_door:key()]
 
 		if element then
@@ -653,7 +673,7 @@ function NavigationManager:itr_find_proxies(segment_id)
 						local door = all_doors[door_id]
 						mvec3_lerp(tmp_vec, door.pos, door.pos1, 0.5)
 						dis = mvec3_dis_sq(frontier_center, tmp_vec)
-					elseif alive(door_id) then
+					elseif itr_alive(door_id) then
 						local element = _navlink_elements[door_id:key()]
 
 						if element then
@@ -866,7 +886,7 @@ function NavigationManager:itr_get_closest_door_to_pos(all_doors, door_list, pos
 		elseif is_direct then
 			-- qued
 
-		elseif alive(i_door) and not i_door:is_obstructed() and i_door:check_access(access_pos) then
+		elseif itr_alive(i_door) and not i_door:is_obstructed() and i_door:check_access(access_pos) then
 			local element = _navlink_elements[i_door:key()]
 
 			if element then
@@ -958,7 +978,7 @@ function NavigationManager:itr_find_best_navlink(segment1_id, segment2_id, acces
 	local best_navlink, best_navlink_element
 	for i = #door_list, 1, -1 do
 		local navlink = door_list[i]
-		if type(navlink) == 'userdata' and alive(navlink) and not navlink:is_obstructed() and navlink:check_access(access_pos) then
+		if type(navlink) == 'userdata' and itr_alive(navlink) and not navlink:is_obstructed() and navlink:check_access(access_pos) then
 			local navlink_element = _navlink_elements[navlink:key()]
 
 			if navlink_element then
@@ -1145,7 +1165,7 @@ function NavigationManager:itr_get_accessibility(door_list, access_pos, access_n
 			return 0
 		elseif is_vec3(i_door) then
 			return 0
-		elseif alive(i_door) and not i_door:is_obstructed() and i_door:check_access(access_pos, access_neg) then
+		elseif itr_alive(i_door) and not i_door:is_obstructed() and i_door:check_access(access_pos, access_neg) then
 			local element = _navlink_elements[i_door:key()]
 
 			if element then

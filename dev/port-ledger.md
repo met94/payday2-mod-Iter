@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-25T09:49:20.529Z
+Generated: 2026-10-25T18:32:57.081Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -13,7 +13,7 @@ Scope: top-level function definitions only. Nested helpers are folded into their
 |---|---:|
 | MOD_EDIT_VANILLA_CHANGED | 6 |
 | MOD_ONLY_HOOK | 7 |
-| MOD_ONLY | 59 |
+| MOD_ONLY | 61 |
 | MOD_EDIT_CLEAN | 31 |
 
 ## lua/coreworldinstancemanager.lua
@@ -83,6 +83,7 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `get_coarse_dis` | 8 | 0 | 0 |  |
 | [ ] | audit | `is_vec3` | 9 | 0 | 0 |  |
 | [ ] | audit | `itr_add_door_pos_to` | 13 | 0 | 0 |  |
+| [ ] | audit | `itr_alive` | 16 | 0 | 0 |  |
 | [ ] | audit | `itr_get_door_in_alignment` | 31 | 0 | 0 |  |
 | [ ] | audit | `itr_get_navlink_usage` | 17 | 0 | 0 |  |
 | [ ] | audit | `itr_get_rooms_having_access_to_next_level` | 16 | 0 | 0 |  |
@@ -146,6 +147,7 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `CopActionWalk.itr_switch_to_sibling_navlink` | 53 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_update_navlink_queue_data` | 17 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_update_wait_for_navlink_availability` | 27 | 0 | 0 |  |
+| [ ] | audit | `itr_alive_navpoint` | 12 | 0 | 0 |  |
 | [ ] | audit | `itr_expand_one_point_path` | 24 | 0 | 0 |  |
 | [ ] | audit | `itr_prepare_init_navlink` | 5 | 0 | 0 |  |
 | [ ] | audit | `itr_wrap_init` | 17 | 0 | 0 |  |

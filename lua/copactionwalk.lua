@@ -12,6 +12,22 @@ local mvec3_set = mvector3.set
 local mvec3_set_z = mvector3.set_z
 local mvec3_z = mvector3.z
 
+-- Door/nav-link userdata is not a unit and may not implement alive() (Car
+-- Shop). Call alive() only when the method exists; otherwise treat it as
+-- existing so the game's own error path is not triggered.
+local function itr_alive_navpoint(obj)
+	if not obj or type(obj) ~= 'userdata' then
+		return false
+	end
+
+	local alive_method = obj.alive
+	if type(alive_method) ~= 'function' then
+		return true
+	end
+
+	return alive_method(obj) and true or false
+end
+
 local function itr_expand_one_point_path(self)
 	if not Iter.settings.path_extender then
 		return
@@ -113,7 +129,7 @@ if Network:is_server() then
 		for _, nav_point in ipairs(path) do
 			if nav_point.x then
 				table.insert(processed_path, nav_point)
-			elseif alive(nav_point) then
+			elseif itr_alive_navpoint(nav_point) then
 				table.insert(processed_path, {
 					element = nav_point:script_data().element,
 					c_class = nav_point
@@ -138,7 +154,7 @@ if Network:is_server() then
 
 	function CopActionWalk:itr_check_navlink_delay(t)
 		local navlink = self._next_is_nav_link.c_class
-		if alive(navlink) then
+		if itr_alive_navpoint(navlink) then
 			local delay_t = self._next_is_nav_link.c_class:delay_time()
 			if not delay_t or t >= delay_t then
 				return true
@@ -150,7 +166,7 @@ if Network:is_server() then
 		local delay = self._next_is_nav_link.element._values.itr_interval
 		if delay and delay > 0 then
 			local navlink = self._next_is_nav_link.c_class
-			if alive(navlink) then
+			if itr_alive_navpoint(navlink) then
 				navlink:set_delay_time(t + delay)
 				return true
 			end

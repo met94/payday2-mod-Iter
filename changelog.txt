@@ -1,3 +1,10 @@
+Revision 200.3 (Car Shop navlink crash fix):
+- added `itr_alive` in `lua/navigationmanager.lua` and `itr_alive_navpoint` in `lua/copactionwalk.lua`: door and nav-link userdata is not a unit and may not implement `alive()`, so the game helper (`core/lib/utils/corecode.lua:86-92`, `if obj and obj:alive()`) raised "attempt to call method 'alive'" instead of returning false; the local helpers only call `alive()` when the userdata exposes that method and otherwise treat the object as existing, and `itr_alive` still rejects Vector3 userdata via `is_vec3` so the 248.2 access-violation guard stays intact
+- replaced five `alive()` calls in `navigationmanager.lua` (`itr_add_door_pos_to`, the `itr_find_choke_point` important-doors loop, `itr_get_closest_door_to_pos`, `itr_find_best_navlink`, `itr_get_accessibility`) and three in `copactionwalk.lua` (`itr_append_next_step`, `itr_check_navlink_delay`, `itr_set_navlink_delay`); unit checks (`alive(user)`, `alive(element.itr_reserved_by_unit)`) keep using the game helper
+- static gate: `dev/tools/test/navlink-alive.test.mjs` pins both helpers, the eight guarded call sites and the surviving unit checks; the in-game Car Shop card is the runtime regression test
+
+Player notes: Car Shop and other maps with many nav links no longer crash when a cop tries to switch to a sibling nav link during a heavy assault. Navigation behaves exactly as before everywhere else.
+
 Revision 200.2 (AI suite compatibility):
 - republished the legacy `streamline_path` key as a runtime mirror after `Iter:load()`: `Iter:save()` recomputes it from the live `nav_overlay`/`nav_streamline` switches and persists the effective value (`true` on, `false` off), so the in-memory alias can never contradict `nav_overlay` and a downgrade to upstream r200 keeps the effective state instead of falling back to its own default; Useful Bots 2.4.3's load-time guard therefore sees Iter's real pathing decision
 - documented the cross-mod ownership split for LIES, Keepers, Monkeepers, Useful Bots and The Fixes in `dev/reports/compatibility-iter.md`; no navigation behaviour change
