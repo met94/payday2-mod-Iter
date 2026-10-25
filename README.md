@@ -37,16 +37,16 @@ reimplemented on the v6 load data, with development gates for each subsystem.
   `register_anim_nav_link` and would break Iter's nav-link map.
 - **The Fixes:** replaces `CopActionWalk._init`; Iter re-wraps the winning
   function after all mods load, so path expansion and nav-link prepare still
-  run. Verify with `path_extender=true` (T5).
+  run. Tested with `path_extender=true` and The Fixes: T5 PASS.
 - **Keepers:** direct-to-pos is live again; needs a converted-keeper smoke.
 
 See `dev/reports/compatibility-iter.md` for the function-level matrix.
 
 ## Options
 
-See `MENU_OPTIONS.md`. The menu toggles are development gates. Defaults enable
-the overlay, streamline, search, the AI cluster, nav-link queue and
-direct-to-pos; path extender and map patches remain off by default.
+See `MENU_OPTIONS.md`. The menu toggles are development gates. Defaults
+enable the overlay, streamline, search, the AI cluster, nav-link queue,
+direct-to-pos, path extender and map patches. `cop_idle_fix` is also on.
 
 ## Credits
 

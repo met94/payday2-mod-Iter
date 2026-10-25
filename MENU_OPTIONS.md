@@ -56,7 +56,7 @@ direct-to-pos plumbing, follow-unit updates.
 
 Precomputes the next detailed path and appends it to the live walk action.
 
-- Default: **OFF** until T5.
+- Default: **ON** (T5 PASS, including with The Fixes installed).
 - Requires the overlay **and** the AI cluster.
 - Heist restart required.
 
@@ -71,7 +71,7 @@ In whisper mode, walk straight to the objective position.
 
 Applies the r200 per-level nav fixes after a version/CRC check.
 
-- Default: **OFF**.
+- Default: **ON**.
 - Logs `applied`, `applied_partial`, `mismatch` or `skip_*` per level.
 - 21 clean blocks (22 level ids) survive as-is; 2 are accepted losses
   (moon, peta); 1 is dead (`skm_mallcrasher`, navlink-only seal); dinner/flat

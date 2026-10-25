@@ -24,8 +24,8 @@ Core navigation/AI port is **release-candidate complete**:
 | LIES compatibility | tested together during T1-T4; no Iter errors |
 
 Static gates PASS; API audit baseline 12 expected errors, 12 scoped
-suppressions, 0 unused. RC defaults: overlay/streamline/search/AI/navlink
-queue/direct on; path extender and map patches off.
+suppressions, 0 unused. Release defaults: overlay/streamline/search/AI/
+navlink queue/direct/path extender/map patches and `cop_idle_fix` on.
 
 ## What changed this session
 
@@ -104,8 +104,8 @@ cop visibly slid or stuck at the append point.
 - Review docs: `MENU_OPTIONS.md`, `README.md`,
   `dev/reports/compatibility-iter.md`, P7 audit.
 - Compatibility matrix: NavFixes must not run with Iter; The Fixes replaces
-  `CopActionWalk._init` (path extender is off by default, so the conflict is
-  dormant while the default holds); Keepers direct-to-pos smoke.
+  `CopActionWalk._init` (The Fixes owns it; Iter re-wraps it after load and
+  T5 passed with The Fixes installed); Keepers direct-to-pos smoke.
 - Workspace doc draft: `dev/reports/workspace-investigation-draft.md`.
 - Merge only on explicit user approval, then copy the investigation draft to
   `docs/investigations/iter-full-nav-port.md` and refresh
@@ -118,7 +118,7 @@ cop visibly slid or stuck at the append point.
    AI movement was fine.
 2. `[ITER-NAV] evt=patch` uses `applied`/`applied_partial`/`skip_dead`;
    `!iter patch` shows stats.
-3. `map_patches` remains off by default; 21 clean blocks (22 level ids),
+3. `map_patches` is on by default; 21 clean blocks (22 level ids),
    2 accepted losses, 1 dead, 2 no-op.
 4. `nav_event` heartbeat every 30 s; `_clear` resets shim/cache/navlink maps.
 5. LIES: Iter loads later and owns `_execute_coarce_search`; LIES cover

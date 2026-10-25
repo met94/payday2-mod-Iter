@@ -135,6 +135,27 @@ port. `map_patches` stays false and the overlay does not load the file.
 Cost if wrong: map-specific nav fixes (bus, biker counter, vault access) are
 not active yet; core AI pathing is unaffected.
 
+## R14. Release defaults match original Iter
+
+r200 had `streamline_path=true` and loaded `_navdatapatches` unconditionally,
+so path extender, shortcut finder, map patches and the cop idle cosmetic were
+all on by default. The port kept them behind development flags while cards
+were pending. All three cards are now satisfied:
+
+- path extender: T5 PASS, including with The Fixes installed (late `_init`
+  re-wrap, `path_extend_ok=45`, no slide/stuck);
+- map patches: P7 complete at 21 clean blocks (22 level ids), 2 accepted
+  losses, 1 dead, CRC-gated; map toggle smoke PASS;
+- cop idle: cosmetic animation variant only.
+
+Release defaults become `path_extender=true`, `map_patches=true`,
+`cop_idle_fix=true`. Each remains a menu/runtime toggle (cop idle only via the
+setting file).
+
+Cost if wrong: path extender is exercised on fewer maps than the full heist
+set; the toggle is the escape hatch. Map patches may hit an undetected level
+drift, but the CRC gate skips safely. Cop idle is cosmetic.
+
 
 
 

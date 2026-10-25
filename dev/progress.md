@@ -195,6 +195,10 @@ Target: `e3a8b616` (248.2).
   Report: `dev/reports/smoke-t5-fixes-2026-10-25.md`.
 - Next: decide whether to flip release defaults to original-Iter parity
   (`path_extender`, `map_patches`, `cop_idle_fix`), then merge.
+- Defaults flipped for original-Iter parity: `path_extender=true`,
+  `map_patches=true`, `cop_idle_fix=true`. Evidence: T5 PASS (incl. The
+  Fixes), P7 21 clean blocks + toggle smoke, cop idle cosmetic. Docs/decisions
+  updated (R14).
 
 ## Rulings
 

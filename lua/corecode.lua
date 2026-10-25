@@ -5,20 +5,20 @@ _G.Iter = _G.Iter or {}
 Iter._path = ModPath
 Iter._data_path = SavePath .. 'iter.txt'
 Iter.settings = {
-	-- Dev scaffold: r200 nav code is being ported to nav v6. `nav_overlay` is
-	-- the internal master gate for the restored port and stays off until its
-	-- test card passes. `streamline_path` remains the future user-facing toggle.
-	-- See dev/plans/full-nav-port.md.
+	-- r200 nav port to nav v6. All subsystem cards have passed; release
+	-- defaults match original Iter (path extender, map patches and the idle
+	-- cosmetic on). `streamline_path` is a legacy unused key; the live flag is
+	-- `nav_streamline`. See dev/plans/full-nav-port.md.
 	nav_overlay = true,
 	nav_streamline = true,
 	nav_search = true,
 	nav_ai = true,
 	streamline_path = false,
 	navlink_queue = true,
-	path_extender = false,
+	path_extender = true,
 	direct_to_pos = true,
-	map_patches = false,
-	cop_idle_fix = false,
+	map_patches = true,
+	cop_idle_fix = true,
 	debug_log = 1,
 	rebuild_navlinks = true,
 	map_change_alex_1 = true,
