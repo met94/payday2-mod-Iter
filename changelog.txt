@@ -3,7 +3,7 @@ Revision 200.2 (AI suite compatibility):
 - documented the cross-mod ownership split for LIES, Keepers, Monkeepers, Useful Bots and The Fixes in `dev/reports/compatibility-iter.md`; no navigation behaviour change
 - static gate: `dev/tools/test/compat.test.mjs` pins the mirror recompute/persist in `save()`, strips comments and long-bracket strings before matching, and checks the version/README/changelog agreement plus the compatibility docs; `dev/tools/gates.ps1` and `fn-ledger.mjs` emit repo-relative paths and skip timestamp-only ledger rewrites
 
-Player notes: with Useful Bots installed, bots no longer double-check path updates after Iter streamlines them; without Useful Bots nothing changes. `iter.txt` now records `streamline_path` as a copy of the pathing state (`true` on, `false` off), so downgrading to original Iter keeps your setting. Useful Bots reads the key once at launch: turn **Improve NPC pathing** off with pathing off set before launch if you want it to keep its own re-check.
+Player notes: with Useful Bots installed, bots no longer double-check path updates after Iter streamlines them; without Useful Bots nothing changes. `iter.txt` now records `streamline_path` as a copy of the pathing state (`true` on, `false` off), so downgrading to original Iter keeps your setting. Useful Bots reads the key once at launch: turn **Improve NPC pathing** off before launch if you want Useful Bots to keep its own re-check.
 
 Revision 200.1 (248.2 navigation port):
 - restored the r200 navigation core against nav v6: v5 geometry shim, choke-point proxies, path streamliner, nav-link reservation/queue/alternates, Iter coarse search, direct-to-pos, path extender

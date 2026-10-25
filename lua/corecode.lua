@@ -131,7 +131,7 @@ Iter:load()
 -- runtime view of the effective pathing state, recomputed on save:
 -- `load()` drops the loaded copy and rebuilds it from `nav_overlay` and
 -- `nav_streamline`; `save()` recomputes it and persists it (`true`/`false`).
--- Manual edits in iter.txt never stick. Nil means pathing is off and UB's own
+-- Manual edits in iter.txt never stick. False/nil means pathing is off and UB's own
 -- post-walk re-check is harmless. A menu toggle only reaches UB on the next
 -- launch, because UB reads the key at load.
 Iter.settings.streamline_path = (Iter.settings.nav_overlay and Iter.settings.nav_streamline) or nil

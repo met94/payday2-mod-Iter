@@ -2,9 +2,10 @@
 //
 // Useful Bots 2.4.3 checks `Iter.settings.streamline_path` at load time. Iter
 // nils that legacy key in `Iter:load()` and then republishes it as a runtime
-// mirror of the effective pathing state, so UB's guard stays alive without the
-// key ever reaching the save file. These checks are text-based on purpose: they
-// must run without the game.
+// mirror of the effective pathing state, so UB's guard stays alive. `save()`
+// recomputes the mirror from the live switches and persists the effective
+// boolean, while `load()` drops and rebuilds it on every boot. These checks are
+// text-based on purpose: they must run without the game.
 
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -191,9 +192,10 @@ test('a toggle then save persists the effective mirror (both switches off cases)
 
   for (const [overlay, streamline] of [[false, true], [true, false], [false, false]]) {
     const value = evaluate(overlay, streamline, null);
-    assert.ok(
-      value === false || value === null,
-      `mirror must be false/nil for nav_overlay=${overlay}, nav_streamline=${streamline} (got ${String(value)})`
+    assert.equal(
+      value,
+      false,
+      `mirror must persist false (not nil) for nav_overlay=${overlay}, nav_streamline=${streamline} (got ${String(value)})`
     );
     assert.ok(!value, 'reason: a falsy mirror is what Useful Bots and upstream r200 both read as off');
   }
@@ -207,8 +209,8 @@ test(`changelog has a Revision ${version} block with player notes`, () => {
   assert.match(block[1], /streamline_path/, `Revision ${version} must name the legacy mirror`);
   assert.match(
     block[1],
-    /pathing off set before launch/,
-    `Revision ${version} player notes must say Useful Bots needs pathing off set before launch`
+    /off before launch/,
+    `Revision ${version} player notes must say Useful Bots needs pathing off before launch`
   );
 });
 

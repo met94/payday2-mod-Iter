@@ -21,7 +21,10 @@ $failed = $false
 # fn-ledger.mjs's displayPath guard: a path outside the repo falls back to the
 # full path instead of throwing on Substring.
 function Get-RepoRelative([string]$Path) {
-    $full = [System.IO.Path]::GetFullPath($Path)
+    # Resolve relative input against the repo root, not the process CWD, so an
+    # in-repo path stays repo-relative no matter where the script was launched.
+    $candidate = if ([System.IO.Path]::IsPathRooted($Path)) { $Path } else { Join-Path $RepoRoot $Path }
+    $full = [System.IO.Path]::GetFullPath($candidate)
     $root = [System.IO.Path]::GetFullPath($RepoRoot)
     $prefix = $root.TrimEnd([char[]]@('\', '/')) + [System.IO.Path]::DirectorySeparatorChar
     if (-not $full.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
