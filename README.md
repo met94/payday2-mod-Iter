@@ -40,10 +40,16 @@ Versions use `<upstream revision>.<fork release>`:
 - after merging a new upstream revision the base changes (`201.1`).
 
 Upstream integer revisions are never reused, so a future TdlQ release cannot
-collide with a fork build. Release tags mirror the version (`v200.1`). The
-fork does not point SuperBLT at the upstream update endpoint: upstream knows
-only its own package and would overwrite the fork. The pre-scheme `202-dev`
-label was a development tag; Iter Lite (r201) was a separate mod name/branch.
+collide with a fork build. Release tags mirror the version (`v200.1`).
+`mod.txt` points SuperBLT's updater at
+`releases/latest/download/meta.json` in this repository. Upstream's own update
+endpoint is not referenced: it only knows its own package and would overwrite
+the fork. The pre-scheme `202-dev` label was a development tag; Iter Lite
+(r201) was a separate mod name/branch.
+
+Release checklist: bump `version` in `mod.txt`, prepend a `Revision <version>:`
+block to `changelog.txt`, build a zip whose single root folder is `Iter`, and
+publish it with a `meta.json` asset from a release tagged `v<version>`.
 
 ## Compatibility
 

@@ -7,6 +7,14 @@
 	"color" : "0.52 1 0",
 	"contact" : "https://github.com/met94/payday2-mod-Iter",
 	"version" : "200.1",
+	"updates" : [
+		{
+			"identifier" : "Iter",
+			"host" : {
+				"meta" : "https://github.com/met94/payday2-mod-Iter/releases/latest/download/meta.json"
+			}
+		}
+	],
 	"priority" : 40,
 	"pre_hooks" : [
 		{
