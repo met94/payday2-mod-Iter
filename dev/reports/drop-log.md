@@ -13,6 +13,13 @@ the player loses.
 Both files are now inert (`return` only) and their hooks were removed from
 `mod.txt` (hook count 17 -> 14). Git history keeps the r200 bodies.
 
+## Not an Iter feature (clarification)
+
+Cover **generation** was never part of Iter r200; it belongs to LIES. Iter
+only wraps vanilla cover registration/cleanup
+(`NavigationManager:register_cover_units`, ported) and uses the vanilla cover
+search functions. Iter therefore has no LIES dependency and works standalone.
+
 ## Deferred
 
 | Item | Why | Revisit |

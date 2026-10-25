@@ -116,6 +116,26 @@ cop visibly slid or stuck at the append point.
   `docs/investigations/iter-full-nav-port.md` and refresh
   `workspace.lock.json` + `CHANGELOG.md`.
 
+### 4. Cross-mod compatibility matrix (next session)
+
+Mods in scope: **Keepers, Monkeepers, Useful Bots, Iter, LIES** (plus The
+Fixes, already composed via the late `_init` re-wrap).
+
+Working ownership proposal:
+
+- LIES: cover generation/search extensions; optional, not an Iter dependency.
+- Iter: nav core (v6 shim, streamline, coarse search, nav-link queue, path
+  extender, direct-to-pos, map patches).
+- Keepers: converted-keeper behaviour and its `itr_direct_to_pos` use.
+- Monkeepers: monkeeper idle/logic.
+- Useful Bots: bot travel/idle behaviour.
+- The Fixes: owns `CopActionWalk._init`; Iter re-wraps it.
+
+Decide per function, not per mod: wrappers compose; a bare replacement must
+load first and be re-wrapped (The Fixes pattern) or Iter must stay outermost.
+NavFixes remains excluded until `register_anim_nav_link` is absorbed.
+Test pairs with T7 log scans and no-function-collision checks.
+
 ## Open issues / risks
 
 1. Probe `avg_len` was 0 despite 3 steps/path. `raw_positions`/

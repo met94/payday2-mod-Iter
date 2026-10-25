@@ -26,8 +26,10 @@ No new runtime claims beyond the tests listed.
    nav-link prepare still run; client expansion is left to The Fixes to avoid
    duplicating the current position. Tested: T5 PASS with The Fixes and
    `path_extender=true`.
-3. **LIES + Iter:** tested. Iter owns the coarse search; LIES cover search
-   still works. Keep both only if the T7 smoke stays clean.
+3. **LIES + Iter:** optional pair, not a dependency. Iter runs standalone on
+   vanilla cover registration; LIES's own cover generation/search is separate.
+   When both run, Iter owns the coarse search and LIES cover search still
+   works. Keep both only if the T7 smoke stays clean.
 4. **Keepers:** direct-to-pos is live again; run a converted-keeper smoke
    before release.
 

@@ -37,7 +37,8 @@ Success means:
 
 - Restoring obsolete v5 mechanisms for their own sake.
 - Fixing vanilla 248.2 nav defects (NavFixes owns the general guards).
-- Porting Iter's cover-generation hack or unrelated AI changes.
+- Porting LIES's cover-generation hack or unrelated AI changes. Iter r200 did
+  not generate cover; it only wrapped vanilla cover registration/cleanup.
 - Touching the user's deployed game copy.
 
 ## 3. Hard constraints

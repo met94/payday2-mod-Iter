@@ -31,8 +31,9 @@ reimplemented on the v6 load data, with development gates for each subsystem.
 
 ## Compatibility
 
-- **LIES:** tested together; Iter owns the coarse search, LIES cover search
-  still runs.
+- **LIES:** optional, not a dependency. Iter runs standalone on vanilla cover
+  registration. Tested together; Iter owns the coarse search, LIES's own
+  cover generation/search still runs.
 - **NavFixes:** do not run together. NavFixes replaces
   `register_anim_nav_link` and would break Iter's nav-link map.
 - **The Fixes:** replaces `CopActionWalk._init`; Iter re-wraps the winning

@@ -205,6 +205,12 @@ Target: `e3a8b616` (248.2).
   restored. Subsystem flags are settings-only in `iter.txt`; legacy
   `streamline_path` migrates. New test `dev/tools/test/menu.test.mjs` pins the
   separation and defaults. Decision R15.
+- Correction: Iter r200 never had cover generation; it only wrapped vanilla
+  cover registration/cleanup (`register_cover_units`, ported). LIES's cover
+  generation is optional and not an Iter dependency; Iter is standalone.
+  Plan/drop-log/README/compatibility corrected.
+- Next session queued: compatibility matrix for Keepers, Monkeepers, Useful
+  Bots, Iter, LIES; per-function ownership and load-order precedence.
 
 ## Rulings
 
