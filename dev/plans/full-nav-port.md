@@ -108,7 +108,7 @@ first path request                    -> search/streamline/navlink logic
 | `direct_to_pos` | true | straight-line objective movement |
 | `map_patches` | true | nav-data blocks in `_navdatapatches` |
 | `cop_idle_fix` | true | cosmetic idle animation variant |
-| `debug_log` | 0 | debug events: 0 off, 1 summaries/events, 2 verbose |
+| `debug_log` | 0 | 0 off, 1 on, 2 reserved for verbose |
 | `error_log` | true | `[ITER-ERR]` lines |
 
 `streamline_path` is a legacy original-Iter key, removed on load.
@@ -130,8 +130,8 @@ Rules:
   `error_log=false` silences it. `log-scan` fails on `[ITER-ERR]` while on.
 - `fallback` means a subsystem saw a contract it could not satisfy and used
   vanilla behaviour. Fallbacks are counted, not silently swallowed.
-- `debug_log=0` disables `[ITER-NAV]` events, `=1` logs summaries and discrete
-  events, `=2` logs every event.
+- `debug_log=0` disables `[ITER-NAV]` events, `=1` enables them, `=2` is
+  reserved for future verbose events.
 - Per-heist summaries at start/end and every 30 s.
 
 ## 8. Harness

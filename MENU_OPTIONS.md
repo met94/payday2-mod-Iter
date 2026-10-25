@@ -57,7 +57,7 @@ then relaunch. Missing keys fall back to the defaults below.
 | `direct_to_pos` | `true` | whisper-mode straight-line objectives |
 | `map_patches` | `true` | gates the nav-data blocks only; world/mission fixes follow `map_change_*` |
 | `cop_idle_fix` | `true` | cosmetic idle animation variant |
-| `debug_log` | `0` | debug events: 0 off, 1 summaries/patch/nav events, 2 verbose |
+| `debug_log` | `0` | debug events: 0 off, 1 on (2 reserved for verbose) |
 | `error_log` | `true` | `[ITER-ERR]` lines; set `false` to silence caught errors |
 
 Debug events are off by default. Set `debug_log=1` (or `2`) in `iter.txt` when
