@@ -28,10 +28,6 @@ end
 -- Per-call obstacle fixes for dinner/flat. These were file-load side effects
 -- in r200; keeping them in select_patch would leak across heists.
 function NavigationManager:add_obstacle(obstacle_unit, ...)
-	if not Iter.settings.map_patches then
-		return itr_original_navigationmanager_addobstacle(self, obstacle_unit, ...)
-	end
-
 	local level_id = Iter:get_level_id()
 
 	if last_obstacle_level ~= level_id then
@@ -49,7 +45,7 @@ function NavigationManager:add_obstacle(obstacle_unit, ...)
 				obstacle_unit:set_position(pos)
 			end
 		elseif level_id == 'flat' then
-			if not downed_obstacle_units[obstacle_unit] and obstacle_unit:name():key() == 'bc8566d71eae8505' then
+			if not downed_obstacle_units[obstacle_unit] and obstacle_unit:name() == Idstring('bc8566d71eae8505') then
 				local pos = obstacle_unit:position()
 				local z = pos.z
 				downed_obstacle_units[obstacle_unit] = true

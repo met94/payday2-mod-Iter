@@ -450,7 +450,8 @@ function TH.dump_quad(args)
 
 					if other_quad then
 						local other_room = nav._rooms[other_quad]
-						local other_group = other_room and other_room.vis_group and nav._visibility_groups[other_room.vis_group]
+						local other_group = other_room and other_room.vis_group
+							and nav._visibility_groups and nav._visibility_groups[other_room.vis_group]
 
 						doors[#doors + 1] = string.format(
 							'%s:%s@%s',
@@ -755,6 +756,7 @@ local p7_last_dump_t = nil
 local p7_generation = 0
 local p7_dumped_generation = -1
 local p7_ready_t = nil
+local p7_wait_t = nil
 
 local function first_other_neighbour(seg_id, exclude_id)
 	local nav = nav_manager()
@@ -767,20 +769,24 @@ local function first_other_neighbour(seg_id, exclude_id)
 	end
 end
 
+local function p7_level_id()
+	if Iter and Iter.get_level_id then
+		local id_ok, id = pcall(Iter.get_level_id, Iter)
+
+		if id_ok and id then
+			return tostring(id)
+		end
+	end
+
+	return 'unknown'
+end
+
 function TH.p7_dump(force)
 	if not force and not TH.p7_auto_enabled then
 		return false
 	end
 
-	local level_id = 'unknown'
-
-	if Iter and Iter.get_level_id then
-		local id_ok, id = pcall(Iter.get_level_id, Iter)
-
-		if id_ok and id then
-			level_id = tostring(id)
-		end
-	end
+	local level_id = p7_level_id()
 
 	local plan = P7_PLANS[level_id]
 
@@ -903,11 +909,25 @@ function TH.p7_tick(t)
 		return
 	end
 
+	if not P7_PLANS[p7_level_id()] then
+		p7_dumped_generation = p7_generation
+		return
+	end
+
 	local nav = nav_manager()
 
 	if not nav or not nav._rooms or not next(nav._rooms) then
+		p7_wait_t = p7_wait_t or (t or 0)
+
+		if (t or 0) - p7_wait_t > 10 then
+			p7_dumped_generation = p7_generation
+			p7_wait_t = nil
+		end
+
 		return
 	end
+
+	p7_wait_t = nil
 
 	if not p7_ready_t then
 		p7_ready_t = (t or 0) + 1
@@ -988,10 +1008,6 @@ function TH.force_level(args)
 		return
 	end
 
-	Global.game_settings.level_id = level_id
-	Global.game_settings.mission = 'none'
-	Global.game_settings.world_setting = nil
-
 	local session = managers.network:session()
 
 	if not session then
@@ -1003,6 +1019,10 @@ function TH.force_level(args)
 		say('force: no network session')
 		return
 	end
+
+	Global.game_settings.level_id = level_id
+	Global.game_settings.mission = 'none'
+	Global.game_settings.world_setting = nil
 
 	say(string.format('force: loading %s from %s', level_id, level_data.world_name))
 

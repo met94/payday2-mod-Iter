@@ -211,6 +211,18 @@ Target: `e3a8b616` (248.2).
   Plan/drop-log/README/compatibility corrected.
 - Next session queued: compatibility matrix for Keepers, Monkeepers, Useful
   Bots, Iter, LIES; per-function ownership and load-order precedence.
+- Second final review (ca22c4a..HEAD) FIX-REQUIRED; fixed:
+  - dinner/flat obstacle wrapper follows `map_change_*` again (not
+    `map_patches`); docs now match.
+  - flat obstacle compares `unit:name() == Idstring(...)` not `:key()`.
+  - The Fixes detected via `_G.TheFixes`, not LIES-shared
+    `TheFixesPreventer`.
+  - p7 tick skips non-plan levels immediately and times out nav-not-ready;
+    navquad guards visibility groups; force mutates globals after the session
+    check.
+  - menu/master/cover/test-comment/changelog docs corrected.
+  - R16: map-patch apply is non-transactional; accepted risk, CRC+offline
+    wrapper test cover the normal path.
 
 ## Rulings
 

@@ -6,7 +6,7 @@ Revision 202-dev (248.2 navigation port):
 - dropped civilian/team-AI callbacks that no longer exist and the stale civilian `_optimize_path`
 - diagnostics: `[ITER-NAV]` events, 30 s heartbeat, `!iter` test harness
 
-Player notes: enemy and friendly AI can take shorter paths, wait less at ladders and jumps, and use the nav mesh the way Iter intended on the current 64-bit game. Level fixes are back except the handful listed above; the options menu exposes development toggles for testing.
+Player notes: enemy and friendly AI can take shorter paths, wait less at ladders and jumps, and use the nav mesh the way Iter intended on the current 64-bit game. Level fixes are back except the handful listed above; the options menu has the master pathing switch, Rebuild NavLinks and the per-map toggles.
 
 Revision 201 (Iter Lite):
 - removed pathfinding code (navigation manager, AI pathing hooks, nav-data patches) since Diesel 3.0 rewrote pathfinding

@@ -1,14 +1,15 @@
 local key = ModPath .. '	' .. RequiredScript
 if _G[key] then return else _G[key] = true end
 
--- Dev scaffold: the r200 navigation overlay is unported. Keep it inert until
--- the v6 shim and each subsystem pass their test cards. See dev/plans/full-nav-port.md.
+-- r200 navigation overlay ported to nav v6. All subsystem cards have passed;
+-- see dev/plans/full-nav-port.md.
 if not Iter.settings.nav_overlay then
 	return
 end
 
--- Loaded unconditionally; the per-call check in set_load_data keeps it inert
--- while map_patches is off, so the menu toggle works on the next heist load.
+-- Loaded whenever the nav overlay is active; the per-call check in
+-- set_load_data keeps it inert while map_patches is off, so the menu toggle
+-- works on the next heist load.
 dofile(Iter._path .. 'lua/_navdatapatches.lua')
 dofile(Iter._path .. 'lua/iter_nav_v6_shim.lua')
 

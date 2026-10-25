@@ -178,6 +178,19 @@ Cost if wrong: players lose in-menu access to individual subsystems; the
 settings file is documented in `MENU_OPTIONS.md`, and the master switch
 remains in the menu. A menu test pins the separation and the full map set.
 
+## R16. Map-patch apply is not transactional
+
+`pcall(patch, self, data)` runs against the live load table. If a block raises
+mid-way, the already-executed `append_*/transfer_room` edits stay and the
+vanilla loader receives a partially patched table; the log records
+`result=error`. All blocks are CRC-gated and covered by the offline wrapper
+test, so this requires a code bug, not data drift. Deep-copying the nav data
+(including Vector3 userdata mutated in place by `mvector3.set_*`) at every load
+was judged riskier and slower than the failure mode.
+
+Cost if wrong: one heist could load with partial nav geometry until the block
+is fixed; no crash is introduced by the error path itself.
+
 
 
 

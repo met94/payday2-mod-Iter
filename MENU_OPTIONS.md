@@ -16,7 +16,8 @@ extender).
 
 - Default: **ON**.
 - Off: Iter behaves like Iter Lite; no nav rebuild or nav hooks.
-- Takes effect on the next heist load.
+- **Game restart required** (the master flag is read at load; the other
+  toggles apply on the next heist load).
 
 ### Rebuild NavLinks (`rebuild_navlinks`)
 

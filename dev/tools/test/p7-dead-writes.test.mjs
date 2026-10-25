@@ -5,7 +5,8 @@
 // discarded. Blocks whose topology survives through doors/quads must not carry
 // those writes; the two accepted-loss blocks (moon, peta) keep theirs because
 // the intended link is still missing and the applied_partial marker documents
-// it. Mallcrasher is rewritten as a quad transfer, not a neighbour write.
+// it. skm_mallcrasher keeps its original dead write and is skipped by
+// dead_patches; its skirmish door blocker/obstacle fixes are separate.
 //
 // This test fails when a cleaned block reintroduces a dead write, or when a
 // pending block is cleaned without updating the lists below.

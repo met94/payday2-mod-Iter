@@ -63,7 +63,7 @@ local function itr_wrap_init(original_init, thefixes)
 	end
 end
 
-itr_init_wrapper = itr_wrap_init(CopActionWalk._init, _G.TheFixesPreventer ~= nil)
+itr_init_wrapper = itr_wrap_init(CopActionWalk._init, _G.TheFixes ~= nil)
 CopActionWalk._init = itr_init_wrapper
 
 -- The Fixes (priority -10) loads after Iter and bare-replaces _init from a
@@ -76,7 +76,7 @@ local function rewrap_copactionwalk_init()
 		return
 	end
 
-	itr_init_wrapper = itr_wrap_init(current, _G.TheFixesPreventer ~= nil)
+	itr_init_wrapper = itr_wrap_init(current, _G.TheFixes ~= nil)
 	CopActionWalk._init = itr_init_wrapper
 end
 
