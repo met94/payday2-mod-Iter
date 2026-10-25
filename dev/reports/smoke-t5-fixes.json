@@ -1,0 +1,559 @@
+{
+  "file": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\PAYDAY 2\\mods\\logs\\2026_10_25_log.txt",
+  "setup": [
+    {
+      "line": 56,
+      "text": "06:04:22 AM Lua: [INFO] [BLT] Setting up mod 'Iter'"
+    },
+    {
+      "line": 128,
+      "text": "06:04:22 AM Lua: [INFO] [BLT] Setting up mod 'Iter'"
+    },
+    {
+      "line": 214,
+      "text": "06:04:25 AM Lua: [INFO] [BLT] Setting up mod 'Iter'"
+    },
+    {
+      "line": 367,
+      "text": "06:05:07 AM Lua: [INFO] [BLT] Setting up mod 'Iter'"
+    },
+    {
+      "line": 440,
+      "text": "06:05:08 AM Lua: [INFO] [BLT] Setting up mod 'Iter'"
+    },
+    {
+      "line": 512,
+      "text": "06:05:08 AM Lua: [INFO] [BLT] Setting up mod 'Iter'"
+    }
+  ],
+  "harness": [
+    {
+      "line": 190,
+      "text": "06:04:25 AM Lua: [ITER-TEST] harness loaded (p7auto + navpath)"
+    },
+    {
+      "line": 573,
+      "text": "06:05:08 AM Lua: [ITER-TEST] harness loaded (p7auto + navpath)"
+    },
+    {
+      "line": 599,
+      "text": "06:06:28 AM Lua: [ITER-TEST] ai total=25 travelling=14 coarse_path=18 direct_to_pos=0 path_ahead=0 pending_path_ahead=1 extend(ok=32 skip=2)"
+    }
+  ],
+  "harnessErrors": [],
+  "fatal": [],
+  "luaErrors": [
+    {
+      "line": 319,
+      "text": "06:04:33 AM Log:  (D:\\a\\PAYDAY2-SuperBLT\\PAYDAY2-SuperBLT\\src\\InitiateState.cpp:98) mods/BeardLib/Modules/Utils/ModAssetsModule.lua:156: attempt to compare number with nil"
+    }
+  ],
+  "iterErrors": [],
+  "navEvents": [
+    {
+      "v": 1,
+      "sid": 1156,
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "direct_to_pos": "true",
+      "nav_ai": "true",
+      "nav_overlay": "true",
+      "nav_search": "true",
+      "nav_streamline": "true",
+      "navlink_queue": "true",
+      "path_extender": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": "e8c7",
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "direct_to_pos": "true",
+      "nav_ai": "true",
+      "nav_overlay": "true",
+      "nav_search": "true",
+      "nav_streamline": "true",
+      "navlink_queue": "true",
+      "path_extender": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": 8e+68,
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "direct_to_pos": "true",
+      "nav_ai": "true",
+      "nav_overlay": "true",
+      "nav_search": "true",
+      "nav_streamline": "true",
+      "navlink_queue": "true",
+      "path_extender": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": "764f",
+      "evt": "boot",
+      "debug_log": 1,
+      "diag_version": 1,
+      "direct_to_pos": "true",
+      "nav_ai": "true",
+      "nav_overlay": "true",
+      "nav_search": "true",
+      "nav_streamline": "true",
+      "navlink_queue": "true",
+      "path_extender": "true",
+      "streamline_path": "true"
+    },
+    {
+      "v": 1,
+      "sid": "764f",
+      "evt": "patch",
+      "level": "hox_1",
+      "result": "skip_nopatch"
+    },
+    {
+      "v": 1,
+      "sid": "764f",
+      "evt": "navdata",
+      "door_pairs": 268,
+      "doors_skipped": 0,
+      "doors_without_pair": 5018,
+      "fallback": 0,
+      "grid": 25,
+      "groups_without_seg": 0,
+      "room_doors": 5724,
+      "rooms": 3194,
+      "segments": 175,
+      "vis_groups": 175
+    },
+    {
+      "v": 1,
+      "sid": "764f",
+      "evt": "proxy",
+      "choke": 140,
+      "in_proxies": 22,
+      "ms": 0,
+      "no_doors": 0,
+      "out_proxies": 228,
+      "segments": 175
+    },
+    {
+      "v": 1,
+      "sid": "764f",
+      "evt": "heist",
+      "data_version": 5,
+      "fallback": 0,
+      "level": "hox_1",
+      "missing_neighbours": 0,
+      "numeric_keys": 0,
+      "room_doors": 5724,
+      "rooms": 3194,
+      "segments": 175,
+      "string_keys": 175,
+      "vis_groups": 175
+    },
+    {
+      "v": 1,
+      "sid": "764f",
+      "evt": "navlink",
+      "elements": 28,
+      "queued": 0,
+      "reserved": 0
+    },
+    {
+      "v": 1,
+      "sid": "764f",
+      "evt": "summary",
+      "err": 0,
+      "level": "hox_1",
+      "navlink_elements": 28,
+      "navlink_interval_gt1": 28,
+      "navlink_prepare": 41,
+      "navlink_registered": 28,
+      "path_extend_ok": 7,
+      "path_extend_skip": 1,
+      "proxy_ms": 0,
+      "search_cache_hit": 5,
+      "search_ok": 4
+    },
+    {
+      "v": 1,
+      "sid": "764f",
+      "evt": "navlink",
+      "elements": 28,
+      "queued": 0,
+      "reserved": 0
+    },
+    {
+      "v": 1,
+      "sid": "764f",
+      "evt": "summary",
+      "err": 0,
+      "level": "hox_1",
+      "navlink_elements": 28,
+      "navlink_interval_gt1": 28,
+      "navlink_prepare": 201,
+      "navlink_registered": 28,
+      "path_extend_ok": 10,
+      "path_extend_skip": 2,
+      "proxy_ms": 0,
+      "search_cache_hit": 16,
+      "search_ok": 19
+    },
+    {
+      "v": 1,
+      "sid": "764f",
+      "evt": "navlink",
+      "elements": 28,
+      "queued": 0,
+      "reserved": 0
+    },
+    {
+      "v": 1,
+      "sid": "764f",
+      "evt": "summary",
+      "err": 0,
+      "level": "hox_1",
+      "navlink_elements": 28,
+      "navlink_interval_gt1": 28,
+      "navlink_prepare": 578,
+      "navlink_registered": 28,
+      "path_extend_ok": 23,
+      "path_extend_skip": 2,
+      "proxy_ms": 0,
+      "search_cache_hit": 30,
+      "search_fail": 1,
+      "search_ok": 57
+    },
+    {
+      "v": 1,
+      "sid": "764f",
+      "evt": "navlink",
+      "elements": 28,
+      "queued": 0,
+      "reserved": 0
+    },
+    {
+      "v": 1,
+      "sid": "764f",
+      "evt": "summary",
+      "err": 0,
+      "level": "hox_1",
+      "navlink_elements": 28,
+      "navlink_interval_gt1": 28,
+      "navlink_prepare": 928,
+      "navlink_registered": 28,
+      "path_extend_ok": 45,
+      "path_extend_skip": 2,
+      "proxy_ms": 0,
+      "search_cache_hit": 37,
+      "search_fail": 1,
+      "search_ok": 113
+    }
+  ],
+  "navEventLines": [
+    {
+      "line": 177,
+      "event": {
+        "v": 1,
+        "sid": 1156,
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "direct_to_pos": "true",
+        "nav_ai": "true",
+        "nav_overlay": "true",
+        "nav_search": "true",
+        "nav_streamline": "true",
+        "navlink_queue": "true",
+        "path_extender": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 263,
+      "event": {
+        "v": 1,
+        "sid": "e8c7",
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "direct_to_pos": "true",
+        "nav_ai": "true",
+        "nav_overlay": "true",
+        "nav_search": "true",
+        "nav_streamline": "true",
+        "navlink_queue": "true",
+        "path_extender": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 416,
+      "event": {
+        "v": 1,
+        "sid": 8e+68,
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "direct_to_pos": "true",
+        "nav_ai": "true",
+        "nav_overlay": "true",
+        "nav_search": "true",
+        "nav_streamline": "true",
+        "navlink_queue": "true",
+        "path_extender": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 561,
+      "event": {
+        "v": 1,
+        "sid": "764f",
+        "evt": "boot",
+        "debug_log": 1,
+        "diag_version": 1,
+        "direct_to_pos": "true",
+        "nav_ai": "true",
+        "nav_overlay": "true",
+        "nav_search": "true",
+        "nav_streamline": "true",
+        "navlink_queue": "true",
+        "path_extender": "true",
+        "streamline_path": "true"
+      }
+    },
+    {
+      "line": 583,
+      "event": {
+        "v": 1,
+        "sid": "764f",
+        "evt": "patch",
+        "level": "hox_1",
+        "result": "skip_nopatch"
+      }
+    },
+    {
+      "line": 584,
+      "event": {
+        "v": 1,
+        "sid": "764f",
+        "evt": "navdata",
+        "door_pairs": 268,
+        "doors_skipped": 0,
+        "doors_without_pair": 5018,
+        "fallback": 0,
+        "grid": 25,
+        "groups_without_seg": 0,
+        "room_doors": 5724,
+        "rooms": 3194,
+        "segments": 175,
+        "vis_groups": 175
+      }
+    },
+    {
+      "line": 585,
+      "event": {
+        "v": 1,
+        "sid": "764f",
+        "evt": "proxy",
+        "choke": 140,
+        "in_proxies": 22,
+        "ms": 0,
+        "no_doors": 0,
+        "out_proxies": 228,
+        "segments": 175
+      }
+    },
+    {
+      "line": 586,
+      "event": {
+        "v": 1,
+        "sid": "764f",
+        "evt": "heist",
+        "data_version": 5,
+        "fallback": 0,
+        "level": "hox_1",
+        "missing_neighbours": 0,
+        "numeric_keys": 0,
+        "room_doors": 5724,
+        "rooms": 3194,
+        "segments": 175,
+        "string_keys": 175,
+        "vis_groups": 175
+      }
+    },
+    {
+      "line": 589,
+      "event": {
+        "v": 1,
+        "sid": "764f",
+        "evt": "navlink",
+        "elements": 28,
+        "queued": 0,
+        "reserved": 0
+      }
+    },
+    {
+      "line": 590,
+      "event": {
+        "v": 1,
+        "sid": "764f",
+        "evt": "summary",
+        "err": 0,
+        "level": "hox_1",
+        "navlink_elements": 28,
+        "navlink_interval_gt1": 28,
+        "navlink_prepare": 41,
+        "navlink_registered": 28,
+        "path_extend_ok": 7,
+        "path_extend_skip": 1,
+        "proxy_ms": 0,
+        "search_cache_hit": 5,
+        "search_ok": 4
+      }
+    },
+    {
+      "line": 591,
+      "event": {
+        "v": 1,
+        "sid": "764f",
+        "evt": "navlink",
+        "elements": 28,
+        "queued": 0,
+        "reserved": 0
+      }
+    },
+    {
+      "line": 592,
+      "event": {
+        "v": 1,
+        "sid": "764f",
+        "evt": "summary",
+        "err": 0,
+        "level": "hox_1",
+        "navlink_elements": 28,
+        "navlink_interval_gt1": 28,
+        "navlink_prepare": 201,
+        "navlink_registered": 28,
+        "path_extend_ok": 10,
+        "path_extend_skip": 2,
+        "proxy_ms": 0,
+        "search_cache_hit": 16,
+        "search_ok": 19
+      }
+    },
+    {
+      "line": 595,
+      "event": {
+        "v": 1,
+        "sid": "764f",
+        "evt": "navlink",
+        "elements": 28,
+        "queued": 0,
+        "reserved": 0
+      }
+    },
+    {
+      "line": 596,
+      "event": {
+        "v": 1,
+        "sid": "764f",
+        "evt": "summary",
+        "err": 0,
+        "level": "hox_1",
+        "navlink_elements": 28,
+        "navlink_interval_gt1": 28,
+        "navlink_prepare": 578,
+        "navlink_registered": 28,
+        "path_extend_ok": 23,
+        "path_extend_skip": 2,
+        "proxy_ms": 0,
+        "search_cache_hit": 30,
+        "search_fail": 1,
+        "search_ok": 57
+      }
+    },
+    {
+      "line": 602,
+      "event": {
+        "v": 1,
+        "sid": "764f",
+        "evt": "navlink",
+        "elements": 28,
+        "queued": 0,
+        "reserved": 0
+      }
+    },
+    {
+      "line": 603,
+      "event": {
+        "v": 1,
+        "sid": "764f",
+        "evt": "summary",
+        "err": 0,
+        "level": "hox_1",
+        "navlink_elements": 28,
+        "navlink_interval_gt1": 28,
+        "navlink_prepare": 928,
+        "navlink_registered": 28,
+        "path_extend_ok": 45,
+        "path_extend_skip": 2,
+        "proxy_ms": 0,
+        "search_cache_hit": 37,
+        "search_fail": 1,
+        "search_ok": 113
+      }
+    }
+  ],
+  "errEvents": [],
+  "ok": true,
+  "card": {
+    "pass": true,
+    "checks": [
+      {
+        "name": "setup",
+        "actual": true,
+        "expected": true,
+        "pass": true
+      },
+      {
+        "name": "fatal",
+        "actual": 0,
+        "expected": 0,
+        "pass": true
+      },
+      {
+        "name": "iterErrors",
+        "actual": 0,
+        "expected": 0,
+        "pass": true
+      },
+      {
+        "name": "fallback",
+        "actual": 0,
+        "expected": 0,
+        "pass": true
+      },
+      {
+        "name": "summary.search_ok",
+        "actual": 193,
+        "expected": ">0",
+        "pass": true
+      },
+      {
+        "name": "summary.path_extend_ok",
+        "actual": 85,
+        "expected": ">0",
+        "pass": true
+      }
+    ]
+  }
+}

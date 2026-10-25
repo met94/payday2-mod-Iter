@@ -189,7 +189,12 @@ Target: `e3a8b616` (248.2).
   with no `evt=patch`; toggling ON and reloading logs
   `evt=patch level=jewelry_store result=applied`. No Iter errors.
   Report: `dev/reports/smoke-final-toggle-2026-10-25.md`.
-- Next: merge only on explicit user approval.
+- The Fixes compatibility PASS (2026-10-25): `CopActionWalk._init` re-wrap
+  works; T5 card PASS with The Fixes installed (`path_extend_ok=85` summed,
+  `skip=2`, no Iter errors, no visible slide/stuck).
+  Report: `dev/reports/smoke-t5-fixes-2026-10-25.md`.
+- Next: decide whether to flip release defaults to original-Iter parity
+  (`path_extender`, `map_patches`, `cop_idle_fix`), then merge.
 
 ## Rulings
 
