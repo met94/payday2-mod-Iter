@@ -156,6 +156,28 @@ Cost if wrong: path extender is exercised on fewer maps than the full heist
 set; the toggle is the escape hatch. Map patches may hit an undetected level
 drift, but the CRC gate skips safely. Cop idle is cosmetic.
 
+## R15. Player-facing menu surface
+
+The port menu had eight `Dev:` subsystem toggles mixed with the map toggles.
+Original Iter only exposed the master pathing switch, Rebuild NavLinks and the
+per-map toggles. Release menu:
+
+- `nav_overlay` titled **Improve NPC pathing** (master kill switch);
+- `rebuild_navlinks`;
+- divider, then every `map_change_*` toggle, contiguous.
+
+`nav_streamline`, `nav_search`, `nav_ai`, `navlink_queue`, `path_extender`,
+`direct_to_pos`, `map_patches` and `cop_idle_fix` are settings-only in
+`mods\saves\iter.txt`, default true. The legacy `streamline_path` key is
+removed on load; an original-Iter file with `streamline_path=false` and no
+`nav_overlay` migrates to `nav_overlay=false`. Eight map toggles that were
+missing from the port menu (alex_2, chas, crojob2, escape_park,
+jewelry_store, pbr, roberts, watchdogs_1) are restored.
+
+Cost if wrong: players lose in-menu access to individual subsystems; the
+settings file is documented in `MENU_OPTIONS.md`, and the master switch
+remains in the menu. A menu test pins the separation and the full map set.
+
 
 
 

@@ -46,9 +46,14 @@ navlink queue/direct/path extender/map patches and `cop_idle_fix` on.
   live `patches` setting, `ok`, `steps`, `length`, `direct` (door count on the
   link) and the segment `ids`. This is the P7 A/B tool from
   `dev/reports/p7-validation.md`.
-- Path-extender observability: `path_extend_ok` / `path_extend_skip` counters
-  in `CopBrain:clbk_pathing_results`; `!iter ai` prints them.
-- T5 human card: `dev/test/cards/T5-extender.md` + `.json`.
+- Release defaults match original Iter: `path_extender`, `map_patches` and
+  `cop_idle_fix` are on. Menu cleaned: Improve NPC pathing (`nav_overlay`) +
+  Rebuild NavLinks + all 55 map toggles; subsystem flags are settings-only.
+  The eight map toggles missing from the port menu are restored. Test:
+  `dev/tools/test/menu.test.mjs`.
+- The Fixes compatibility: Iter re-wraps `CopActionWalk._init` after all mods
+  load; T5 PASS with The Fixes and `path_extender=true`.
+- T5 path extender PASS on counters and visual check.
 - P7 card rewritten to a combined dump + A/B run:
   `dev/test/cards/P7-dumps.md`.
 - P7 dead-write cleanup: the 21 clean blocks (22 level ids) no longer carry

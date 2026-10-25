@@ -13,7 +13,6 @@ Iter.settings = {
 	nav_streamline = true,
 	nav_search = true,
 	nav_ai = true,
-	streamline_path = false,
 	navlink_queue = true,
 	path_extender = true,
 	direct_to_pos = true,
@@ -81,9 +80,19 @@ Iter.settings = {
 function Iter:load()
 	local file = io.open(self._data_path, 'r')
 	if file then
-		for k, v in pairs(json.decode(file:read('*all')) or {}) do
+		local data = json.decode(file:read('*all')) or {}
+		for k, v in pairs(data) do
 			self.settings[k] = v
 		end
+
+		-- Original Iter had only `streamline_path` as the master toggle. If
+		-- the saved file predates the port (no `nav_overlay` key) and the
+		-- player had turned pathing off, keep it off.
+		if data.nav_overlay == nil and data.streamline_path == false then
+			self.settings.nav_overlay = false
+		end
+
+		self.settings.streamline_path = nil
 		file:close()
 	end
 end
@@ -115,6 +124,5 @@ Iter.diag.event('boot', {
 	path_extender = tostring(Iter.settings.path_extender),
 	direct_to_pos = tostring(Iter.settings.direct_to_pos),
 	nav_ai = tostring(Iter.settings.nav_ai),
-	streamline_path = tostring(Iter.settings.streamline_path),
 	debug_log = Iter.settings.debug_log
 })

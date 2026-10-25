@@ -2,102 +2,65 @@
 
 Menu path: **Options → Mod Options → Iter**.
 
-This build is the r200 navigation port to PAYDAY 2 248.2 (Diesel 3). The
-toggles below are **development gates**: each subsystem is off until its test
-card passes. A normal player should leave the defaults alone.
+The release defaults match original Iter: navigation, path extender, map
+patches and the idle cosmetic are on. The menu only exposes the player-facing
+switches; the subsystem flags live in the settings file for troubleshooting.
 
-## Core
+## Player options
 
-### Dev: v6 navigation overlay (`nav_overlay`)
+### Improve NPC pathing (`nav_overlay`)
 
-Rebuilds the v6 nav geometry (`_rooms`, `_room_doors`, `_visibility_groups`)
-from the v5 load data and installs the guarded bookkeeping wrappers.
-
-- Default: **ON** (required by every other nav feature).
-- Off: Iter behaves like Iter Lite; no nav hooks beyond diagnostics.
-- Heist restart required.
-
-### Dev: streamline (`nav_streamline`)
-
-Computes choke-point proxies and applies the path streamliner to coarse
-paths.
+Master switch for the restored r200 navigation core (v6 geometry shim,
+streamline, coarse search, nav-link queue, AI wrappers, direct-to-pos, path
+extender).
 
 - Default: **ON**.
-- Requires the overlay.
-- Heist restart required.
-
-### Dev: Iter coarse search (`nav_search`)
-
-Replaces vanilla's coarse search with Iter's weighted search and cache.
-
-- Default: **ON**.
-- Requires the overlay.
-- Heist restart required.
-
-### Dev: nav-link queue tracking (`navlink_queue`)
-
-Tracks nav-link intervals, reservations and queue lengths, and lets units
-switch to a sibling link when one is busy.
-
-- Default: **ON**.
-- Diagnostics work alone; reservation/switch needs the AI cluster.
-- Heist restart required.
-
-### Dev: AI cluster (`nav_ai`)
-
-Installs the Iter AI wrappers: nav-link animations, path extender hooks,
-direct-to-pos plumbing, follow-unit updates.
-
-- Default: **ON**.
-- Requires the overlay.
-- Heist restart required.
-
-### Dev: path extender (`path_extender`)
-
-Precomputes the next detailed path and appends it to the live walk action.
-
-- Default: **ON** (T5 PASS, including with The Fixes installed).
-- Requires the overlay **and** the AI cluster.
-- Heist restart required.
-
-### Dev: direct-to-pos (`direct_to_pos`)
-
-In whisper mode, walk straight to the objective position.
-
-- Default: **ON**.
-- Heist restart required.
-
-### Dev: v6 map patches (`map_patches`)
-
-Applies the r200 per-level nav fixes after a version/CRC check.
-
-- Default: **ON**.
-- Logs `applied`, `applied_partial`, `mismatch` or `skip_*` per level.
-- 21 clean blocks (22 level ids) survive as-is; 2 are accepted losses
-  (moon, peta); 1 is dead (`skm_mallcrasher`, navlink-only seal); dinner/flat
-  are no-ops. The standard Vlad Mallcrasher is a different heist and stays
-  unpatched.
-- Takes effect on the next heist load; no game restart needed while the
-  overlay is already loaded.
+- Off: Iter behaves like Iter Lite; no nav rebuild or nav hooks.
+- Takes effect on the next heist load.
 
 ### Rebuild NavLinks (`rebuild_navlinks`)
 
-The r200 SO nav-link vector rebuild (kept from the Lite build).
+The r200 SO nav-link vector rebuild kept from the Lite build.
 
-- Default: ON.
-- Heist restart required.
+- Default: **ON**.
+- Takes effect on the next heist load.
 
-## Map toggles
+### Map toggles (`map_change_<level>`)
 
-`map_change_<level>` toggles remain for every level. They are only consulted
-when `Dev: v6 map patches` is on. Levels whose patch is a no-op at v6 log
-`skip_dead`.
+One toggle per level, grouped after a divider. They only apply when the
+internal `map_patches` flag is on (release default: on).
 
-## Diagnostics
+- Default: **ON** for every level.
+- Levels whose patch is dead at v6 log `skip_dead`; CRC mismatches log
+  `mismatch` and skip safely.
+- Current status: 21 clean blocks (22 level ids), 2 accepted losses (moon,
+  peta), 1 dead (`skm_mallcrasher`), dinner/flat no-ops. The standard Vlad
+  Mallcrasher is a different heist and is not patched.
 
-`debug_log` is set by the test harness (`!iter setting debug_log 0|1|2`), not
-by this menu.
+## Settings-only (troubleshooting)
 
-- 0: errors only.
-- 1: summaries, patch status, nav-link heartbeat.
-- 2: verbose events.
+These are not in the menu. Edit `mods\saves\iter.txt` with the game closed,
+then relaunch. Missing keys fall back to the defaults below.
+
+| Setting | Default | Meaning |
+|---|---|---|
+| `nav_streamline` | `true` | choke-point proxies + path streamliner |
+| `nav_search` | `true` | Iter weighted coarse search + cache |
+| `nav_ai` | `true` | Iter AI wrappers |
+| `navlink_queue` | `true` | nav-link intervals/queue/reservations/alternates |
+| `path_extender` | `true` | live path appending + shortcut finder |
+| `direct_to_pos` | `true` | whisper-mode straight-line objectives |
+| `map_patches` | `true` | master gate for every `map_change_*` toggle |
+| `cop_idle_fix` | `true` | cosmetic idle animation variant |
+| `debug_log` | `1` | 0 errors only, 1 summaries/errors, 2 verbose |
+
+`streamline_path` is a legacy original-Iter key. It is removed on load; an
+old file with `streamline_path=false` and no `nav_overlay` key is migrated to
+`nav_overlay=false` so a player who disabled original Iter stays disabled.
+
+## Notes
+
+- Changing a toggle takes effect on the next heist load.
+- `map_patches` can be turned off in `iter.txt` to disable every map fix while
+  keeping the nav core.
+- The `!iter` chat commands are a dev harness and are not shipped.

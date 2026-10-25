@@ -199,6 +199,12 @@ Target: `e3a8b616` (248.2).
   `map_patches=true`, `cop_idle_fix=true`. Evidence: T5 PASS (incl. The
   Fixes), P7 21 clean blocks + toggle smoke, cop idle cosmetic. Docs/decisions
   updated (R14).
+- Menu cleaned for release: removed the eight `Dev:` toggles; menu is now
+  Improve NPC pathing (`nav_overlay`) + Rebuild NavLinks + one divider + all
+  55 `map_change_*` toggles. Eight map toggles missing from the port menu
+  restored. Subsystem flags are settings-only in `iter.txt`; legacy
+  `streamline_path` migrates. New test `dev/tools/test/menu.test.mjs` pins the
+  separation and defaults. Decision R15.
 
 ## Rulings
 

@@ -44,9 +44,10 @@ See `dev/reports/compatibility-iter.md` for the function-level matrix.
 
 ## Options
 
-See `MENU_OPTIONS.md`. The menu toggles are development gates. Defaults
-enable the overlay, streamline, search, the AI cluster, nav-link queue,
-direct-to-pos, path extender and map patches. `cop_idle_fix` is also on.
+See `MENU_OPTIONS.md`. The menu exposes the master **Improve NPC pathing**
+switch, **Rebuild NavLinks**, and the per-map toggles. Subsystem flags
+(streamline, search, AI, nav-link queue, path extender, direct-to-pos, map
+patches, idle cosmetic) are settings-only for troubleshooting and default on.
 
 ## Credits
 
