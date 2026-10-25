@@ -70,6 +70,10 @@ To silence caught errors, add `"error_log": false` to
 `streamline_path` is a legacy original-Iter key. It is removed on load; an
 old file with `streamline_path=false` and no `nav_overlay` key is migrated to
 `nav_overlay=false` so a player who disabled original Iter stays disabled.
+After `Iter:load()` the key is republished as a **runtime mirror** of
+`nav_overlay and nav_streamline` for Useful Bots (which reads it at load time).
+It is not saved: manual edits to `streamline_path` in `iter.txt` do not stick.
+Use `nav_overlay` and `nav_streamline` instead.
 
 ## Notes
 

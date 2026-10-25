@@ -16,6 +16,18 @@ $lines += ('Generated: ' + (Get-Date).ToString('u'))
 $lines += ''
 $failed = $false
 
+# Gate output must be identical across worktrees/sessions: never print an
+# absolute worktree path (it causes merge conflicts in dev/reports).
+function Get-RepoRelative([string]$Path) {
+    $relative = $Path.Substring($RepoRoot.Length).TrimStart('\', '/')
+    return ($relative -replace '\\', '/')
+}
+
+function Write-Report([string]$Path) {
+    $script:lines | Set-Content -LiteralPath $Path -Encoding utf8
+    Write-Host ("wrote " + (Get-RepoRelative $Path))
+}
+
 function Add-Section([string]$Title, [string]$Body, [bool]$Ok) {
     $script:lines += "## $Title"
     $script:lines += ''
@@ -27,8 +39,7 @@ function Add-Section([string]$Title, [string]$Body, [bool]$Ok) {
 
 if (-not (Test-Path -LiteralPath $Luajit)) {
     Add-Section 'LuaJIT toolchain' ("Missing: " + $Luajit) $false
-    $lines | Set-Content -LiteralPath $Report -Encoding utf8
-    Write-Host ("wrote " + $Report)
+    Write-Report $Report
     exit 1
 }
 
@@ -121,6 +132,5 @@ $auditOk = ($hooksOk -eq $hooksTotal) -and ($auditErrors -le $baseline) -and ($a
 $auditBody = $auditOut.Trim() + "`nBaseline errors: $baseline (current: $auditErrors)`nUnused allowlist entries: $allowUnused"
 Add-Section 'API audit' $auditBody $auditOk
 
-$lines | Set-Content -LiteralPath $Report -Encoding utf8
-Write-Host ("wrote " + $Report)
+Write-Report $Report
 if ($failed) { exit 1 }

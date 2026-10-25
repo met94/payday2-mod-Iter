@@ -54,9 +54,12 @@ publish it with a `meta.json` asset from a release tagged `v<version>`.
 
 - **LIES:** optional, not a dependency. LIES owns enemy AI; Iter owns
   navigation — congestion control, the coarse search and the nav-link queue.
-  Iter never fills LIES's `[4]` multi-navlink slot, so that LIES branch stays
-  idle; its `[3]` wait still reads the single navlink Iter chose, but ordering
-  and congestion belong to Iter's queue. LIES's squad push coordination
+  LIES never fills its own `[4]` multi-navlink slot: it declares
+  `has_multiple_navlink_elements` without ever assigning it and only reads
+  `seg.multiple_nav_links`, so that branch is dead on any path, Iter or vanilla.
+  Its `[3]` wait still reads the single navlink Iter's streamliner chose
+  (`lua/navigationmanager.lua:1125`), but ordering and congestion belong to
+  Iter's queue. LIES's squad push coordination
   (`CopLogicTravel.chk_group_ready_to_move`) still runs. Iter is standalone on
   vanilla cover registration; when both are installed LIES's own cover
   generation/search still runs. Iter owns `_execute_coarce_search`,
@@ -70,15 +73,17 @@ publish it with a `meta.json` asset from a release tagged `v<version>`.
   Iter re-wraps the winning function after all mods load, so path expansion
   and nav-link prepare still run. Tested with `path_extender=true` and The
   Fixes: T5 PASS.
-- **Keepers:** priority 10. Direct-to-pos is live again; needs a
-  converted-keeper smoke.
-- **Monkeepers:** priority 99, matching the LIES documentation. Iter's
+- **Keepers:** target priority 10 in the AI suite contract (the current
+  checkout has no `priority` key, so it loads at 0). Direct-to-pos is live
+  again; needs a converted-keeper smoke.
+- **Monkeepers:** target priority 99 in the AI suite contract (the current
+  checkout still ships 100), matching the LIES documentation. Iter's
   `cop_idle_fix` only changes an idle animation variant, so the two do not
   collide.
 - **Useful Bots:** priority 0. Iter publishes the legacy `streamline_path`
-  alias at load, so Useful Bots 2.4.3's load-time guard recognises Iter's
-  streamliner and skips its own path re-check. Useful Bots itself is
-  untouched.
+  runtime mirror at load (`nav_overlay and nav_streamline`; never saved), so
+  Useful Bots 2.4.3's load-time guard recognises Iter's streamliner and skips
+  its own path re-check. Useful Bots itself is untouched.
 
 See `dev/reports/compatibility-iter.md` for the function-level matrix.
 

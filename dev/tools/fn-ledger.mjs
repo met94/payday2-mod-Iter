@@ -535,6 +535,45 @@ function walkLuaFiles(dir, out = []) {
   return out;
 }
 
+function readIfExists(file) {
+  try {
+    return fs.readFileSync(file, 'utf8');
+  } catch {
+    return null;
+  }
+}
+
+// The ledger embeds a generation timestamp. Compare everything else so a
+// timestamp-only difference does not rewrite tracked files (merge noise).
+const LEDGER_GENERATED_LINE = /^Generated: .*$/m;
+
+export function sameIgnoringTimestamp(previous, next) {
+  if (previous === null) return false;
+  return previous.replace(LEDGER_GENERATED_LINE, 'Generated:') === next.replace(LEDGER_GENERATED_LINE, 'Generated:');
+}
+
+function ledgerJsonBody(value) {
+  const data = typeof value === 'string' ? JSON.parse(value) : value;
+  return JSON.stringify({ ...data, generated: null });
+}
+
+export function sameJsonIgnoringTimestamp(previous, next) {
+  if (previous === null) return false;
+  try {
+    return ledgerJsonBody(previous) === ledgerJsonBody(next);
+  } catch {
+    return false;
+  }
+}
+
+// Stable, repo-relative paths in gate output: absolute worktree paths conflict
+// across worktrees and sessions.
+export function displayPath(baseDir, file) {
+  const rel = path.relative(baseDir, file);
+  if (!rel || path.isAbsolute(rel) || rel.startsWith('..')) return file;
+  return rel.replace(/\\/g, '/');
+}
+
 function main() {
   const args = parseArgs(process.argv.slice(2));
   const modDir = path.resolve(args.mod);
@@ -585,21 +624,35 @@ function main() {
     files.push({ file: rel, hook: '', rows: [], errors: [], totals: {}, unhooked: true });
   }
 
+  const generated = new Date().toISOString();
   const markdown = renderMarkdown({
     oldRev: args.old,
     newRev: args.new,
-    generated: new Date().toISOString(),
+    generated,
     files
   });
   const out = args.out ? path.resolve(args.out) : '';
   const jsonOut = args.json ? path.resolve(args.json) : '';
   if (out) {
-    fs.mkdirSync(path.dirname(out), { recursive: true });
-    fs.writeFileSync(out, markdown);
+    const previous = readIfExists(out);
+    if (sameIgnoringTimestamp(previous, markdown)) {
+      console.log(`unchanged ${displayPath(modDir, out)}`);
+    } else {
+      fs.mkdirSync(path.dirname(out), { recursive: true });
+      fs.writeFileSync(out, markdown);
+      console.log(`wrote ${displayPath(modDir, out)}`);
+    }
   }
   if (jsonOut) {
-    fs.mkdirSync(path.dirname(jsonOut), { recursive: true });
-    fs.writeFileSync(jsonOut, JSON.stringify({ oldRev: args.old, newRev: args.new, generated: new Date().toISOString(), files }, null, 2));
+    const payload = { oldRev: args.old, newRev: args.new, generated, files };
+    const previous = readIfExists(jsonOut);
+    if (sameJsonIgnoringTimestamp(previous, payload)) {
+      console.log(`unchanged ${displayPath(modDir, jsonOut)}`);
+    } else {
+      fs.mkdirSync(path.dirname(jsonOut), { recursive: true });
+      fs.writeFileSync(jsonOut, JSON.stringify(payload, null, 2));
+      console.log(`wrote ${displayPath(modDir, jsonOut)}`);
+    }
   }
 
   const totalRows = files.reduce((sum, file) => sum + file.rows.length, 0);
@@ -611,8 +664,6 @@ function main() {
   }
   console.log(`files=${files.length} functions=${totalRows} errors=${totalErrors} unhooked=${unhooked}`);
   console.log(Object.entries(totals).map(([k, v]) => `${k}=${v}`).join(' '));
-  if (out) console.log(`wrote ${out}`);
-  if (jsonOut) console.log(`wrote ${jsonOut}`);
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

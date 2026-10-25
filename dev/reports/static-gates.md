@@ -1,17 +1,17 @@
 ﻿# Iter 248.2 full-nav static gates
 
-Generated: 2026-10-25 09:22:00Z
+Generated: 2026-10-25 09:35:30Z
 
 ## Node tool tests
 
 Result: PASS
 
-Γä╣ pass 57
+Γä╣ pass 63
 Γä╣ fail 0
 Γä╣ cancelled 0
 Γä╣ skipped 0
 Γä╣ todo 0
-Γä╣ duration_ms 168.3312
+Γä╣ duration_ms 142.8329
 
 ## Test-harness parser
 
@@ -23,6 +23,8 @@ ok: Iter test-harness parser
 
 Result: PASS
 
+test_corecode.lua: PASS
+corecode settings: 14 checks PASS
 test_diag.lua: PASS
 9 checks, diag gate test passed
 test_nav_patches.lua: PASS
@@ -59,10 +61,10 @@ Findings: 0
 
 Result: PASS
 
+unchanged dev/port-ledger.md
+unchanged dev/reports/port-ledger.json
 files=21 functions=103 errors=0 unhooked=7
 MOD_EDIT_CLEAN=31 MOD_ONLY=59 MOD_EDIT_VANILLA_CHANGED=6 MOD_ONLY_HOOK=7
-wrote D:\Programowanie\payday\2\v2\.worktrees\Iter-ai-suite-compat\dev\port-ledger.md
-wrote D:\Programowanie\payday\2\v2\.worktrees\Iter-ai-suite-compat\dev\reports\port-ledger.json
 
 ## API audit
 

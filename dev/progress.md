@@ -232,16 +232,20 @@ Target: `e3a8b616` (248.2).
   rebase. Release tags mirror `v<version>`. `202-dev` is historical; Iter Lite
   r201 was a separate mod name/branch. `mod.txt`, changelog, README updated.
 - Phase 1 of the AI-suite compatibility work (2026-10-25, version 200.2):
-  published the legacy `streamline_path` alias after `Iter:load()`
-  (`Iter.settings.streamline_path = Iter.settings.nav_streamline`) so Useful
-  Bots 2.4.3's load-time guard stops being dead; documented the cross-mod
-  ownership split (LIES enemy AI vs Iter nav congestion/coarse search/nav-link
-  queue) in README and `dev/reports/compatibility-iter.md`, including Option 1
-  (Iter leaves LIES's `[4]` multi-navlink slot empty; LIES's `[3]` wait reads
-  the one link Iter's streamliner chose, while congestion ordering belongs to
-  Iter's reservation queue).
+  publishes the legacy `streamline_path` key after `Iter:load()` as a runtime
+  mirror of `nav_overlay and nav_streamline` (nil when pathing is off) so
+  Useful Bots 2.4.3's load-time guard stops being dead, and `Iter:save()` now
+  hides it so it never lands in `iter.txt`; documented the cross-mod ownership
+  split (LIES enemy AI vs Iter nav congestion/coarse search/nav-link queue) in
+  README and `dev/reports/compatibility-iter.md`, including Option 1 (LIES's
+  `[4]` multi-navlink slot is dead on its own — it never assigns
+  `has_multiple_navlink_elements` — while its `[3]` wait reads the one link
+  Iter's streamliner chose, and congestion ordering belongs to Iter's
+  reservation queue). `_chk_stop_for_follow_unit` is documented as Iter
+  superseding LIES's stop/relocate body.
   No navigation behaviour change. New `dev/tools/test/compat.test.mjs`; gates
-  re-run. Cross-mod ownership work remains in Phases 2-4.
+  emit repo-relative paths and skip timestamp-only ledger rewrites. Cross-mod
+  ownership work remains in Phases 2-4.
 
 ## Rulings
 

@@ -8,7 +8,8 @@ Iter.settings = {
 	-- r200 nav port to nav v6. All subsystem cards have passed; release
 	-- defaults match original Iter (path extender, map patches and the idle
 	-- cosmetic on). `streamline_path` is a legacy key; the live flag is
-	-- `nav_streamline`, and `load()` publishes the legacy alias for other mods.
+	-- `nav_streamline`, and a runtime alias derived from the effective state
+	-- is published after `load()` for mods that still read the legacy key.
 	-- See dev/plans/full-nav-port.md.
 	nav_overlay = true,
 	nav_streamline = true,
@@ -100,11 +101,18 @@ function Iter:load()
 end
 
 function Iter:save()
+	-- `streamline_path` is a runtime mirror for Useful Bots, not a persisted
+	-- setting. Hide it while writing so it never lands in iter.txt.
+	local mirror = self.settings.streamline_path
+	self.settings.streamline_path = nil
+
 	local file = io.open(self._data_path, 'w+')
 	if file then
 		file:write(json.encode(self.settings))
 		file:close()
 	end
+
+	self.settings.streamline_path = mirror
 end
 
 function Iter:get_level_id()
@@ -115,9 +123,12 @@ end
 
 Iter:load()
 
--- Compatibility: Useful Bots 2.4.3 reads this legacy key at load time.
--- The live flag is nav_streamline; keep the alias in sync for other mods.
-Iter.settings.streamline_path = Iter.settings.nav_streamline
+-- Compatibility mirror: Useful Bots 2.4.3 reads the legacy `streamline_path`
+-- key at load time (`if Iter and Iter.settings and ...`). This is a runtime
+-- view of the effective pathing state, not a persisted setting: `load()` drops
+-- the saved copy and `save()` skips it, so manual edits never stick. Nil means
+-- pathing is off and UB's own post-walk re-check is harmless.
+Iter.settings.streamline_path = (Iter.settings.nav_overlay and Iter.settings.nav_streamline) or nil
 
 dofile(Iter._path .. 'lua/iter_diag.lua')
 

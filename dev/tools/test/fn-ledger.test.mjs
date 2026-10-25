@@ -1,9 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import path from 'node:path';
 import {
   normalizeLua,
   classifySources,
-  renderMarkdown
+  renderMarkdown,
+  sameIgnoringTimestamp,
+  sameJsonIgnoringTimestamp,
+  displayPath
 } from '../fn-ledger.mjs';
 
 const OLD = `
@@ -169,4 +173,29 @@ test('markdown contains totals and one row per function', () => {
   assert.match(md, /PORT/);
   assert.match(md, /audit/);
   assert.match(md, /Nested helpers/);
+});
+
+test('timestamp-only ledger changes are not rewritten', () => {
+  const a = '# ITER port\n\nGenerated: 2026-10-25T06:45:40.535Z\nOld baseline: `x`\n';
+  const b = '# ITER port\n\nGenerated: 2026-10-26T00:00:00.000Z\nOld baseline: `x`\n';
+  const c = '# ITER port\n\nGenerated: 2026-10-26T00:00:00.000Z\nOld baseline: `y`\n';
+  assert.equal(sameIgnoringTimestamp(a, b), true);
+  assert.equal(sameIgnoringTimestamp(a, c), false);
+  assert.equal(sameIgnoringTimestamp(null, a), false);
+});
+
+test('timestamp-only ledger json changes are not rewritten', () => {
+  const a = JSON.stringify({ oldRev: 'x', newRev: 'y', generated: 'now', files: [{ file: 'lua/a.lua' }] });
+  const b = JSON.stringify({ oldRev: 'x', newRev: 'y', generated: 'later', files: [{ file: 'lua/a.lua' }] });
+  const c = JSON.stringify({ oldRev: 'x', newRev: 'y', generated: 'later', files: [{ file: 'lua/b.lua' }] });
+  assert.equal(sameJsonIgnoringTimestamp(a, b), true);
+  assert.equal(sameJsonIgnoringTimestamp(a, c), false);
+  assert.equal(sameJsonIgnoringTimestamp('not json', b), false);
+});
+
+test('gate output paths are repo-relative and slash-normalized', () => {
+  const base = path.resolve('repo');
+  assert.equal(displayPath(base, path.join(base, 'dev', 'port-ledger.md')), 'dev/port-ledger.md');
+  const outside = path.resolve('other', 'ledger.md');
+  assert.equal(displayPath(base, outside), outside);
 });
