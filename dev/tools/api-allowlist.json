@@ -1,0 +1,7 @@
+{
+  "lua/iter_nav_v6_shim.lua": {
+    "_rooms": "sanctioned rebuild point for the v5 quad geometry (decisions.md R4)",
+    "_room_doors": "sanctioned rebuild point for the v5 door geometry (decisions.md R4)",
+    "_visibility_groups": "sanctioned rebuild point for the v5 visibility groups (decisions.md R4)"
+  }
+}

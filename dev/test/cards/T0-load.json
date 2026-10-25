@@ -1,0 +1,14 @@
+{
+  "id": "T0",
+  "name": "load smoke",
+  "description": "Iter loads, the overlay is inert or the shim initialises, and the log has no Iter errors.",
+  "maps": ["jewelry_store"],
+  "commands": [],
+  "expect": {
+    "setup": true,
+    "fatal": 0,
+    "iterErrors": 0,
+    "harnessErrors": 0,
+    "fallback": 0
+  }
+}

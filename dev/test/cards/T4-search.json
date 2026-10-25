@@ -1,0 +1,20 @@
+{
+  "id": "T4",
+  "name": "Iter search + direct-to-pos",
+  "description": "Iter's weighted coarse search replaces vanilla, probe searches succeed, cache counters appear, and direct-to-pos fires in whisper mode. Enable streamline, nav-link queue, AI cluster, path extender, search and direct-to-pos.",
+  "maps": ["jewelry_store", "big"],
+  "commands": ["!iter probe 20", "!iter ai", "!iter path", "!iter dump"],
+  "expect": {
+    "setup": true,
+    "fatal": 0,
+    "iterErrors": 0,
+    "fallback": 0,
+    "probe.pairs": ">0",
+    "probe.search_ok": ">0",
+    "probe.stream_ok": ">0",
+    "probe.stream_fail": 0,
+    "summary.search_ok": ">0",
+    "summary.search_fail": "<=2",
+    "summary.direct_to_pos": ">0"
+  }
+}

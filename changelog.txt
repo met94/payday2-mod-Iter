@@ -1,3 +1,13 @@
+Revision 202-dev (248.2 navigation port):
+- restored the r200 navigation core against nav v6: v5 geometry shim, choke-point proxies, path streamliner, nav-link reservation/queue/alternates, Iter coarse search, direct-to-pos, path extender
+- kept the Lite level and mission fixes, drill, menu, localization, and SO nav-link rebuild
+- added per-call map-patch selection with version/CRC gates; 21 clean blocks (22 level ids), 2 accepted losses, 1 dead (skirmish Mallcrasher), 2 no-op
+- release defaults match original Iter: path extender, map patches and the cop idle cosmetic are on; the menu shows only Improve NPC pathing, Rebuild NavLinks and the per-map toggles, with subsystem flags settings-only
+- dropped civilian/team-AI callbacks that no longer exist and the stale civilian `_optimize_path`
+- diagnostics: `[ITER-NAV]` events, 30 s heartbeat, `!iter` test harness
+
+Player notes: enemy and friendly AI can take shorter paths, wait less at ladders and jumps, and use the nav mesh the way Iter intended on the current 64-bit game. Level fixes are back except the handful listed above; the options menu has the master pathing switch, Rebuild NavLinks and the per-map toggles.
+
 Revision 201 (Iter Lite):
 - removed pathfinding code (navigation manager, AI pathing hooks, nav-data patches) since Diesel 3.0 rewrote pathfinding
 - kept all level and mission fixes, drill, menu, localization, and the navlink-vector data they rely on

@@ -5,7 +5,21 @@ _G.Iter = _G.Iter or {}
 Iter._path = ModPath
 Iter._data_path = SavePath .. 'iter.txt'
 Iter.settings = {
-	streamline_path = true,
+	-- r200 nav port to nav v6. All subsystem cards have passed; release
+	-- defaults match original Iter (path extender, map patches and the idle
+	-- cosmetic on). `streamline_path` is a legacy unused key; the live flag is
+	-- `nav_streamline`. See dev/plans/full-nav-port.md.
+	nav_overlay = true,
+	nav_streamline = true,
+	nav_search = true,
+	nav_ai = true,
+	navlink_queue = true,
+	path_extender = true,
+	direct_to_pos = true,
+	map_patches = true,
+	cop_idle_fix = true,
+	debug_log = 0,
+	error_log = true,
 	rebuild_navlinks = true,
 	map_change_alex_1 = true,
 	map_change_alex_2 = true,
@@ -67,9 +81,19 @@ Iter.settings = {
 function Iter:load()
 	local file = io.open(self._data_path, 'r')
 	if file then
-		for k, v in pairs(json.decode(file:read('*all')) or {}) do
+		local data = json.decode(file:read('*all')) or {}
+		for k, v in pairs(data) do
 			self.settings[k] = v
 		end
+
+		-- Original Iter had only `streamline_path` as the master toggle. If
+		-- the saved file predates the port (no `nav_overlay` key) and the
+		-- player had turned pathing off, keep it off.
+		if data.nav_overlay == nil and data.streamline_path == false then
+			self.settings.nav_overlay = false
+		end
+
+		self.settings.streamline_path = nil
 		file:close()
 	end
 end
@@ -89,3 +113,17 @@ function Iter:get_level_id()
 end
 
 Iter:load()
+
+dofile(Iter._path .. 'lua/iter_diag.lua')
+
+Iter.diag.event('boot', {
+	diag_version = Iter.diag.version,
+	nav_overlay = tostring(Iter.settings.nav_overlay),
+	nav_streamline = tostring(Iter.settings.nav_streamline),
+	nav_search = tostring(Iter.settings.nav_search),
+	navlink_queue = tostring(Iter.settings.navlink_queue),
+	path_extender = tostring(Iter.settings.path_extender),
+	direct_to_pos = tostring(Iter.settings.direct_to_pos),
+	nav_ai = tostring(Iter.settings.nav_ai),
+	debug_log = Iter.settings.debug_log
+})

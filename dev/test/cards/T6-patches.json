@@ -1,0 +1,13 @@
+{
+  "id": "T6",
+  "name": "map patches",
+  "description": "With Dev: v6 map patches ON, each patched heist emits exactly one evt=patch and loads without errors. Review result=applied|mismatch|skip_* per level; mismatch means the nav data drifted and the patch was skipped safely.",
+  "maps": ["big", "kenaz"],
+  "commands": ["!iter patch", "!iter nav"],
+  "expect": {
+    "setup": true,
+    "fatal": 0,
+    "iterErrors": 0,
+    "patch": ">0"
+  }
+}

@@ -5,6 +5,30 @@
 	"itr_options_streamline_path_title" : "Improve NPC pathing",
 	"itr_options_streamline_path_desc" : "Streamlined paths, improved queueing for things like ladders.\nChange will be effective after a heist restart.",
 
+	"itr_options_nav_overlay_title" : "Dev: v6 navigation overlay",
+	"itr_options_nav_overlay_desc" : "Rebuilds the v6 navigation geometry and bookkeeping used by the Iter port. No AI behaviour changes until the individual feature toggles pass their tests.\nChange will be effective after a heist restart.",
+
+	"itr_options_nav_streamline_title" : "Dev: streamline (proxies + apply)",
+	"itr_options_nav_streamline_desc" : "Computes choke-point proxies and applies the path streamliner to coarse paths. Requires the v6 overlay.\nChange will be effective after a heist restart.",
+
+	"itr_options_nav_search_title" : "Dev: Iter coarse search",
+	"itr_options_nav_search_desc" : "Replaces the vanilla coarse search with Iter's weighted search and cache. Requires the v6 overlay and streamline.\nChange will be effective after a heist restart.",
+
+	"itr_options_navlink_queue_title" : "Dev: nav-link queue tracking",
+	"itr_options_navlink_queue_desc" : "Tracks nav-link intervals, reservations and queue lengths for the congestion work. Diagnostics only until the AI cluster is enabled.\nChange will be effective after a heist restart.",
+
+	"itr_options_path_extender_title" : "Dev: path extender",
+	"itr_options_path_extender_desc" : "Precomputes the next detailed path and appends it to the live walk action to remove pauses at segment changes. Requires the AI cluster.\nChange will be effective after a heist restart.",
+
+	"itr_options_direct_to_pos_title" : "Dev: direct-to-pos",
+	"itr_options_direct_to_pos_desc" : "In whisper mode, walk straight to the objective position instead of following the coarse path.\nChange will be effective after a heist restart.",
+
+	"itr_options_map_patches_title" : "Dev: v6 map patches",
+	"itr_options_map_patches_desc" : "Applies the r200 per-level nav fixes after a CRC/version check. Each level logs applied, mismatch or skip. Change will be effective after a heist restart.",
+
+	"itr_options_nav_ai_title" : "Dev: Iter AI cluster",
+	"itr_options_nav_ai_desc" : "Installs the Iter AI wrappers (nav links, path extender, direct-to-pos). Requires the v6 overlay and streamline.\nChange will be effective after a heist restart.",
+
 	"itr_options_rebuild_navlinks_title" : "Rebuild NavLinks",
 	"itr_options_rebuild_navlinks_desc" : "Dynamically rebuild destinations of special paths (illustrated by special character animations).\nChange will be effective after a heist restart.",
 

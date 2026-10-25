@@ -1,0 +1,20 @@
+{
+  "id": "T2b",
+  "name": "dense streamline probe",
+  "description": "Proxy preparation and the streamliner behave on dense nav data (Golden Grin 160 segments, Big Bank 108). Probe pairs are graph-reachable; a search failure means a real search defect. Proxy build must stay under 2 s.",
+  "maps": ["kenaz", "big"],
+  "commands": ["!iter probe 30", "!iter nav", "!iter ai"],
+  "expect": {
+    "setup": true,
+    "fatal": 0,
+    "iterErrors": 0,
+    "fallback": 0,
+    "proxy.segments": ">0",
+    "proxy.ms": "<2000",
+    "probe.pairs": ">0",
+    "probe.search_ok": ">0",
+    "probe.search_fail": "<=1",
+    "probe.stream_ok": ">0",
+    "probe.stream_fail": 0
+  }
+}
