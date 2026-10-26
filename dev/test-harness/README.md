@@ -29,6 +29,7 @@ One command per chat line.
 | `!iter probe [n]` | Random coarse-search + streamline probe. |
 | `!iter path` | Player walk action and next nav-link. |
 | `!iter ai` | Travelling cops, coarse paths, direct-to-pos, path extender counters. |
+| `!iter count` | One line: `count enemies=<n> criminals=<n>`. Works without Iter (vanilla comparison). |
 | `!iter bots` | Every team AI criminal: logic, objective (follow liveness/assist/in_place/dflt/called), advancing action, coarse path `len/idx`, nav-link wait, carried bag, hold position, kpr, position, walk forbidden. |
 | `!iter cops` | Cops that hold a coarse path but are not advancing, or that wait at a nav link; longest wait first, up to 25. |
 | `!iter links` | Nav-link elements: action, `from`/`to` segment, interval, queue, reserved unit, queue wait and positions. Queued/reserved links first (up to 40), then 10 idle ones. |

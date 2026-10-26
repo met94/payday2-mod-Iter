@@ -293,6 +293,7 @@ assert(parse('!iter diag off').command == 'diag' and parse('!iter diag off').arg
 assert(parse('!iter diag').args[1] == nil, 'bare diag should have no args')
 assert(type(Iter_TestHarness.dump_bots) == 'function', 'dump_bots missing')
 assert(type(Iter_TestHarness.dump_cops) == 'function', 'dump_cops missing')
+assert(type(Iter_TestHarness.dump_count) == 'function', 'dump_count missing')
 assert(type(Iter_TestHarness.diag_tick) == 'function', 'diag_tick missing')
 assert(type(Iter_TestHarness.diag_toggle) == 'function', 'diag_toggle missing')
 

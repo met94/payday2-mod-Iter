@@ -1,5 +1,5 @@
 -- Iter full-nav port test harness. Dev-only; not shipped.
--- Chat commands: !iter help | nav | patch | navdump | navdoors | navquad | navpath | p7 | force | probe [n] | path | ai | bots | cops | links | diag [on|off] | alarm | assault | state | setting <key> <value> | dump | reset
+-- Chat commands: !iter help | nav | patch | navdump | navdoors | navquad | navpath | p7 | force | probe [n] | path | ai | bots | cops | count | links | diag [on|off] | alarm | assault | state | setting <key> <value> | dump | reset
 
 Iter_TestHarness = Iter_TestHarness or {}
 local TH = Iter_TestHarness
@@ -1806,6 +1806,22 @@ end
 
 -- Counterfeit evidence: cops that hold a coarse path but are not advancing,
 -- or that are explicitly waiting at a nav link.
+function TH.dump_count()
+	local enemies = all_enemies()
+	local bots = all_ai_criminals()
+	local n_enemies, n_bots = 0, 0
+
+	for _ in pairs(enemies) do
+		n_enemies = n_enemies + 1
+	end
+
+	for _ in pairs(bots) do
+		n_bots = n_bots + 1
+	end
+
+	say(string.format('count enemies=%d criminals=%d', n_enemies, n_bots))
+end
+
 function TH.dump_cops()
 	local enemies = all_enemies()
 	local now = game_time()
@@ -2116,7 +2132,7 @@ function TH.reset()
 end
 
 function TH.help()
-	say('commands: nav | patch | navdump <seg> | navdoors <a> <b> | navquad <id...> | navpath <from> <to> | p7 [auto on|off] | force <level> | probe [n] | path | ai | bots | cops | links | diag [on|off] | alarm | assault | state | setting <key> <value> | dump | reset | help')
+	say('commands: nav | patch | navdump <seg> | navdoors <a> <b> | navquad <id...> | navpath <from> <to> | p7 [auto on|off] | force <level> | probe [n] | path | ai | bots | cops | count | links | diag [on|off] | alarm | assault | state | setting <key> <value> | dump | reset | help')
 end
 
 function TH.execute_string(message)
@@ -2167,6 +2183,8 @@ function TH.execute(command)
 		TH.dump_bots()
 	elseif name == 'cops' then
 		TH.dump_cops()
+	elseif name == 'count' then
+		TH.dump_count()
 	elseif name == 'links' then
 		TH.dump_links()
 	elseif name == 'diag' then
