@@ -36,6 +36,22 @@ local itr_watch_stale_window_t = 0
 local itr_watch_stale_in_window = 0
 local itr_watch_worst = { hold = 0, queue = 0, wait = 0 }
 
+-- Frame-pacing accumulators. `dt` from NavigationManager:update is simulation
+-- time (and therefore scaled by any time multiplier), so wall-clock frame times
+-- come from Application:time() instead. This separates "FPS is high but the game
+-- feels heavy" (hitches / a time-scale change) from real throughput.
+local itr_watch_wall_sum = 0
+local itr_watch_wall_max = 0
+local itr_watch_wall_last = nil
+local itr_watch_frames = 0
+local itr_watch_hitches = 0
+local itr_watch_window_t0 = 0
+local itr_watch_window_wall0 = nil
+
+-- Forward-declared so the _clear posthook (defined above the channel) can emit
+-- the teardown summary.
+local itr_watch_final
+
 Hooks:PostHook(NavigationManager, '_clear', 'Iter_nav_shim_clear', function(self)
 	IterNavShim.clear(self)
 	self.itr_coarse_cache = {}
@@ -45,6 +61,20 @@ Hooks:PostHook(NavigationManager, '_clear', 'Iter_nav_shim_clear', function(self
 	itr_watch_stale_window_t = 0
 	itr_watch_stale_in_window = 0
 	itr_watch_worst = { hold = 0, queue = 0, wait = 0 }
+	itr_watch_wall_sum = 0
+	itr_watch_wall_max = 0
+	itr_watch_wall_last = nil
+	itr_watch_frames = 0
+	itr_watch_hitches = 0
+	itr_watch_window_t0 = 0
+	itr_watch_window_wall0 = nil
+
+	-- Teardown summary: a heist that is quit instead of finished never reaches
+	-- on_simulation_ended, so emit the final digest here while the counters and
+	-- the frame window are still intact.
+	if itr_watch_final then
+		itr_watch_final()
+	end
 
 	if Iter.diag and Iter.diag.watch_reset then
 		Iter.diag.watch_reset()
@@ -196,23 +226,9 @@ Hooks:PostHook(NavigationManager, 'on_simulation_ended', 'Iter_nav_summary', fun
 		level = Iter:get_level_id()
 	})
 
-	-- Final watch digest: a pasted log tail then carries the whole level.
-	Iter.diag.watch('final', {
-		level = Iter:get_level_id(),
-		elements = itr_watch_worst.elements or 0,
-		reserve_busy = Iter.diag.counters.navlink_reserve_busy or 0,
-		reserve_ok = Iter.diag.counters.navlink_reserve_ok or 0,
-		stale_cleared = Iter.diag.counters.navlink_stale_reservation_cleared or 0,
-		dead_cleared = Iter.diag.counters.navlink_dead_reservation_cleared or 0,
-		search_ok = Iter.diag.counters.search_ok or 0,
-		search_fail = Iter.diag.counters.search_fail or 0,
-		worst_action = itr_watch_worst.action,
-		worst_from = itr_watch_worst.from,
-		worst_to = itr_watch_worst.to,
-		worst_hold = string.format('%.1f', itr_watch_worst.hold or 0),
-		worst_queue = itr_watch_worst.queue or 0,
-		worst_wait = string.format('%.1f', itr_watch_worst.wait or 0)
-	})
+	-- Final watch digest: the same snapshot the 60 s timer writes, so a pasted
+	-- log tail carries the whole level including frame pacing.
+	itr_watch_final()
 
 	Iter.diag.watch_reset()
 end)
@@ -320,14 +336,42 @@ local function itr_watch_population()
 	return cops, crims
 end
 
-local function itr_watch_digest(t)
+local function itr_watch_digest(t, event_name)
 	local cops, crims = itr_watch_population()
+	local wall = nil
 
-	Iter.diag.watch('digest', {
+	pcall(function()
+		wall = Application:time()
+	end)
+
+	local fps = 0
+	local hitch_ms = 0
+	local sim_ratio = 1
+	local frames = itr_watch_frames
+
+	if frames > 0 and itr_watch_wall_sum > 0 then
+		fps = frames / itr_watch_wall_sum
+		hitch_ms = itr_watch_wall_max * 1000
+	end
+
+	if wall and itr_watch_window_wall0 then
+		local wall_delta = wall - itr_watch_window_wall0
+
+		if wall_delta > 0.5 then
+			sim_ratio = (t - itr_watch_window_t0) / wall_delta
+		end
+	end
+
+	Iter.diag.watch(event_name or 'digest', {
 		level = Iter:get_level_id(),
 		t = string.format('%.0f', t or 0),
 		cops = cops,
 		crims = crims,
+		fps = string.format('%.1f', fps),
+		frames = frames,
+		hitch_n = itr_watch_hitches,
+		hitch_ms = string.format('%.0f', hitch_ms),
+		sim_ratio = string.format('%.2f', sim_ratio),
 		elements = itr_watch_worst.elements or 0,
 		reserve_busy = Iter.diag.counters.navlink_reserve_busy or 0,
 		reserve_ok = Iter.diag.counters.navlink_reserve_ok or 0,
@@ -342,10 +386,54 @@ local function itr_watch_digest(t)
 		worst_queue = itr_watch_worst.queue or 0,
 		worst_wait = string.format('%.1f', itr_watch_worst.wait or 0)
 	})
+
+	-- Reset the frame window for the next minute.
+	itr_watch_wall_sum = 0
+	itr_watch_wall_max = 0
+	itr_watch_frames = 0
+	itr_watch_hitches = 0
+	itr_watch_window_t0 = t or 0
+	itr_watch_window_wall0 = wall
 end
 
-Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_watch', function(self, t)
+itr_watch_final = function()
+	itr_watch_digest(itr_watch_window_t0 or 0, 'final')
+end
+
+Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_watch', function(self, t, dt)
 	t = t or 0
+
+	-- Frame timing per frame, in wall-clock time. Cheap: one engine call and a
+	-- few numbers. `dt` would be simulation time and therefore useless when a
+	-- time multiplier is active.
+	if Application then
+		local wall = Application:time()
+
+		if not itr_watch_window_wall0 then
+			itr_watch_window_wall0 = wall
+			itr_watch_window_t0 = t
+		end
+
+		if itr_watch_wall_last and wall > itr_watch_wall_last then
+			local frame = wall - itr_watch_wall_last
+
+			-- Ignore pauses/loading gaps, which are not frame times.
+			if frame > 0 and frame < 5 then
+				itr_watch_frames = itr_watch_frames + 1
+				itr_watch_wall_sum = itr_watch_wall_sum + frame
+
+				if frame > itr_watch_wall_max then
+					itr_watch_wall_max = frame
+				end
+
+				if frame > 0.033 then
+					itr_watch_hitches = itr_watch_hitches + 1
+				end
+			end
+		end
+
+		itr_watch_wall_last = wall
+	end
 
 	if not itr_watch_header_done then
 		itr_watch_header(t)

@@ -72,6 +72,35 @@ test('the sweep raises the three hard-failure alarms', () => {
   assert.match(body, /itr_watch_stale_in_window > ITR_WATCH_STALE_BURST/, 'stale burst threshold missing');
 });
 
+test('the digest reports frame pacing and the simulation ratio', () => {
+  // "100-144 fps but the game feels heavy" is frame pacing or a time-scale
+  // change, not throughput, so the digest has to carry wall-clock frame data.
+  assert.match(nav, /itr_watch_wall_sum/, 'no wall-clock accumulator');
+  assert.match(nav, /itr_watch_hitches/, 'no hitch counter');
+  assert.match(nav, /itr_watch_sim_ratio|sim_ratio/, 'no simulation-ratio field');
+  assert.match(nav, /Application:time\(\)/, 'wall clock must come from Application:time()');
+  // Frame data is emitted with the digest.
+  assert.match(nav, /fps = /, 'digest must report fps');
+  assert.match(nav, /hitch_n = /, 'digest must report the hitch count');
+});
+
+test('final digest fires on level teardown too', () => {
+  // Forward declaration must precede the _clear posthook, or the call is nil.
+  const decl = nav.indexOf('local itr_watch_final');
+  const clearHook = nav.indexOf("'Iter_nav_shim_clear'");
+  assert.ok(decl >= 0, 'itr_watch_final must be forward-declared');
+  assert.ok(clearHook > decl, 'forward declaration must come before the _clear posthook');
+
+  const clear = nav.slice(clearHook);
+  const body = clear.slice(0, clear.indexOf('\nend)'));
+  assert.match(body, /if itr_watch_final then\s*\n\s*itr_watch_final\(\)/, 'teardown must emit the final digest');
+  assert.match(body, /Iter\.diag\.watch_reset\(\)/, 'reset must follow the final digest');
+
+  // The final digest is the same snapshot with a different event name.
+  assert.match(nav, /itr_watch_digest\(t, event_name\)/, 'digest must take an event name');
+  assert.match(nav, /itr_watch_digest\(itr_watch_window_t0 or 0, 'final'\)/, 'final event name missing');
+});
+
 test('header once per level and a final digest on simulation end', () => {
   assert.match(nav, /local itr_watch_header_done = false/, 'header flag missing');
   assert.match(nav, /if not itr_watch_header_done then\s*\n\s*itr_watch_header\(t\)/, 'header not once-per-level');
@@ -79,7 +108,7 @@ test('header once per level and a final digest on simulation end', () => {
 
   const ended = nav.slice(nav.indexOf("Hooks:PostHook(NavigationManager, 'on_simulation_ended', 'Iter_nav_summary'"));
   const body = ended.slice(0, ended.indexOf('\nend)'));
-  assert.match(body, /Iter\.diag\.watch\('final'/, 'final digest missing');
+  assert.match(body, /itr_watch_final\(\)/, 'final digest missing');
   assert.match(body, /Iter\.diag\.watch_reset\(\)/, 'watch state not reset after the level');
 
   // A new level resets the channel with the other nav state.

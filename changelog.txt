@@ -1,4 +1,11 @@
-Revision 200.9 (population counts in the watch digest):
+Revision 200.10 (frame pacing in the digest + teardown summary):
+- the 60 s digest now carries wall-clock frame data: `fps` (average over the minute), `frames`, `hitch_n` (frames slower than 33 ms), `hitch_ms` (worst frame in the window) and `sim_ratio` (simulation-time delta divided by wall-clock delta, 1.00 normally) - this separates "100+ FPS but the game feels heavy" (frame pacing or a time-scale change) from real throughput
+- frame timing uses `Application:time()` rather than the `dt` argument, because `dt` is simulation time and is scaled by any time multiplier (e.g. the Time Speed mod); gaps over 5 s are ignored so loading stalls do not poison the window
+- the final digest now fires on **level teardown** as well as `on_simulation_ended`, so a heist that is quit to the menu still produces a heist-end summary; both paths share `itr_watch_final()` and emit `evt=final`
+- accumulator/window state is reset with the rest of the watch channel in `Iter_nav_shim_clear`, and the channel is forward-declared so the teardown hook can call it
+- static gate `dev/tools/test/watch-channel.test.mjs` (9 tests) pins the frame fields, the wall-clock source, the forward declaration, the teardown call and the shared digest function
+
+Player notes: nothing changes in game. With `"watch_log": true`, each `[ITER-WATCH]` line now also reports your actual frame rate, the number of hitches (frames over 33 ms) and the worst frame of that minute, so a "heavy" feeling can be told apart from low FPS; quitting a heist to the menu now writes a final summary line instead of nothing.Revision 200.9 (population counts in the watch digest):
 - the 60 s digest now carries `cops=<live enemy units>` and `crims=<AI criminals>`, counted once per digest, so a density claim can be checked instead of felt ("with mods there are 3x more cops" needed a number)
 - added `itr_watch_population` with pcall guards so a missing manager cannot break the digest
 - note for readers: LIES has no working population multiplier in this port - `coplimit` ("Max Enemies Multiplier") and `spawngroupdelays` are stored by their menu callbacks but nothing reads them, and `fixed_spawngroups=1`/`hhtacs=false` skip the spawn-group repair paths, so the extra density is behavioural (cop survival, pathing, assault pacing), not a spawn-count setting
