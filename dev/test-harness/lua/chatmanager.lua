@@ -93,6 +93,8 @@ local function vec_distance(a, b)
 end
 
 -- A unit key, a plain key, or nil. Never raises on userdata without key().
+-- In-game unit keys are userdata, so the numeric unit id is preferred over
+-- `tostring(key)` ("userdata: 0x…") to keep log lines readable and matchable.
 local function key_of(value)
 	if value == nil then
 		return nil
@@ -110,7 +112,37 @@ local function key_of(value)
 		return tostring(unit_key)
 	end
 
+	local unit_id = safe_call(function()
+		return value:id()
+	end)
+
+	if type(unit_id) == 'number' and unit_id >= 0 then
+		return tostring(unit_id)
+	end
+
+	if unit_key ~= nil then
+		-- Last resort: the userdata address, stable for one session.
+		return tostring(unit_key)
+	end
+
 	return nil
+end
+
+-- Numeric identity of a unit, '?' when the unit exposes none.
+local function unit_id(unit)
+	if not unit then
+		return '?'
+	end
+
+	local id = safe_call(function()
+		return unit:id()
+	end)
+
+	if type(id) == 'number' then
+		return tostring(id)
+	end
+
+	return '?'
 end
 
 local function unit_position(unit)
@@ -401,6 +433,7 @@ end
 local function unit_state(unit, now)
 	local state = {
 		logic = '?',
+		id = '?',
 		obj = '?',
 		action = 'none',
 		coarse = 'none',
@@ -415,6 +448,8 @@ local function unit_state(unit, now)
 	}
 
 	local brain = unit_brain(unit)
+
+	state.id = unit_id(unit)
 
 	if not brain then
 		state.pos = fmt_vec(unit_position(unit))
@@ -458,9 +493,10 @@ end
 
 local function unit_state_line(kind, key, state)
 	return string.format(
-		'%s key=%s logic=%s obj=%s action=%s coarse=%s wait=%s pos=%s walk_forbidden=%s',
+		'%s key=%s id=%s logic=%s obj=%s action=%s coarse=%s wait=%s pos=%s walk_forbidden=%s',
 		kind,
 		tostring(key),
+		state.id,
 		state.logic,
 		state.obj,
 		state.action,
@@ -1749,8 +1785,9 @@ function TH.dump_bots()
 		local state = unit_state(unit, now)
 
 		say(string.format(
-			'bot key=%s logic=%s obj=%s action=%s coarse=%s wait=%s carry=%s stay=%s kpr=%s pos=%s walk_forbidden=%s',
+			'bot key=%s id=%s logic=%s obj=%s action=%s coarse=%s wait=%s carry=%s stay=%s kpr=%s pos=%s walk_forbidden=%s',
 			tostring(key),
+			state.id,
 			state.logic,
 			state.obj,
 			state.action,
@@ -1869,9 +1906,10 @@ function TH.diag_tick(t)
 				local snapshot = unit_state(unit, t)
 
 				log(string.format(
-					'%sdiag bot key=%s logic=%s obj=%s action=%s coarse=%s wait=%s carry=%s stay=%s kpr=%s moved=%.0f pos=%s',
+					'%sdiag bot key=%s id=%s logic=%s obj=%s action=%s coarse=%s wait=%s carry=%s stay=%s kpr=%s moved=%.0f pos=%s',
 					PREFIX,
 					tostring(key),
+					snapshot.id,
 					snapshot.logic,
 					snapshot.obj,
 					snapshot.action,
@@ -1909,9 +1947,10 @@ function TH.diag_tick(t)
 					local snapshot = unit_state(unit, t)
 
 					log(string.format(
-						'%sdiag cop key=%s logic=%s obj=%s action=%s wait=%s coarse=%s pos=%s',
+						'%sdiag cop key=%s id=%s logic=%s obj=%s action=%s wait=%s coarse=%s pos=%s',
 						PREFIX,
 						tostring(key),
+						snapshot.id,
 						snapshot.logic,
 						snapshot.obj,
 						snapshot.action,

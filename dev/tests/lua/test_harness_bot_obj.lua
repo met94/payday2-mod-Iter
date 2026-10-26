@@ -111,4 +111,17 @@ do
 	check(got == 'defend,follow=nil', 'defend objective: got ' .. got)
 end
 
+-- 9. in-game unit keys are userdata; the numeric id is the readable identity.
+do
+	local got = desc({
+		type = 'follow',
+		follow_unit = {
+			_alive = true,
+			key = function() return { userdata = true } end,
+			id = function() return 100238 end
+		}
+	})
+	check(got == 'follow,follow=100238', 'userdata-keyed follow unit: got ' .. got)
+end
+
 print(string.format('%d checks, harness bot objective test passed', checks))

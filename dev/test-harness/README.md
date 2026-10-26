@@ -54,13 +54,18 @@ on` restores them.
   once per link per 5 s, only when `wait >= 2` s or `queue >= 2`. Fields:
   `action from to interval queue reserved wait pos`.
 - `diag bot` — once per bot per 10 s when it has not moved more than 50 units
-  in the last 5 s: `logic obj action coarse wait carry stay kpr moved pos`.
+  in the last 5 s: `key id logic obj action coarse wait carry stay kpr moved pos`.
   This distinguishes "legitimately holding / reviving" (objective `revive` or
   `stop`, `stay=yes@…`, `carry=…`) from "stuck" (`logic=travel`, `coarse=…`,
   `action=none`, `wait=…`, `moved=0`).
-- `diag cop` — once per waiting cop per 10 s: `logic obj action wait coarse pos`.
+- `diag cop` — once per waiting cop per 10 s:
+  `key id logic obj action wait coarse pos`.
   It shows which nav link is queued, how long the cop has been waiting
   (`wait=iter=…,since=…,age=…`) and whether it still holds a coarse path.
+
+`key` is the engine key object (prints as `userdata: 0x…` in-game); `id` is the
+numeric unit id, and `follow=<id>` / `reserved=<id>` use the same numbering, so
+a stuck bot's follow owner can be found by its `id=` line.
 
 ### Counterfeit (`pal`): cops queuing upstairs
 

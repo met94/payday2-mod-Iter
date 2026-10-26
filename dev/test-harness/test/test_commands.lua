@@ -339,10 +339,11 @@ assert(link_text:find('links total=2 queued=1 reserved=1', 1, true), 'links summ
 assert(lines[1]:find('key=linkA', 1, true), 'queued link should print first: ' .. lines[1])
 
 -- !iter bots: logic/objective/action/coarse/wait/carry/stay/kpr/pos.
-local function fake_bot(key, objective)
+local function fake_bot(key, objective, id)
   return {
     _alive = true,
     key = function() return key end,
+    id = function() return id end,
     position = function() return { x = 100, y = 200, z = 0 } end,
     brain = function()
       return {
@@ -378,7 +379,7 @@ managers = {
       return {
         all_AI_criminals = function()
           return {
-            ['1'] = { unit = fake_bot('bot1', nil) },
+            ['1'] = { unit = fake_bot('bot1', nil, 1001) },
             ['2'] = {
               unit = fake_bot('bot2', function()
                 return {
@@ -386,7 +387,7 @@ managers = {
                   follow_unit = { key = function() return '100234' end },
                   in_place = true
                 }
-              end)
+              end, 1002)
             }
           }
         end
@@ -399,8 +400,8 @@ local fake_groupai = managers.groupai
 lines = {}
 Iter_TestHarness.dump_bots()
 local bot_text = table.concat(lines, '\n')
-assert(bot_text:find('bot key=1 logic=travel obj=? action=walk coarse=3/2 wait=none carry=downed_x stay=yes@5,6,0 kpr=none pos=100,200,0 walk_forbidden=no', 1, true), 'bot line wrong: ' .. bot_text)
-assert(bot_text:find('bot key=2 logic=travel obj=revive,follow=100234,in_place', 1, true), 'bot objective flags wrong: ' .. bot_text)
+assert(bot_text:find('bot key=1 id=1001 logic=travel obj=? action=walk coarse=3/2 wait=none carry=downed_x stay=yes@5,6,0 kpr=none pos=100,200,0 walk_forbidden=no', 1, true), 'bot line wrong: ' .. bot_text)
+assert(bot_text:find('bot key=2 id=1002 logic=travel obj=revive,follow=100234,in_place', 1, true), 'bot objective flags wrong: ' .. bot_text)
 assert(bot_text:find('bots total=2', 1, true), 'bots summary wrong: ' .. bot_text)
 
 -- !iter cops: only cops holding a coarse path without advancing, or waiting.
@@ -408,6 +409,7 @@ local function fake_cop(key, my_data)
   return {
     _alive = true,
     key = function() return key end,
+    id = function() return 2001 end,
     position = function() return { x = 1, y = 2, z = 0 } end,
     brain = function()
       return {
@@ -451,7 +453,7 @@ managers = {
 lines = {}
 Iter_TestHarness.dump_cops()
 local cop_text = table.concat(lines, '\n')
-assert(cop_text:find('cop key=copA logic=travel obj=advance,follow=nil action=none coarse=2/1', 1, true), 'waiting cop line wrong: ' .. cop_text)
+assert(cop_text:find('cop key=copA id=2001 logic=travel obj=advance,follow=nil action=none coarse=2/1', 1, true), 'waiting cop line wrong: ' .. cop_text)
 assert(cop_text:find('wait=iter=linkA,since=90.0,age=15.0', 1, true), 'cop wait state wrong: ' .. cop_text)
 assert(cop_text:find('cop key=copB', 1, true) == nil, 'advancing cop should not be listed: ' .. cop_text)
 assert(cop_text:find('cop key=copC', 1, true) == nil, 'idle cop without coarse path should not be listed: ' .. cop_text)
@@ -493,7 +495,7 @@ assert(#lines == 0, 'diag tick should throttle to 2 s')
 lines = {}
 Iter_TestHarness.diag_tick(210)
 diag_text = table.concat(lines, '\n')
-assert(diag_text:find('diag bot key=1 logic=travel obj=? action=walk coarse=3/2 wait=none carry=downed_x stay=yes@5,6,0 kpr=none moved=0 pos=100,200,0', 1, true), 'diag stuck bot line wrong: ' .. diag_text)
+assert(diag_text:find('diag bot key=1 id=1001 logic=travel obj=? action=walk coarse=3/2 wait=none carry=downed_x stay=yes@5,6,0 kpr=none moved=0 pos=100,200,0', 1, true), 'diag stuck bot line wrong: ' .. diag_text)
 assert(diag_text:find('moved=0 pos=100,200,0', 1, true), 'diag bot moved field wrong: ' .. diag_text)
 
 -- Diagnostic field access must survive a bare manager (no brains/movements).
