@@ -8,7 +8,7 @@ original mod was written against the v5 nav model; the core has been
 reimplemented on the v6 load data, with the subsystem switches documented in
 `MENU_OPTIONS.md`.
 
-- Version: `200.7`
+- Version: `200.8`
 - Base: upstream Iter r200 (`98940fb`) by TdlQ
 - Fork maintenance: met94
 - Target: PAYDAY 2 248.2 (`e3a8b616`), SuperBLT
@@ -24,6 +24,12 @@ reimplemented on the v6 load data, with the subsystem switches documented in
 | Direct-to-pos | working (T4 PASS) |
 | Path extender | working (T5 PASS on counters; no visible slide/stuck) |
 | Map patches | 21 clean blocks (22 level ids), 2 accepted losses, 1 dead, 2 no-op |
+
+**200.8** expires the nav-link queue cache on a link with no owner: the queue
+fields are per-frame scratch data, and when the waiting cop stops polling they
+froze (Counterfeit 2026-10-26 reported `queue=1 reserved=none wait=239.4` on a
+link nobody held). Cleared after 2 s, so digests and alarms describe the real
+queue. See `changelog.txt`.
 
 **200.7** adds the watch channel: an opt-in `[ITER-WATCH]` digest (one line per
 minute of play, `"watch_log": true` in `iter.txt`) plus always-on hard-failure

@@ -196,12 +196,12 @@ test('NavigationManager.update sweeps dead reservations once per second', () => 
   // stale (see navlink-stale-reservation.test.mjs). The dead half must stay.
   assert.match(body, /local dead = \(not alive\(user\) or user:id\(\) == -1\)/, 'the sweep must clear dead owners');
 
+  // Queue fields are also dropped by the free-link cache expiry (200.8), so they
+  // may appear twice: once with the cleared reservation, once with the cache.
   for (const field of RESERVATION_FIELDS) {
-    assert.equal(
-      countMatches(body, new RegExp(`element\\.${field} = nil`, 'g')),
-      1,
-      `${field} must be cleared exactly once in the sweep`
-    );
+    const count = countMatches(body, new RegExp(`element\\.${field} = nil`, 'g'));
+    const expected = field === 'itr_reserved_by_unit' ? 1 : 2;
+    assert.equal(count, expected, `${field} must be cleared ${expected}x in the sweep`);
   }
 
   // Diagnostics: counter for the summary, one event per cleared link.

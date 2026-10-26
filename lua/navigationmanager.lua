@@ -261,6 +261,11 @@ end)
 -- The alarms exist because a stuck link (one cop holding it 204.8 s on
 -- Counterfeit, 2026-10-26) leaves no other trace in a release build.
 local ITR_WATCH_DIGEST_T = 60
+-- Queue fields on a nav link are per-frame scratch data. A free link whose cache
+-- has not been refreshed for this long is showing a waiter that is no longer
+-- there (Counterfeit `pal`, 2026-10-26: `queue=1 reserved=none wait=239.4` for
+-- 38 samples, and the cop was not in `diag cop` either).
+local ITR_QUEUE_CACHE_TTL = 2
 local ITR_WATCH_STALE_BURST = 5
 local ITR_WATCH_QUEUE_LONG = 20
 local ITR_WATCH_WAIT_LONG = 120
@@ -461,6 +466,29 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_navlink_dead_sweep', function(
 						}, t)
 					end
 				end
+			end
+		elseif not user then
+			-- No owner: the queue fields are per-frame scratch data from whichever
+			-- unit polled last. If it stopped polling (repath, action swap, logic
+			-- change) the cache freezes and the digest shows a waiter that is not
+			-- there - Counterfeit `pal` 2026-10-26 showed `reserved=none queue=1
+			-- wait=239.4` while the cop never appeared in `diag cop`.
+			local frame_t = element.itr_navlink_queue_frame_t
+
+			if frame_t and t - frame_t > ITR_QUEUE_CACHE_TTL then
+				element.itr_navlink_queue_length = nil
+				element.itr_navlink_queue_length_in_progress = nil
+				element.itr_navlink_queue_frame_t = nil
+				element.itr_navlink_queue_oldest_t = nil
+				element.itr_navlink_queue_previous_oldest_t = nil
+
+				Iter.diag.count('navlink_queue_cache_cleared')
+				Iter.diag.event('navlink_queue_cache', {
+					action = element._values and element._values.so_action,
+					from = element._values and element._values.itr_from_navseg,
+					to = element._values and element._values.itr_to_navseg,
+					age = math.floor(math_max(0, t - frame_t))
+				})
 			end
 		end
 	end
