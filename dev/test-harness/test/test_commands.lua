@@ -287,4 +287,227 @@ Iter_TestHarness.set_setting('map_patches', nil)
 assert(table.concat(lines, '\n'):find('setting: missing value', 1, true), 'set_setting nil guard wrong')
 assert(Iter.settings.map_patches == true, 'set_setting nil must not delete the key')
 
+assert(parse('!iter bots').command == 'bots', 'bots command not parsed')
+assert(parse('!iter cops').command == 'cops', 'cops command not parsed')
+assert(parse('!iter diag off').command == 'diag' and parse('!iter diag off').args[1] == 'off', 'diag off args wrong')
+assert(parse('!iter diag').args[1] == nil, 'bare diag should have no args')
+assert(type(Iter_TestHarness.dump_bots) == 'function', 'dump_bots missing')
+assert(type(Iter_TestHarness.dump_cops) == 'function', 'dump_cops missing')
+assert(type(Iter_TestHarness.diag_tick) == 'function', 'diag_tick missing')
+assert(type(Iter_TestHarness.diag_toggle) == 'function', 'diag_toggle missing')
+
+-- !iter links: queued/reserved first, from/to/pos/search fields, reserved key.
+local fake_link_nav = {
+  itr_navlink_elements = {
+    ['linkA'] = {
+      _values = {
+        so_action = 'e_nl_up_stairs',
+        itr_from_navseg = '63',
+        itr_to_navseg = '48',
+        itr_interval = 2,
+        position = { x = 10, y = 20, z = 0 },
+        search_position = { x = 11, y = 21, z = 0 }
+      },
+      itr_navlink_queue_length = 2,
+      itr_reserved_by_unit = { _alive = true, key = function() return '100234' end },
+      itr_navlink_queue_oldest_t = 100
+    },
+    ['linkB'] = {
+      _values = { so_action = 'e_nl_through_window', interval = 0 },
+      itr_navlink_queue_length = 0
+    }
+  }
+}
+
+alive = function(unit)
+  return unit and unit._alive ~= false
+end
+TimerManager = {
+  game = function()
+    return { time = function() return 105 end }
+  end
+}
+
+managers = { navigation = fake_link_nav }
+lines = {}
+Iter_TestHarness.dump_links()
+local link_text = table.concat(lines, '\n')
+assert(link_text:find('link key=linkA action=e_nl_up_stairs from=63 to=48 interval=2.00 queue=2 reserved=100234 wait=5.0', 1, true), 'queued link line wrong: ' .. link_text)
+assert(link_text:find('pos=10,20,0 search=11,21,0', 1, true), 'link positions wrong: ' .. link_text)
+assert(link_text:find('link key=linkB action=e_nl_through_window from=? to=?', 1, true), 'non-queued link line wrong: ' .. link_text)
+assert(link_text:find('links total=2 queued=1 reserved=1', 1, true), 'links summary wrong: ' .. link_text)
+assert(lines[1]:find('key=linkA', 1, true), 'queued link should print first: ' .. lines[1])
+
+-- !iter bots: logic/objective/action/coarse/wait/carry/stay/kpr/pos.
+local function fake_bot(key, objective)
+  return {
+    _alive = true,
+    key = function() return key end,
+    position = function() return { x = 100, y = 200, z = 0 } end,
+    brain = function()
+      return {
+        _current_logic_name = 'travel',
+        objective = objective,
+        _logic_data = {
+          internal_data = {
+            coarse_path = { {}, {}, {} },
+            coarse_path_index = 2,
+            advancing = { _action_desc = { type = 'walk' } }
+          }
+        }
+      }
+    end,
+    movement = function()
+      return {
+        _carry_unit = {
+          carry_data = function()
+            return { carry_id = function() return 'downed_x' end }
+          end
+        },
+        _should_stay = true,
+        _should_stay_pos = { x = 5, y = 6, z = 0 },
+        chk_action_forbidden = function() return false end
+      }
+    end
+  }
+end
+
+managers = {
+  groupai = {
+    state = function()
+      return {
+        all_AI_criminals = function()
+          return {
+            ['1'] = { unit = fake_bot('bot1', nil) },
+            ['2'] = {
+              unit = fake_bot('bot2', function()
+                return {
+                  type = 'revive',
+                  follow_unit = { key = function() return '100234' end },
+                  in_place = true
+                }
+              end)
+            }
+          }
+        end
+      }
+    end
+  }
+}
+local fake_groupai = managers.groupai
+
+lines = {}
+Iter_TestHarness.dump_bots()
+local bot_text = table.concat(lines, '\n')
+assert(bot_text:find('bot key=1 logic=travel obj=? action=walk coarse=3/2 wait=none carry=downed_x stay=yes@5,6,0 kpr=none pos=100,200,0 walk_forbidden=no', 1, true), 'bot line wrong: ' .. bot_text)
+assert(bot_text:find('bot key=2 logic=travel obj=revive,follow=100234,in_place', 1, true), 'bot objective flags wrong: ' .. bot_text)
+assert(bot_text:find('bots total=2', 1, true), 'bots summary wrong: ' .. bot_text)
+
+-- !iter cops: only cops holding a coarse path without advancing, or waiting.
+local function fake_cop(key, my_data)
+  return {
+    _alive = true,
+    key = function() return key end,
+    position = function() return { x = 1, y = 2, z = 0 } end,
+    brain = function()
+      return {
+        _current_logic_name = 'travel',
+        objective = function()
+          return { type = 'advance' }
+        end,
+        _logic_data = { internal_data = my_data }
+      }
+    end,
+    movement = function()
+      return { chk_action_forbidden = function() return false end }
+    end
+  }
+end
+
+managers = {
+  enemy = {
+    all_enemies = function()
+      return {
+        ['copA'] = {
+          unit = fake_cop('copA', {
+            coarse_path = { {}, {} },
+            coarse_path_index = 1,
+            advancing = { itr_wait_for_navlink = 'linkA', itr_wait_for_navlink_availability_t = 90 }
+          })
+        },
+        ['copB'] = {
+          unit = fake_cop('copB', {
+            coarse_path = { {}, {} },
+            coarse_path_index = 2,
+            advancing = { _action_desc = { type = 'walk' } }
+          })
+        },
+        ['copC'] = { unit = fake_cop('copC', {}) }
+      }
+    end
+  }
+}
+
+lines = {}
+Iter_TestHarness.dump_cops()
+local cop_text = table.concat(lines, '\n')
+assert(cop_text:find('cop key=copA logic=travel obj=advance action=none coarse=2/1', 1, true), 'waiting cop line wrong: ' .. cop_text)
+assert(cop_text:find('wait=iter=linkA,since=90.0,age=15.0', 1, true), 'cop wait state wrong: ' .. cop_text)
+assert(cop_text:find('cop key=copB', 1, true) == nil, 'advancing cop should not be listed: ' .. cop_text)
+assert(cop_text:find('cop key=copC', 1, true) == nil, 'idle cop without coarse path should not be listed: ' .. cop_text)
+assert(cop_text:find('cops total=3 waiting=1', 1, true), 'cops summary wrong: ' .. cop_text)
+
+-- !iter diag: toggle + automatic tick (link, bot, cop lines and throttling).
+lines = {}
+Iter_TestHarness.diag_toggle({ 'off' })
+assert(table.concat(lines, '\n'):find('diag: off', 1, true), 'diag off status wrong')
+assert(Iter_TestHarness.diag_enabled == false, 'diag off did not disable')
+
+lines = {}
+Iter_TestHarness.diag_toggle({})
+assert(table.concat(lines, '\n'):find('diag: off', 1, true), 'bare diag status wrong')
+
+lines = {}
+Iter_TestHarness.diag_toggle({ 'on' })
+assert(Iter_TestHarness.diag_enabled == true, 'diag on did not enable')
+
+local fake_enemies = managers.enemy
+managers.navigation = fake_link_nav
+managers.enemy = fake_enemies
+managers.groupai = fake_groupai
+Iter_TestHarness.diag_last_t = nil
+Iter_TestHarness.diag_link_log = {}
+Iter_TestHarness.diag_bot_state = {}
+Iter_TestHarness.diag_cop_log = {}
+
+lines = {}
+Iter_TestHarness.diag_tick(200)
+local diag_text = table.concat(lines, '\n')
+assert(diag_text:find('diag link key=linkA action=e_nl_up_stairs from=63 to=48 interval=2.00 queue=2 reserved=100234 wait=100.0', 1, true), 'diag link line wrong: ' .. diag_text)
+assert(diag_text:find('diag cop key=copA', 1, true), 'diag waiting cop missing: ' .. diag_text)
+
+lines = {}
+Iter_TestHarness.diag_tick(201)
+assert(#lines == 0, 'diag tick should throttle to 2 s')
+
+lines = {}
+Iter_TestHarness.diag_tick(210)
+diag_text = table.concat(lines, '\n')
+assert(diag_text:find('diag bot key=1 logic=travel obj=? action=walk coarse=3/2 wait=none carry=downed_x stay=yes@5,6,0 kpr=none moved=0 pos=100,200,0', 1, true), 'diag stuck bot line wrong: ' .. diag_text)
+assert(diag_text:find('moved=0 pos=100,200,0', 1, true), 'diag bot moved field wrong: ' .. diag_text)
+
+-- Diagnostic field access must survive a bare manager (no brains/movements).
+managers = { navigation = fake_link_nav }
+Iter_TestHarness.diag_link_log = {}
+Iter_TestHarness.diag_bot_state = {}
+Iter_TestHarness.diag_cop_log = {}
+Iter_TestHarness.diag_last_t = nil
+lines = {}
+local diag_ok, diag_err = pcall(Iter_TestHarness.diag_tick, 300)
+assert(diag_ok, 'diag tick with no group AI must not error: ' .. tostring(diag_err))
+diag_ok, diag_err = pcall(Iter_TestHarness.dump_bots)
+assert(diag_ok and table.concat(lines, '\n'):find('bots total=0', 1, true) ~= nil, 'dump_bots without group AI must report zero: ' .. tostring(diag_err))
+diag_ok, diag_err = pcall(Iter_TestHarness.dump_cops)
+assert(diag_ok and table.concat(lines, '\n'):find('cops total=0 waiting=0', 1, true) ~= nil, 'dump_cops without enemies must report zero: ' .. tostring(diag_err))
+
 print('ok: Iter test-harness parser')

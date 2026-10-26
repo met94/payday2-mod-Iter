@@ -1,5 +1,5 @@
 -- Iter full-nav port test harness. Dev-only; not shipped.
--- Chat commands: !iter help | nav | patch | navdump | navdoors | navquad | navpath | p7 | force | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset
+-- Chat commands: !iter help | nav | patch | navdump | navdoors | navquad | navpath | p7 | force | probe [n] | path | ai | bots | cops | links | diag [on|off] | alarm | assault | state | setting <key> <value> | dump | reset
 
 Iter_TestHarness = Iter_TestHarness or {}
 local TH = Iter_TestHarness
@@ -27,6 +27,496 @@ end
 
 local function iter_settings()
 	return Iter and Iter.settings or {}
+end
+
+-- Diagnostics helpers. Everything here is defensive: a missing game field must
+-- print '?' or 'none', never raise. Door/nav-link userdata has no alive()
+-- method (Santa's Workshop crash class), so alive() is only ever called on a
+-- unit that was actually stored in itr_reserved_by_unit.
+local function safe_call(fn, ...)
+	local ok, value = pcall(fn, ...)
+
+	if ok then
+		return value
+	end
+end
+
+local function game_time()
+	local t = safe_call(function()
+		return TimerManager:game():time()
+	end)
+
+	if type(t) == 'number' then
+		return t
+	end
+
+	return 0
+end
+
+-- Vector formatting for Vector3 userdata and plain {x,y,z} tables alike.
+local function fmt_vec(value)
+	if type(value) ~= 'table' and type(value) ~= 'userdata' then
+		return '?'
+	end
+
+	local x = safe_call(function()
+		return value.x
+	end)
+	local y = safe_call(function()
+		return value.y
+	end)
+	local z = safe_call(function()
+		return value.z
+	end)
+
+	if type(x) ~= 'number' then
+		return '?'
+	end
+
+	return string.format('%.0f,%.0f,%.0f', x, type(y) == 'number' and y or 0, type(z) == 'number' and z or 0)
+end
+
+local function vec_distance(a, b)
+	if not a or not b then
+		return 0
+	end
+
+	local distance = safe_call(function()
+		return mvector3.distance(a, b)
+	end)
+
+	if type(distance) == 'number' then
+		return distance
+	end
+
+	return 0
+end
+
+-- A unit key, a plain key, or nil. Never raises on userdata without key().
+local function key_of(value)
+	if value == nil then
+		return nil
+	end
+
+	if type(value) == 'string' or type(value) == 'number' then
+		return tostring(value)
+	end
+
+	local unit_key = safe_call(function()
+		return value:key()
+	end)
+
+	if type(unit_key) == 'string' or type(unit_key) == 'number' then
+		return tostring(unit_key)
+	end
+
+	return nil
+end
+
+local function unit_position(unit)
+	if not unit then
+		return nil
+	end
+
+	local pos = safe_call(function()
+		return unit:position()
+	end)
+
+	if type(pos) == 'table' or type(pos) == 'userdata' then
+		return pos
+	end
+
+	return nil
+end
+
+local function is_alive_unit(unit)
+	if not unit then
+		return false
+	end
+
+	return safe_call(function()
+		return alive(unit)
+	end) and true or false
+end
+
+local function unit_brain(unit)
+	if not unit then
+		return nil
+	end
+
+	return safe_call(function()
+		return unit:brain()
+	end)
+end
+
+local function logic_internal_data(brain)
+	local logic_data = brain and brain._logic_data
+
+	if type(logic_data) ~= 'table' then
+		return nil
+	end
+
+	local my_data = logic_data.internal_data
+
+	if type(my_data) ~= 'table' then
+		return nil
+	end
+
+	return my_data
+end
+
+-- objective.type + follow/assist/in_place flags, e.g. "revive,follow=100234".
+local function objective_desc(brain)
+	local objective = safe_call(function()
+		return brain:objective()
+	end)
+
+	if type(objective) ~= 'table' then
+		return '?'
+	end
+
+	local parts = { tostring(objective.type or '?') }
+	local follow = objective.follow_unit or objective.follow_unit_key
+
+	if follow then
+		parts[#parts + 1] = 'follow=' .. tostring(key_of(follow) or '?')
+	end
+
+	local assist = objective.assist_unit or objective.assist_unit_key
+
+	if assist then
+		parts[#parts + 1] = 'assist=' .. tostring(key_of(assist) or '?')
+	end
+
+	if objective.in_place then
+		parts[#parts + 1] = 'in_place'
+	end
+
+	return table.concat(parts, ',')
+end
+
+local function advancing_desc(my_data)
+	local advancing = my_data and my_data.advancing
+	local action_desc = advancing and advancing._action_desc
+	local action_type = action_desc and action_desc.type
+
+	if action_type then
+		return tostring(action_type)
+	end
+
+	if advancing then
+		local value = safe_call(function()
+			return advancing:type()
+		end)
+
+		if value then
+			return tostring(value)
+		end
+	end
+
+	return 'none'
+end
+
+local function coarse_desc(my_data)
+	local coarse = my_data and my_data.coarse_path
+
+	if type(coarse) ~= 'table' then
+		return 'none'
+	end
+
+	return string.format('%d/%d', #coarse, tonumber(my_data.coarse_path_index) or 0)
+end
+
+-- Iter keeps the wait on the walk action; LIES keeps it on the logic data.
+local function wait_since(my_data)
+	local advancing = my_data and my_data.advancing
+
+	if advancing and advancing.itr_wait_for_navlink_availability_t then
+		return advancing.itr_wait_for_navlink_availability_t
+	end
+end
+
+local function wait_flag(my_data)
+	if not my_data then
+		return false
+	end
+
+	if my_data.waiting_for_navlink then
+		return true
+	end
+
+	local advancing = my_data.advancing
+
+	return (advancing and advancing.itr_wait_for_navlink) and true or false
+end
+
+local function wait_desc(my_data, now)
+	local parts = {}
+	local lies = my_data and my_data.waiting_for_navlink
+	local advancing = my_data and my_data.advancing
+	local iter = advancing and advancing.itr_wait_for_navlink
+
+	if lies ~= nil then
+		parts[#parts + 1] = 'lies=' .. tostring(lies)
+	end
+
+	if iter ~= nil then
+		parts[#parts + 1] = 'iter=' .. tostring(iter)
+	end
+
+	local since = wait_since(my_data)
+
+	if type(since) == 'number' then
+		parts[#parts + 1] = 'since=' .. string.format('%.1f', since)
+
+		if now and now > 0 then
+			parts[#parts + 1] = 'age=' .. string.format('%.1f', math.max(0, now - since))
+		end
+	end
+
+	if #parts == 0 then
+		return 'none'
+	end
+
+	return table.concat(parts, ',')
+end
+
+-- Bag carried by a team AI: CopMovement._carry_unit + carry_data():carry_id().
+local function carry_desc(movement)
+	local carry_unit = movement and movement._carry_unit
+
+	if not carry_unit then
+		return 'none'
+	end
+
+	local carry_data = safe_call(function()
+		return carry_unit:carry_data()
+	end)
+
+	if carry_data then
+		local carry_id = safe_call(function()
+			return carry_data:carry_id()
+		end)
+
+		if carry_id then
+			return tostring(carry_id)
+		end
+	end
+
+	return 'unit'
+end
+
+local function stay_desc(movement)
+	if not movement or not movement._should_stay then
+		return 'none'
+	end
+
+	return 'yes@' .. fmt_vec(movement._should_stay_pos)
+end
+
+local function kpr_desc(logic_data)
+	if type(logic_data) ~= 'table' then
+		return '?'
+	end
+
+	local mode = logic_data.kpr_mode
+	local keep = logic_data.kpr_keep_position
+
+	if mode == nil and keep == nil then
+		return 'none'
+	end
+
+	return string.format('mode=%s keep=%s', tostring(mode), tostring(keep))
+end
+
+local function walk_forbidden_desc(movement)
+	if not movement or not movement.chk_action_forbidden then
+		return '?'
+	end
+
+	local forbidden = safe_call(function()
+		return movement:chk_action_forbidden('walk')
+	end)
+
+	if forbidden == nil then
+		return '?'
+	end
+
+	return forbidden and 'yes' or 'no'
+end
+
+-- One defensive snapshot of a cop or bot. Every field is optional in-game.
+local function unit_state(unit, now)
+	local state = {
+		logic = '?',
+		obj = '?',
+		action = 'none',
+		coarse = 'none',
+		wait = 'none',
+		waiting = false,
+		wait_age = 0,
+		carry = 'none',
+		stay = 'none',
+		kpr = 'none',
+		pos = '?',
+		walk_forbidden = '?'
+	}
+
+	local brain = unit_brain(unit)
+
+	if not brain then
+		state.pos = fmt_vec(unit_position(unit))
+		return state
+	end
+
+	state.logic = tostring(brain._current_logic_name or '?')
+
+	local logic_data = brain._logic_data
+
+	if type(logic_data) == 'table' then
+		state.kpr = kpr_desc(logic_data)
+	end
+
+	local my_data = logic_internal_data(brain)
+	local since = wait_since(my_data)
+
+	state.obj = objective_desc(brain)
+	state.action = advancing_desc(my_data)
+	state.coarse = coarse_desc(my_data)
+	state.wait = wait_desc(my_data, now)
+	state.waiting = wait_flag(my_data)
+	state.pos = fmt_vec(unit_position(unit))
+
+	if type(since) == 'number' and now and now > 0 then
+		state.wait_age = math.max(0, now - since)
+	end
+
+	local movement = safe_call(function()
+		return unit:movement()
+	end)
+
+	if movement then
+		state.carry = carry_desc(movement)
+		state.stay = stay_desc(movement)
+		state.walk_forbidden = walk_forbidden_desc(movement)
+	end
+
+	return state
+end
+
+local function unit_state_line(kind, key, state)
+	return string.format(
+		'%s key=%s logic=%s obj=%s action=%s coarse=%s wait=%s pos=%s walk_forbidden=%s',
+		kind,
+		tostring(key),
+		state.logic,
+		state.obj,
+		state.action,
+		state.coarse,
+		state.wait,
+		state.pos,
+		state.walk_forbidden
+	)
+end
+
+-- One nav-link element as a printable row. Shared by !iter links and the
+-- automatic diag logger so both report identical fields.
+local function link_row(key, element, now)
+	local values = {}
+
+	if type(element) == 'table' and type(element._values) == 'table' then
+		values = element._values
+	end
+
+	local row = {
+		key = tostring(key),
+		action = tostring(values.so_action or '?'),
+		from = values.itr_from_navseg and tostring(values.itr_from_navseg) or '?',
+		to = values.itr_to_navseg and tostring(values.itr_to_navseg) or '?',
+		interval = tonumber(values.itr_interval) or tonumber(values.interval) or 0,
+		queue = 0,
+		reserved = 'none',
+		wait = 0,
+		pos = fmt_vec(values.position),
+		search = fmt_vec(values.search_position)
+	}
+
+	if type(element) == 'table' then
+		row.queue = tonumber(element.itr_navlink_queue_length) or 0
+
+		local reserved_unit = element.itr_reserved_by_unit
+
+		if reserved_unit then
+			if not is_alive_unit(reserved_unit) then
+				row.reserved = 'dead'
+			else
+				row.reserved = key_of(reserved_unit) or '?'
+			end
+		end
+
+		local oldest = element.itr_navlink_queue_oldest_t
+
+		if type(oldest) == 'number' and now and now > 0 then
+			row.wait = math.max(0, now - oldest)
+		end
+	end
+
+	return row
+end
+
+local function link_line(row)
+	return string.format(
+		'link key=%s action=%s from=%s to=%s interval=%.2f queue=%d reserved=%s wait=%.1f pos=%s search=%s',
+		row.key,
+		row.action,
+		row.from,
+		row.to,
+		row.interval,
+		row.queue,
+		row.reserved,
+		row.wait,
+		row.pos,
+		row.search
+	)
+end
+
+local function link_diag_line(row)
+	return string.format(
+		'diag link key=%s action=%s from=%s to=%s interval=%.2f queue=%d reserved=%s wait=%.1f pos=%s',
+		row.key,
+		row.action,
+		row.from,
+		row.to,
+		row.interval,
+		row.queue,
+		row.reserved,
+		row.wait,
+		row.pos
+	)
+end
+
+local function all_ai_criminals()
+	local state = safe_call(function()
+		return managers.groupai:state()
+	end)
+
+	if not state or not state.all_AI_criminals then
+		return {}
+	end
+
+	return state:all_AI_criminals() or {}
+end
+
+local function all_enemies()
+	local enemies = safe_call(function()
+		return managers.enemy:all_enemies()
+	end)
+
+	if type(enemies) ~= 'table' then
+		return {}
+	end
+
+	return enemies
 end
 
 function TH.parse_command(message)
@@ -958,6 +1448,9 @@ local function register_p7_autodump()
 	Hooks:PostHook(NavigationManager, 'update', 'Iter_P7_Tick', function(self, t)
 		TH.p7_tick(t)
 	end)
+	Hooks:PostHook(NavigationManager, 'update', 'Iter_Diag_Tick', function(self, t)
+		TH.diag_tick(t)
+	end)
 
 	TH._p7_hook_registered = true
 end
@@ -1134,33 +1627,262 @@ end
 function TH.dump_links()
 	local nav = nav_manager()
 	local elements = nav and (nav.itr_navlink_elements or nav._navlink_elements) or {}
-	local shown = 0
-	local queued = 0
+	local now = game_time()
+	local total, queued, reserved = 0, 0, 0
+	local queued_rows, other_rows = {}, {}
 
 	for key, element in pairs(elements) do
-		local values = element._values or {}
-		local queue = element.itr_navlink_queue_length or 0
-		local reserved = element.itr_reserved_by_unit
-		local interval = values.itr_interval or values.interval or 0
+		total = total + 1
 
-		if queue > 0 then
+		local row = link_row(key, element, now)
+
+		if row.queue > 0 then
 			queued = queued + 1
 		end
 
-		if shown < 20 then
-			shown = shown + 1
-			say(string.format(
-				'link key=%s action=%s interval=%.2f queue=%d reserved=%s',
-				tostring(key),
-				tostring(values.so_action),
-				interval,
-				queue,
-				tostring(reserved and alive(reserved) and reserved:key() or 'none')
-			))
+		if row.reserved ~= 'none' then
+			reserved = reserved + 1
+		end
+
+		if row.queue > 0 or row.reserved ~= 'none' then
+			queued_rows[#queued_rows + 1] = row
+		else
+			other_rows[#other_rows + 1] = row
 		end
 	end
 
-	say(string.format('links total=%d queued=%d shown=%d', table.size(elements), queued, shown))
+	-- Queued/reserved links first (longest wait first), then a little context.
+	table.sort(queued_rows, function(a, b)
+		if a.wait ~= b.wait then
+			return a.wait > b.wait
+		end
+
+		if a.queue ~= b.queue then
+			return a.queue > b.queue
+		end
+
+		return a.key < b.key
+	end)
+	table.sort(other_rows, function(a, b)
+		return a.key < b.key
+	end)
+
+	for i = 1, math.min(#queued_rows, 40) do
+		say(link_line(queued_rows[i]))
+	end
+
+	for i = 1, math.min(#other_rows, 10) do
+		say(link_line(other_rows[i]))
+	end
+
+	say(string.format('links total=%d queued=%d reserved=%d', total, queued, reserved))
+end
+
+function TH.dump_bots()
+	local bots = all_ai_criminals()
+	local now = game_time()
+	local keys = {}
+
+	for key in pairs(bots) do
+		keys[#keys + 1] = key
+	end
+
+	table.sort(keys, function(a, b)
+		return tostring(a) < tostring(b)
+	end)
+
+	for _, key in ipairs(keys) do
+		local data = bots[key]
+		local unit = type(data) == 'table' and data.unit or nil
+		local state = unit_state(unit, now)
+
+		say(string.format(
+			'bot key=%s logic=%s obj=%s action=%s coarse=%s wait=%s carry=%s stay=%s kpr=%s pos=%s walk_forbidden=%s',
+			tostring(key),
+			state.logic,
+			state.obj,
+			state.action,
+			state.coarse,
+			state.wait,
+			state.carry,
+			state.stay,
+			state.kpr,
+			state.pos,
+			state.walk_forbidden
+		))
+	end
+
+	say(string.format('bots total=%d', #keys))
+end
+
+-- Counterfeit evidence: cops that hold a coarse path but are not advancing,
+-- or that are explicitly waiting at a nav link.
+function TH.dump_cops()
+	local enemies = all_enemies()
+	local now = game_time()
+	local total = 0
+	local rows = {}
+
+	for key, data in pairs(enemies) do
+		total = total + 1
+
+		local unit = type(data) == 'table' and data.unit or nil
+		local state = unit_state(unit, now)
+		local holding = state.coarse ~= 'none' and state.action == 'none'
+
+		if holding or state.waiting then
+			rows[#rows + 1] = { key = key, state = state }
+		end
+	end
+
+	table.sort(rows, function(a, b)
+		if a.state.wait_age ~= b.state.wait_age then
+			return a.state.wait_age > b.state.wait_age
+		end
+
+		return tostring(a.key) < tostring(b.key)
+	end)
+
+	for i = 1, math.min(#rows, 25) do
+		local row = rows[i]
+
+		say(unit_state_line('cop', row.key, row.state))
+	end
+
+	say(string.format('cops total=%d waiting=%d', total, #rows))
+end
+
+-- Automatic [ITER-DIAG] logger. Registered on NavigationManager:update by
+-- register_p7_autodump, i.e. only after every game script is loaded.
+TH.diag_enabled = true
+TH.diag_last_t = nil
+TH.diag_link_log = {}
+TH.diag_bot_state = {}
+TH.diag_cop_log = {}
+
+function TH.diag_tick(t)
+	if not TH.diag_enabled then
+		return
+	end
+
+	t = tonumber(t) or 0
+
+	if t - (TH.diag_last_t or 0) < 2 then
+		return
+	end
+
+	TH.diag_last_t = t
+
+	local nav = nav_manager()
+	local elements = nav and (nav.itr_navlink_elements or nav._navlink_elements) or {}
+
+	for key, element in pairs(elements) do
+		if type(element) == 'table' then
+			local row = link_row(key, element, t)
+			local reserved = row.reserved ~= 'none'
+
+			if row.queue > 0 or reserved then
+				if row.wait >= 2 or row.queue >= 2 then
+					local last = TH.diag_link_log[key]
+
+					if not last or t - last >= 5 then
+						TH.diag_link_log[key] = t
+						log(PREFIX .. link_diag_line(row))
+					end
+				end
+			end
+		end
+	end
+
+	local bots = all_ai_criminals()
+
+	for key, data in pairs(bots) do
+		local unit = type(data) == 'table' and data.unit or nil
+
+		if unit then
+			local pos = unit_position(unit)
+			local state = TH.diag_bot_state[key]
+
+			if not state then
+				state = { pos = pos, t = t, log_t = 0 }
+				TH.diag_bot_state[key] = state
+			end
+
+			local moved = vec_distance(state.pos, pos)
+
+			if moved > 50 then
+				state.pos = pos
+				state.t = t
+			elseif t - state.t >= 5 and t - state.log_t >= 10 then
+				local snapshot = unit_state(unit, t)
+
+				log(string.format(
+					'%sdiag bot key=%s logic=%s obj=%s action=%s coarse=%s wait=%s carry=%s stay=%s kpr=%s moved=%.0f pos=%s',
+					PREFIX,
+					tostring(key),
+					snapshot.logic,
+					snapshot.obj,
+					snapshot.action,
+					snapshot.coarse,
+					snapshot.wait,
+					snapshot.carry,
+					snapshot.stay,
+					snapshot.kpr,
+					moved,
+					snapshot.pos
+				))
+
+				state.log_t = t
+				state.pos = pos
+				state.t = t
+			end
+		end
+	end
+
+	local enemies = all_enemies()
+
+	for key, data in pairs(enemies) do
+		local unit = type(data) == 'table' and data.unit or nil
+
+		if unit then
+			local brain = unit_brain(unit)
+			local my_data = logic_internal_data(brain)
+
+			if wait_flag(my_data) then
+				local last = TH.diag_cop_log[key]
+
+				if not last or t - last >= 10 then
+					TH.diag_cop_log[key] = t
+
+					local snapshot = unit_state(unit, t)
+
+					log(string.format(
+						'%sdiag cop key=%s logic=%s obj=%s action=%s wait=%s coarse=%s pos=%s',
+						PREFIX,
+						tostring(key),
+						snapshot.logic,
+						snapshot.obj,
+						snapshot.action,
+						snapshot.wait,
+						snapshot.coarse,
+						snapshot.pos
+					))
+				end
+			end
+		end
+	end
+end
+
+function TH.diag_toggle(args)
+	local value = args and args[1]
+
+	if value == 'on' or value == '1' or value == 'true' then
+		TH.diag_enabled = true
+	elseif value == 'off' or value == '0' or value == 'false' then
+		TH.diag_enabled = false
+	end
+
+	say(string.format('diag: %s', TH.diag_enabled and 'on' or 'off'))
 end
 
 function TH.set_setting(key, value)
@@ -1303,7 +2025,7 @@ function TH.reset()
 end
 
 function TH.help()
-	say('commands: nav | patch | navdump <seg> | navdoors <a> <b> | navquad <id...> | navpath <from> <to> | p7 [auto on|off] | force <level> | probe [n] | path | ai | links | alarm | assault | state | setting <key> <value> | dump | reset | help')
+	say('commands: nav | patch | navdump <seg> | navdoors <a> <b> | navquad <id...> | navpath <from> <to> | p7 [auto on|off] | force <level> | probe [n] | path | ai | bots | cops | links | diag [on|off] | alarm | assault | state | setting <key> <value> | dump | reset | help')
 end
 
 function TH.execute_string(message)
@@ -1350,8 +2072,14 @@ function TH.execute(command)
 		TH.dump_path()
 	elseif name == 'ai' then
 		TH.dump_ai()
+	elseif name == 'bots' then
+		TH.dump_bots()
+	elseif name == 'cops' then
+		TH.dump_cops()
 	elseif name == 'links' then
 		TH.dump_links()
+	elseif name == 'diag' then
+		TH.diag_toggle(args)
 	elseif name == 'alarm' then
 		TH.force_alarm()
 	elseif name == 'assault' then
