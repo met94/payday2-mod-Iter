@@ -165,7 +165,41 @@ local function logic_internal_data(brain)
 	return my_data
 end
 
--- objective.type + follow/assist/in_place flags, e.g. "revive,follow=100234".
+-- Liveness of a unit reference held by an objective. A stuck bot repeats
+-- `obj=follow,follow=?,in_place` and the owner cannot be decided until "no
+-- follow unit" and "dead follow unit" are told apart:
+--   absent field      -> 'nil'
+--   live unit         -> '<key>'
+--   destroyed unit    -> 'dead:<key>'
+--   plain key         -> 'key:<key>' (a number has no alive() to call)
+--   unreadable object -> '?'
+local function unit_ref_desc(value)
+	if value == nil then
+		return 'nil'
+	end
+
+	local key = key_of(value)
+
+	if type(value) == 'string' or type(value) == 'number' then
+		return key and ('key:' .. key) or '?'
+	end
+
+	if not key then
+		return '?'
+	end
+
+	if not is_alive_unit(value) then
+		return 'dead:' .. key
+	end
+
+	return key
+end
+
+-- objective.type + follow/assist/in_place flags, e.g.
+-- "revive,follow=100234,assist=dead:100237,in_place,dflt,called".
+-- follow is always printed so `follow=nil` is visible; assist only when the
+-- objective names one. dflt is objective.is_default, called is
+-- objective.called (a plain boolean in vanilla team-AI objectives).
 local function objective_desc(brain)
 	local objective = safe_call(function()
 		return brain:objective()
@@ -176,24 +210,42 @@ local function objective_desc(brain)
 	end
 
 	local parts = { tostring(objective.type or '?') }
-	local follow = objective.follow_unit or objective.follow_unit_key
+	local follow = objective.follow_unit
 
-	if follow then
-		parts[#parts + 1] = 'follow=' .. tostring(key_of(follow) or '?')
+	if follow == nil then
+		follow = objective.follow_unit_key
 	end
 
-	local assist = objective.assist_unit or objective.assist_unit_key
+	parts[#parts + 1] = 'follow=' .. unit_ref_desc(follow)
 
-	if assist then
-		parts[#parts + 1] = 'assist=' .. tostring(key_of(assist) or '?')
+	local assist = objective.assist_unit
+
+	if assist == nil then
+		assist = objective.assist_unit_key
+	end
+
+	if assist ~= nil then
+		parts[#parts + 1] = 'assist=' .. unit_ref_desc(assist)
 	end
 
 	if objective.in_place then
 		parts[#parts + 1] = 'in_place'
 	end
 
+	if objective.is_default then
+		parts[#parts + 1] = 'dflt'
+	end
+
+	if objective.called then
+		parts[#parts + 1] = 'called'
+	end
+
 	return table.concat(parts, ',')
 end
+
+-- Exported for the offline test (dev/tests/lua/test_harness_bot_obj.lua); the
+-- harness has no other way to reach a file-local formatter.
+TH.objective_desc = objective_desc
 
 local function advancing_desc(my_data)
 	local advancing = my_data and my_data.advancing

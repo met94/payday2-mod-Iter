@@ -451,7 +451,7 @@ managers = {
 lines = {}
 Iter_TestHarness.dump_cops()
 local cop_text = table.concat(lines, '\n')
-assert(cop_text:find('cop key=copA logic=travel obj=advance action=none coarse=2/1', 1, true), 'waiting cop line wrong: ' .. cop_text)
+assert(cop_text:find('cop key=copA logic=travel obj=advance,follow=nil action=none coarse=2/1', 1, true), 'waiting cop line wrong: ' .. cop_text)
 assert(cop_text:find('wait=iter=linkA,since=90.0,age=15.0', 1, true), 'cop wait state wrong: ' .. cop_text)
 assert(cop_text:find('cop key=copB', 1, true) == nil, 'advancing cop should not be listed: ' .. cop_text)
 assert(cop_text:find('cop key=copC', 1, true) == nil, 'idle cop without coarse path should not be listed: ' .. cop_text)

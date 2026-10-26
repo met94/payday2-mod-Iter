@@ -29,7 +29,7 @@ One command per chat line.
 | `!iter probe [n]` | Random coarse-search + streamline probe. |
 | `!iter path` | Player walk action and next nav-link. |
 | `!iter ai` | Travelling cops, coarse paths, direct-to-pos, path extender counters. |
-| `!iter bots` | Every team AI criminal: logic, objective (follow/assist/in_place), advancing action, coarse path `len/idx`, nav-link wait, carried bag, hold position, kpr, position, walk forbidden. |
+| `!iter bots` | Every team AI criminal: logic, objective (follow liveness/assist/in_place/dflt/called), advancing action, coarse path `len/idx`, nav-link wait, carried bag, hold position, kpr, position, walk forbidden. |
 | `!iter cops` | Cops that hold a coarse path but are not advancing, or that wait at a nav link; longest wait first, up to 25. |
 | `!iter links` | Nav-link elements: action, `from`/`to` segment, interval, queue, reserved unit, queue wait and positions. Queued/reserved links first (up to 40), then 10 idle ones. |
 | `!iter diag [on\|off]` | Automatic `[ITER-TEST] diag …` logging on/off (default on); bare `!iter diag` prints the state. |
@@ -96,6 +96,22 @@ What separates the cases:
 - `coarse=0/N` or `coarse=1/N` with `action=none` → pathfinding returned
   nothing useful; send the level and the previous commands.
 
+The follow unit is always printed, in one of four shapes:
+
+| `obj` token | Meaning |
+| --- | --- |
+| `follow=nil` | the objective names no follow unit at all |
+| `follow=<key>` | live unit; this is who the bot is following |
+| `follow=dead:<key>` | unit reference still there but the unit is gone/destroyed |
+| `follow=key:<key>` | only a plain key survives (liveness cannot be tested) |
+| `follow=?` | reference exists but exposes no `key()` |
+
+`follow=dead:<key>` / `follow=key:<key>` with `in_place` is the stuck shape:
+the bot has nobody to follow, so it idles until a new order (a shout).
+`dflt` marks a system-assigned objective (`is_default`), `called` marks an
+objective that came from a call/order (`objective.called`); neither is a
+stuck flag on its own.
+
 Fields can be `?` when the active logic does not expose them: `obj` for logics
 without `brain:objective()`, `kpr` unless Keepers exposes `kpr_mode`, `stay`
 unless the movement has `_should_stay`. That is expected, not an error.
@@ -121,4 +137,5 @@ block in the current heist if the auto run was missed.
 
 ```
 tools\luajit\luajit.exe dev/test-harness/test/test_commands.lua
+tools\luajit\luajit.exe dev/tests/lua/test_harness_bot_obj.lua
 ```
