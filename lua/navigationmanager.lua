@@ -17,6 +17,11 @@ dofile(Iter._path .. 'lua/iter_nav_v6_shim.lua')
 local _navlink_elements = {}
 local _navlink_planned_use = {}
 
+-- Next sim time at which the dead-reservation sweep may run (see the
+-- Iter_navlink_dead_sweep hook below). Reset per level so a level timer that
+-- restarts at 0 cannot starve the sweep.
+local itr_next_dead_sweep_t = 0
+
 -- Rebuild the v5 geometry tables from the converted load data, then drop them
 -- again when the manager is cleared. Geometry only; see iter_nav_v6_shim.lua.
 Hooks:PostHook(NavigationManager, '_send_nav_field_to_engine', 'Iter_nav_shim_rebuild', function(self, load_data)
@@ -26,6 +31,7 @@ end)
 Hooks:PostHook(NavigationManager, '_clear', 'Iter_nav_shim_clear', function(self)
 	IterNavShim.clear(self)
 	self.itr_coarse_cache = {}
+	itr_next_dead_sweep_t = 0
 
 	for key in pairs(_navlink_elements) do
 		_navlink_elements[key] = nil
@@ -210,6 +216,48 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_heartbeat', function(self,
 		level = Iter:get_level_id(),
 		navlink_elements = elements
 	})
+end)
+
+-- Dead reservations are the common case behind `reserved=dead` in the test
+-- harness: a destroyed unit never runs CopActionWalk:on_exit, so its nav-link
+-- reservation and queue timestamps survive it and every later unit busy-waits
+-- on that link (Counterfeit `pal` on 200.3: 282194 `navlink_reserve_busy`
+-- against 1283 reserves, one link stuck for 375.8 s). CopActionWalk clears the
+-- same fields inline when it wants the link, but a link nobody walks up to
+-- again is never visited, so sweep once per second. 145 links max: cheap.
+
+Hooks:PostHook(NavigationManager, 'update', 'Iter_navlink_dead_sweep', function(self, t)
+	t = t or 0
+
+	if t < itr_next_dead_sweep_t then
+		return
+	end
+
+	itr_next_dead_sweep_t = t + 1
+
+	for _, element in pairs(_navlink_elements) do
+		local user = element.itr_reserved_by_unit
+
+		-- A live reservation belongs to a cop that is using the link: only a
+		-- dead (destroyed) unit is cleared here.
+		if user and (not alive(user) or user:id() == -1) then
+			local wait_t = element.itr_navlink_queue_oldest_t
+			local wait = wait_t and math_max(0, t - wait_t) or 0
+
+			element.itr_reserved_by_unit = nil
+			element.itr_navlink_queue_frame_t = nil
+			element.itr_navlink_queue_oldest_t = nil
+			element.itr_navlink_queue_previous_oldest_t = nil
+
+			Iter.diag.count('navlink_dead_reservation_cleared')
+			Iter.diag.event('navlink_dead', {
+				action = element._values and element._values.so_action,
+				from = element._values and element._values.itr_from_navseg,
+				to = element._values and element._values.itr_to_navseg,
+				wait = wait
+			})
+		end
+	end
 end)
 
 local itr_original_navigationmanager_registeranimnavlink = NavigationManager.register_anim_nav_link

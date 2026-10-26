@@ -1,6 +1,6 @@
 # Iter full-nav port — compatibility matrix
 
-Scope: **full Iter** (`priority 40`, version 200.3) against the
+Scope: **full Iter** (`priority 40`, version 200.4) against the
 installed/workspace mods. "Full Iter" means every subsystem is on:
 streamline, Iter coarse search, nav-link queue, direct-to-pos, path extender
 and map patches. Static analysis plus the live runs so far (LIES installed in
@@ -154,6 +154,71 @@ call sites in `navigationmanager.lua` and three nav-point/nav-link sites in
 **Retest pending:** Santa's Workshop (`cane`) loud, 10+ minutes of heavy
 assault, no crash and no `[ITER-ERR]` in `mods/logs/`. The other cards are
 unaffected by this change; re-run them with the same build before release.
+
+## Phase 3: dead nav-link reservation (200.4)
+
+Found by the AI-suite Counterfeit (`pal`) card with harness v0.2 on build
+200.3 — release blocker, no crash but a session-long stall that matches the
+reported FPS drop:
+
+```
+[ITER-TEST] diag link action=e_nl_over_and_fwd_1m from=458 to=365 interval=1.00 queue=1 reserved=dead wait=363.7 pos=-3809,6945,16
+[ITER-TEST] diag link action=e_nl_up_1_75m from=270 to=271 interval=2.00 queue=1 reserved=dead wait=15.0 pos=-4669,3327,-100
+[ITER-TEST] diag link action=e_nl_jump_over_1m_var1 from=268 to=265 interval=1.00 queue=5 reserved=dead wait=12.2 pos=-4106,1600,50
+```
+
+71 `reserved=dead` samples, max wait **375.8 s**; the `e_nl_up_1_75m` sample at
+`z=-100` is the basement stairs/lift, the `e_nl_jump_over_1m_var1` one at
+`queue=5` is the stairs fence. Iter summary over the same run:
+`navlink_reserve_busy=282373`, `navlink_switch_fail=282194`,
+`navlink_reserve_ok=1283` — every waiting cop retried the same blocked link
+every update.
+
+Cause: a destroyed unit never runs `CopActionWalk:on_exit`, so
+`itr_clear_navlink_reservation` is never called for it. Two fields outlive the
+unit:
+
+- `itr_reserved_by_unit` points at the dead unit, so the link is never free
+  (`reserved=dead` in `diag link`);
+- `itr_navlink_queue_previous_oldest_t` is stale, and `itr_reserve_navlink`'s
+  r200 queue-order check (`if not oldest_t or wait_since_t <= oldest_t`) then
+  rejects every later unit: the dead reservation made the link permanently
+  unreservable instead of merely rate-limited.
+
+Fix:
+
+- `lua/copactionwalk.lua` `itr_reserve_navlink` — clear-then-reserve. The
+  guard is `user and (not alive(user) or user:id() == -1)`; the reservation and
+  `itr_navlink_queue_frame_t` / `_oldest_t` / `_previous_oldest_t` are dropped
+  (`navlink_dead_reservation_cleared`), then the normal reserve path runs. The
+  queue-order check stays: with the stale timestamps gone it either passes at
+  once or defers to a live waiter that really is older, so T3 behaviour is
+  preserved.
+- `lua/navigationmanager.lua` `NavigationManager.update` posthook
+  `Iter_navlink_dead_sweep` — once per second of sim time, walk the registered
+  nav-link elements and clear dead reservations nobody walks up to again.
+  Live reservations are never touched. Emits `[ITER-NAV] evt=navlink_dead
+  action=… from=… to=… wait=…` per cleared link and
+  `navlink_dead_reservation_cleared` for the summary; the sweep deadline
+  resets in the `_clear` posthook so a level timer that restarts at 0 cannot
+  starve it. 145 links max per pass, so the cost is negligible.
+- `user` is always a unit here (set from `self._unit`), so both sites keep the
+  game `alive()` helper; the door/nav-link `itr_alive` guard does not apply.
+
+Static gates: `dev/tools/test/navlink-dead-reservation.test.mjs` (dead guard,
+four cleared fields, clear-before-reserve order, sweep throttle, `navlink_dead`
+fields, predicate truth table) plus the updated
+`dev/tools/test/navlink-alive.test.mjs`.
+
+**Retest pending:** Counterfeit (`pal`) loud, basement and stairs, 10+ minutes
+of heavy assault: no `reserved=dead` in `diag link`, `evt=navlink_dead` present
+when cops die holding a link, `navlink_reserve_busy` in the same order of
+magnitude as `navlink_reserve_ok`, cops reaching the basement via
+`e_nl_up_1_75m`, and FPS holding late in the heist. Known limitation: the
+sweep clears the reservation and the queue timestamps but leaves
+`itr_navlink_queue_length` / `_length_in_progress`, so `diag link` can still
+print a stale `queue=N` line for a swept link until a live unit touches it;
+that field only feeds sibling-link selection, not reservations.
 
 ## Load order
 

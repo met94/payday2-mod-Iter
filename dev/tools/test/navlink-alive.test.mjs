@@ -139,8 +139,9 @@ test('navigationmanager keeps alive() for units', () => {
   );
   assert.equal(
     countMatches(navCode, /(?<![\w.])alive\(user\)/g),
-    3,
-    'user is a unit; its alive() calls must stay on the game helper'
+    4,
+    'user is a unit; its alive() calls must stay on the game helper '
+      + '(three queue/streamline sites plus the dead-reservation sweep)'
   );
 });
 
@@ -164,13 +165,16 @@ test('copactionwalk defines itr_alive_navpoint and guards nav points and nav lin
   assert.doesNotMatch(walkCode, /alive\(navlink\)/);
 });
 
-test('copactionwalk keeps alive(user) in itr_reserve_navlink', () => {
+test('copactionwalk keeps alive(user) for units in itr_reserve_navlink', () => {
   const start = walkCode.indexOf('function CopActionWalk:itr_reserve_navlink(');
   assert.ok(start >= 0, 'itr_reserve_navlink missing');
   const end = walkCode.indexOf('\n\tend', start);
   assert.ok(end > start, 'itr_reserve_navlink body is not terminated');
   const body = walkCode.slice(start, end);
-  assert.match(body, /if not alive\(user\) or user:id\(\) == -1 then/);
+  // A dead reservation is dropped before it can block the link; see
+  // navlink-dead-reservation.test.mjs. `user` is a unit, so it stays on the
+  // game helper (guarded against nil, since a free link has no user).
+  assert.match(body, /if user and \(not alive\(user\) or user:id\(\) == -1\) then/);
 });
 
 test('helper truth table: non-userdata is absent, missing alive() means present', () => {

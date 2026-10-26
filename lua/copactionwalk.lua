@@ -215,7 +215,21 @@ if Network:is_server() then
 		end
 
 		local user = navlink_element.itr_reserved_by_unit
-		if not alive(user) or user:id() == -1 then
+		if user and (not alive(user) or user:id() == -1) then
+			-- A destroyed unit never reaches itr_clear_navlink_reservation, so
+			-- its reservation and its queue timestamps outlive it and the
+			-- oldest_t check below would reject every later unit forever
+			-- (Counterfeit `pal`: wait up to 375.8 s, reserved=dead). Drop the
+			-- dead reservation before treating the link as free.
+			navlink_element.itr_reserved_by_unit = nil
+			navlink_element.itr_navlink_queue_frame_t = nil
+			navlink_element.itr_navlink_queue_oldest_t = nil
+			navlink_element.itr_navlink_queue_previous_oldest_t = nil
+			Iter.diag.count('navlink_dead_reservation_cleared')
+			user = nil
+		end
+
+		if not user then
 			local oldest_t = navlink_element.itr_navlink_queue_previous_oldest_t
 			if not oldest_t or wait_since_t <= oldest_t then
 				navlink_element.itr_reserved_by_unit = self._unit

@@ -280,6 +280,43 @@ Target: `e3a8b616` (248.2).
   assault, no crash and no `[ITER-ERR]` in `mods/logs/`. Runtime regression
   card is the AI-suite Santa's Workshop (`cane`) entry.
 
+## 2026-10-26 — session 4 (dead nav-link reservations)
+
+- Release-blocker from the AI-suite Counterfeit (`pal`) card with harness v0.2
+  on build 200.3: 71 `[ITER-TEST] diag link … reserved=dead` samples, max wait
+  **375.8 s** (`e_nl_over_and_fwd_1m` from=458 to=365 interval=1.00 wait=363.7;
+  `e_nl_up_1_75m` from=270 to=271 at z=-100 = basement stairs/lift;
+  `e_nl_jump_over_1m_var1` from=268 to=265 queue=5 at the stairs fence).
+  Summary at the time: `navlink_reserve_busy=282373`,
+  `navlink_switch_fail=282194`, `navlink_reserve_ok=1283` — a busy-wait storm
+  across ~200 cops, matching the reported FPS drop.
+- Cause: a destroyed unit never runs `CopActionWalk:on_exit`, so
+  `itr_clear_navlink_reservation` never fires for it. Its
+  `itr_reserved_by_unit` kept the link busy and its stale
+  `itr_navlink_queue_previous_oldest_t` made the r200 queue-order check
+  (`not oldest_t or wait_since_t <= oldest_t`) reject every later unit, so the
+  link was never reservable again.
+- Fix (version **200.4**): clear-then-reserve in
+  `lua/copactionwalk.lua` `itr_reserve_navlink` (guard
+  `user and (not alive(user) or user:id() == -1)`, drop the reservation plus
+  `itr_navlink_queue_frame_t` / `_oldest_t` / `_previous_oldest_t`, count
+  `navlink_dead_reservation_cleared`, then reserve); the queue-order check
+  stays, it just cannot read stale timestamps any more. New
+  `NavigationManager.update` posthook `Iter_navlink_dead_sweep` in
+  `lua/navigationmanager.lua` sweeps once per second of sim time (145 links
+  max), logs `evt=navlink_dead` with action/from/to/wait, and never touches a
+  live reservation; `itr_next_dead_sweep_t` resets in the `_clear` posthook.
+- `navlink-alive.test.mjs` updated for the guarded unit predicate (four
+  `alive(user)` unit sites in `navigationmanager`); new static gate
+  `dev/tools/test/navlink-dead-reservation.test.mjs`.
+- **Retest pending:** Counterfeit (`pal`) loud, basement + stairs, 10+ minutes
+  of heavy assault. Checks: `diag link` must show **no** `reserved=dead`;
+  `[ITER-NAV] evt=navlink_dead` (and
+  `navlink_dead_reservation_cleared` in the summary) should appear when cops
+  die holding a link; `navlink_reserve_busy` must stay near `reserve_ok`, not
+  five orders of magnitude above it; cops must reach the basement through
+  `e_nl_up_1_75m` and the stairs fence; FPS at the 15-20 minute mark must hold.
+
 ## Rulings
 
 - R1: use `a3180fc` as the old baseline for parsing; `b36f5fbb` restyle text
