@@ -1,17 +1,17 @@
 ﻿# Iter 248.2 full-nav static gates
 
-Generated: 2026-10-26 11:19:30Z
+Generated: 2026-10-26 11:37:15Z
 
 ## Node tool tests
 
 Result: PASS
 
-Γä╣ pass 81
+Γä╣ pass 88
 Γä╣ fail 0
 Γä╣ cancelled 0
 Γä╣ skipped 0
 Γä╣ todo 0
-Γä╣ duration_ms 171.9823
+Γä╣ duration_ms 141.6308
 
 ## Test-harness parser
 
@@ -44,6 +44,8 @@ ok survives_bad_optional_data
 ok unowned_vis_group_and_missing_pos
 ok vanilla_accessor_uses_shim
 144 checks, 11 tests passed
+test_watch.lua: PASS
+14 checks, watch channel test passed
 
 ## LuaJIT syntax (runtime files)
 
@@ -63,16 +65,16 @@ Findings: 0
 
 Result: PASS
 
-wrote dev/port-ledger.md
-wrote dev/reports/port-ledger.json
-files=21 functions=106 errors=0 unhooked=7
-MOD_EDIT_CLEAN=31 MOD_ONLY=61 MOD_EDIT_VANILLA_CHANGED=6 MOD_ONLY_HOOK=8
+unchanged dev/port-ledger.md
+unchanged dev/reports/port-ledger.json
+files=21 functions=109 errors=0 unhooked=7
+MOD_EDIT_CLEAN=31 MOD_ONLY=63 MOD_EDIT_VANILLA_CHANGED=6 MOD_ONLY_HOOK=9
 
 ## API audit
 
 Result: PASS
 
-hooks=14/14 methods=9/9 errors=12 review=32 suppressed=12 allowUnused=0
+hooks=14/14 methods=10/10 errors=12 review=32 suppressed=12 allowUnused=0
 Baseline errors: 12 (current: 12)
 Unused allowlist entries: 0
 

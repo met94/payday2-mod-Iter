@@ -182,9 +182,13 @@ test('stale event reports how long the holder kept the link', () => {
 
   // `hold` must be the reservation age (now - stamp), not the queue wait:
   // 2026-10-26 sid 991e showed hold=0 on a 15 s stale clear because the old
-  // field reused the (cleared) queue wait.
-  assert.match(body, /local hold = 0/, 'hold accumulator missing');
-  assert.match(body, /hold = math_max\(0, t - element\.itr_reserved_t\)/, 'hold must come from the stamp');
+  // field reused the (cleared) queue wait. 200.7 moved the computation to the
+  // top of the sweep loop so the alarm tier can reuse it.
+  assert.match(
+    body,
+    /local hold = element\.itr_reserved_t and math_max\(0, t - element\.itr_reserved_t\) or 0/,
+    'hold must come from the stamp'
+  );
   assert.match(body, /hold = math\.floor\(hold\)/, 'hold must be logged rounded');
   assert.doesNotMatch(body, /hold = wait/, 'hold must not reuse the queue wait');
 });

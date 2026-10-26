@@ -28,10 +28,27 @@ Hooks:PostHook(NavigationManager, '_send_nav_field_to_engine', 'Iter_nav_shim_re
 	IterNavShim.rebuild(self, load_data)
 end)
 
+-- Watch channel state. Declared before the _clear posthook so a level change can
+-- reset it; the channel itself is defined further down with the sweep.
+local itr_watch_next_t = 0
+local itr_watch_header_done = false
+local itr_watch_stale_window_t = 0
+local itr_watch_stale_in_window = 0
+local itr_watch_worst = { hold = 0, queue = 0, wait = 0 }
+
 Hooks:PostHook(NavigationManager, '_clear', 'Iter_nav_shim_clear', function(self)
 	IterNavShim.clear(self)
 	self.itr_coarse_cache = {}
 	itr_next_dead_sweep_t = 0
+	itr_watch_next_t = 0
+	itr_watch_header_done = false
+	itr_watch_stale_window_t = 0
+	itr_watch_stale_in_window = 0
+	itr_watch_worst = { hold = 0, queue = 0, wait = 0 }
+
+	if Iter.diag and Iter.diag.watch_reset then
+		Iter.diag.watch_reset()
+	end
 
 	for key in pairs(_navlink_elements) do
 		_navlink_elements[key] = nil
@@ -178,6 +195,26 @@ Hooks:PostHook(NavigationManager, 'on_simulation_ended', 'Iter_nav_summary', fun
 	Iter.diag.summary({
 		level = Iter:get_level_id()
 	})
+
+	-- Final watch digest: a pasted log tail then carries the whole level.
+	Iter.diag.watch('final', {
+		level = Iter:get_level_id(),
+		elements = itr_watch_worst.elements or 0,
+		reserve_busy = Iter.diag.counters.navlink_reserve_busy or 0,
+		reserve_ok = Iter.diag.counters.navlink_reserve_ok or 0,
+		stale_cleared = Iter.diag.counters.navlink_stale_reservation_cleared or 0,
+		dead_cleared = Iter.diag.counters.navlink_dead_reservation_cleared or 0,
+		search_ok = Iter.diag.counters.search_ok or 0,
+		search_fail = Iter.diag.counters.search_fail or 0,
+		worst_action = itr_watch_worst.action,
+		worst_from = itr_watch_worst.from,
+		worst_to = itr_watch_worst.to,
+		worst_hold = string.format('%.1f', itr_watch_worst.hold or 0),
+		worst_queue = itr_watch_worst.queue or 0,
+		worst_wait = string.format('%.1f', itr_watch_worst.wait or 0)
+	})
+
+	Iter.diag.watch_reset()
 end)
 
 -- 30 s heartbeat: a log is useful even when the player exits the game
@@ -218,6 +255,71 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_heartbeat', function(self,
 	})
 end)
 
+-- Watch channel: opt-in 60 s digest (Iter.settings.watch_log) plus hard-failure
+-- alarms that are always on but silent on a healthy level. Bounded: one digest
+-- per minute, one alarm per name per minute, 20 alarms per level.
+-- The alarms exist because a stuck link (one cop holding it 204.8 s on
+-- Counterfeit, 2026-10-26) leaves no other trace in a release build.
+local ITR_WATCH_DIGEST_T = 60
+local ITR_WATCH_STALE_BURST = 5
+local ITR_WATCH_QUEUE_LONG = 20
+local ITR_WATCH_WAIT_LONG = 120
+
+local function itr_watch_header(t)
+	itr_watch_header_done = true
+
+	Iter.diag.watch('header', {
+		level = Iter:get_level_id(),
+		nav_overlay = tostring(Iter.settings.nav_overlay),
+		navlink_queue = tostring(Iter.settings.navlink_queue),
+		path_extender = tostring(Iter.settings.path_extender),
+		nav_search = tostring(Iter.settings.nav_search),
+		streamline = tostring(Iter.settings.nav_streamline),
+		debug_log = tostring(Iter.settings.debug_log),
+		t = string.format('%.0f', t or 0)
+	})
+end
+
+local function itr_watch_digest(t)
+	Iter.diag.watch('digest', {
+		level = Iter:get_level_id(),
+		t = string.format('%.0f', t or 0),
+		elements = itr_watch_worst.elements or 0,
+		reserve_busy = Iter.diag.counters.navlink_reserve_busy or 0,
+		reserve_ok = Iter.diag.counters.navlink_reserve_ok or 0,
+		stale_cleared = Iter.diag.counters.navlink_stale_reservation_cleared or 0,
+		dead_cleared = Iter.diag.counters.navlink_dead_reservation_cleared or 0,
+		search_ok = Iter.diag.counters.search_ok or 0,
+		search_fail = Iter.diag.counters.search_fail or 0,
+		worst_action = itr_watch_worst.action,
+		worst_from = itr_watch_worst.from,
+		worst_to = itr_watch_worst.to,
+		worst_hold = string.format('%.1f', itr_watch_worst.hold or 0),
+		worst_queue = itr_watch_worst.queue or 0,
+		worst_wait = string.format('%.1f', itr_watch_worst.wait or 0)
+	})
+end
+
+Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_watch', function(self, t)
+	t = t or 0
+
+	if not itr_watch_header_done then
+		itr_watch_header(t)
+	end
+
+	if t < itr_watch_next_t then
+		return
+	end
+
+	itr_watch_next_t = t + ITR_WATCH_DIGEST_T
+
+	if Iter.diag.watch_enabled() then
+		itr_watch_digest(t)
+	end
+
+	itr_watch_worst = { hold = 0, queue = 0, wait = 0 }
+end)
+
 -- Dead reservations are the common case behind `reserved=dead` in the test
 -- harness: a destroyed unit never runs CopActionWalk:on_exit, so its nav-link
 -- reservation and queue timestamps survive it and every later unit busy-waits
@@ -244,8 +346,61 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_navlink_dead_sweep', function(
 
 	itr_next_dead_sweep_t = t + 1
 
+	local elements = 0
+
 	for _, element in pairs(_navlink_elements) do
+		elements = elements + 1
+
 		local user = element.itr_reserved_by_unit
+		local queue_len = element.itr_navlink_queue_length or 0
+		local wait_t = element.itr_navlink_queue_oldest_t
+		local wait = wait_t and math_max(0, t - wait_t) or 0
+		local hold = element.itr_reserved_t and math_max(0, t - element.itr_reserved_t) or 0
+
+		-- Watch: remember the worst link of the last minute for the digest.
+		if hold > (itr_watch_worst.hold or 0) or queue_len > (itr_watch_worst.queue or 0) then
+			itr_watch_worst.hold = math_max(hold, itr_watch_worst.hold or 0)
+			itr_watch_worst.queue = math_max(queue_len, itr_watch_worst.queue or 0)
+
+			if hold > 0 or queue_len > 0 then
+				itr_watch_worst.action = element._values and element._values.so_action
+				itr_watch_worst.from = element._values and element._values.itr_from_navseg
+				itr_watch_worst.to = element._values and element._values.itr_to_navseg
+			end
+		end
+
+		if wait > (itr_watch_worst.wait or 0) then
+			itr_watch_worst.wait = wait
+		end
+
+		-- Watch alarms (always on, rate limited, silent on a healthy level).
+		if queue_len > ITR_WATCH_QUEUE_LONG then
+			Iter.diag.alarm('navlink_queue_long', {
+				queue = queue_len,
+				action = element._values and element._values.so_action,
+				from = element._values and element._values.itr_from_navseg,
+				to = element._values and element._values.itr_to_navseg
+			}, t)
+		end
+
+		if queue_len > 0 and wait > ITR_WATCH_WAIT_LONG then
+			Iter.diag.alarm('navlink_wait_long', {
+				wait = math.floor(wait),
+				queue = queue_len,
+				action = element._values and element._values.so_action,
+				from = element._values and element._values.itr_from_navseg,
+				to = element._values and element._values.itr_to_navseg
+			}, t)
+		end
+
+		if hold > ITR_RESERVED_STALE_T + ITR_WATCH_QUEUE_LONG * 3 then
+			Iter.diag.alarm('navlink_hold_long', {
+				hold = math.floor(hold),
+				action = element._values and element._values.so_action,
+				from = element._values and element._values.itr_from_navseg,
+				to = element._values and element._values.itr_to_navseg
+			}, t)
+		end
 
 		if user then
 			local dead = (not alive(user) or user:id() == -1)
@@ -264,14 +419,6 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_navlink_dead_sweep', function(
 			end
 
 			if dead or stale then
-				local wait_t = element.itr_navlink_queue_oldest_t
-				local wait = wait_t and math_max(0, t - wait_t) or 0
-				local hold = 0
-
-				if element.itr_reserved_t then
-					hold = math_max(0, t - element.itr_reserved_t)
-				end
-
 				local action = element._values and element._values.so_action
 
 				element.itr_reserved_by_unit = nil
@@ -296,10 +443,29 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_navlink_dead_sweep', function(
 						to = element._values and element._values.itr_to_navseg,
 						hold = math.floor(hold)
 					})
+
+					-- Alarm only on a burst: a single stale release is normal.
+					if t - itr_watch_stale_window_t > 60 then
+						itr_watch_stale_window_t = t
+						itr_watch_stale_in_window = 0
+					end
+
+					itr_watch_stale_in_window = itr_watch_stale_in_window + 1
+
+					if itr_watch_stale_in_window > ITR_WATCH_STALE_BURST then
+						Iter.diag.alarm('navlink_stale_burst', {
+							count = itr_watch_stale_in_window,
+							action = action,
+							from = element._values and element._values.itr_from_navseg,
+							to = element._values and element._values.itr_to_navseg
+						}, t)
+					end
 				end
 			end
 		end
 	end
+
+	itr_watch_worst.elements = elements
 end)
 
 local itr_original_navigationmanager_registeranimnavlink = NavigationManager.register_anim_nav_link

@@ -23,6 +23,9 @@ Iter.settings = {
 	cop_idle_fix = true,
 	debug_log = 0,
 	error_log = true,
+	-- Opt-in diagnostic digest ([ITER-WATCH] every 60 s). Hard-failure alarms
+	-- are always on and do not need this; see MENU_OPTIONS.md.
+	watch_log = false,
 	rebuild_navlinks = true,
 	map_change_alex_1 = true,
 	map_change_alex_2 = true,
@@ -147,5 +150,6 @@ Iter.diag.event('boot', {
 	path_extender = tostring(Iter.settings.path_extender),
 	direct_to_pos = tostring(Iter.settings.direct_to_pos),
 	nav_ai = tostring(Iter.settings.nav_ai),
-	debug_log = Iter.settings.debug_log
+	debug_log = Iter.settings.debug_log,
+	watch_log = tostring(Iter.settings.watch_log)
 })

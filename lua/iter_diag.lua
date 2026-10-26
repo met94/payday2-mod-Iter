@@ -86,6 +86,69 @@ function D.count(name, amount)
 	D.counters[name] = (D.counters[name] or 0) + (amount or 1)
 end
 
+-- Watch channel. Two tiers with different switches:
+--   D.watch  -- opt-in digest (`Iter.settings.watch_log`, default false)
+--   D.alarm  -- always on, hard failures only, rate limited per name and per
+--               level so a broken level cannot flood the log either.
+-- The always-on tier exists because a session with everything off otherwise
+-- leaves no evidence at all; see docs/investigations/ai-suite-fps.md
+-- (Counterfeit `pal`: one cop held a nav link 204.8 s, invisible without the
+-- dev harness).
+D.alarm_last = D.alarm_last or {}
+D.alarm_budget_left = D.alarm_budget_left or 20
+D.alarm_window = 60
+
+function D.watch_enabled()
+	return (Iter.settings and Iter.settings.watch_log) and true or false
+end
+
+function D.watch(event_name, fields)
+	if not D.watch_enabled() then
+		return
+	end
+
+	local parts = { '[ITER-WATCH] v=' .. D.version }
+	parts[#parts + 1] = 'sid=' .. D.session_id
+	parts[#parts + 1] = 'evt=' .. sanitize(event_name)
+	parts[#parts + 1] = fields_to_text(fields)
+
+	emit(table.concat(parts, ' '))
+end
+
+function D.alarm(name, fields, now)
+	if (D.alarm_budget_left or 0) <= 0 then
+		return
+	end
+
+	now = tonumber(now) or D.now()
+	local last = D.alarm_last[name]
+
+	if last and now - last < D.alarm_window then
+		return
+	end
+
+	D.alarm_last[name] = now
+	D.alarm_budget_left = D.alarm_budget_left - 1
+
+	local parts = { '[ITER-WATCH] v=' .. D.version }
+	parts[#parts + 1] = 'sid=' .. D.session_id
+	parts[#parts + 1] = 'evt=alarm'
+	parts[#parts + 1] = 'name=' .. sanitize(name)
+	parts[#parts + 1] = fields_to_text(fields)
+
+	emit(table.concat(parts, ' '))
+
+	if D.alarm_budget_left <= 0 then
+		emit('[ITER-WATCH] v=' .. D.version .. ' sid=' .. D.session_id .. ' evt=alarm_budget_exhausted')
+	end
+end
+
+-- Called on level change: the budget is per level, not per session.
+function D.watch_reset()
+	D.alarm_last = {}
+	D.alarm_budget_left = 20
+end
+
 function D.observe_ms(name, ms)
 	local current = D.counters[name]
 

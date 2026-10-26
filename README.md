@@ -8,7 +8,7 @@ original mod was written against the v5 nav model; the core has been
 reimplemented on the v6 load data, with the subsystem switches documented in
 `MENU_OPTIONS.md`.
 
-- Version: `200.6`
+- Version: `200.7`
 - Base: upstream Iter r200 (`98940fb`) by TdlQ
 - Fork maintenance: met94
 - Target: PAYDAY 2 248.2 (`e3a8b616`), SuperBLT
@@ -24,6 +24,13 @@ reimplemented on the v6 load data, with the subsystem switches documented in
 | Direct-to-pos | working (T4 PASS) |
 | Path extender | working (T5 PASS on counters; no visible slide/stuck) |
 | Map patches | 21 clean blocks (22 level ids), 2 accepted losses, 1 dead, 2 no-op |
+
+**200.7** adds the watch channel: an opt-in `[ITER-WATCH]` digest (one line per
+minute of play, `"watch_log": true` in `iter.txt`) plus always-on hard-failure
+alarms that stay silent on a healthy heist (queue over 20, a cop waiting over
+120 s, a burst of stale reservations). The Counterfeit fault of 2026-10-26 was
+only visible because the dev harness was installed; this makes a repeat visible
+in any log. See `changelog.txt` and `MENU_OPTIONS.md`.
 
 **200.6** stops the wait-start stamp from leaking between links: a unit that
 waited once kept `itr_wait_for_navlink_availability_t` for the whole level, and

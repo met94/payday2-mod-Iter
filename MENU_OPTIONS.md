@@ -59,13 +59,40 @@ then relaunch. Missing keys fall back to the defaults below.
 | `cop_idle_fix` | `true` | cosmetic idle animation variant |
 | `debug_log` | `0` | debug events: 0 off, 1 on (2 reserved for verbose) |
 | `error_log` | `true` | `[ITER-ERR]` lines; set `false` to silence caught errors |
+| `watch_log` | `false` | `[ITER-WATCH]` digest every 60 s (troubleshooting recorder) |
 
 Debug events are off by default. Set `debug_log=1` (or `2`) in `iter.txt` when
 running the dev harness/cards; `!iter ai`/`p7` output then appears. Error
-lines stay on unless `error_log=false`. Neither setting is in the menu.
+lines stay on unless `error_log=false`. None of these settings is in the menu.
 
 To silence caught errors, add `"error_log": false` to
 `mods\saves\iter.txt` (game closed) or use `!iter setting error_log false`.
+
+### Watch channel (`watch_log`) and alarms
+
+Two tiers, so a log from a normal session still contains evidence:
+
+- **Alarms** are always on, but only fire on a hard failure and are heavily
+  bounded: one line per alarm name per 60 s, 20 lines per level, then a single
+  `evt=alarm_budget_exhausted` line. Alarm names:
+  `navlink_queue_long` (more than 20 units waiting on one link),
+  `navlink_wait_long` (a unit waiting more than 120 s),
+  `navlink_stale_burst` (more than 5 stale reservations released in a minute).
+  A healthy heist produces **zero** alarm lines.
+- **Digest** is opt-in: `"watch_log": true` in `mods\saves\iter.txt` (or
+  `!iter setting watch_log true`). With it on, Iter writes one header line at
+  heist start, one `[ITER-WATCH] evt=digest` line per 60 s of play, and one
+  final digest on heist end. Each carries the nav-link counters
+  (`reserve_busy`, `reserve_ok`, stale/dead clears), search ok/fail, and the
+  worst link of the last minute (action, segments, hold time, queue length,
+  worst wait).
+
+Why: the Counterfeit nav-link fault of 2026-10-26 (one cop held a link for
+204.8 s) was only diagnosable because the dev test harness was installed. The
+alarm tier makes a repeat of that visible in any player's log without moving
+the diagnostics cost onto normal sessions, and the digest tier gives a
+time series when someone is actively troubleshooting.
+
 
 `streamline_path` is a legacy original-Iter key. It is republished after
 `Iter:load()` as a **runtime mirror** of `nav_overlay and nav_streamline` for
