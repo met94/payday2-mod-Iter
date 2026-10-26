@@ -285,10 +285,49 @@ local function itr_watch_header(t)
 	})
 end
 
+-- Live population, counted once per digest (cheap at 1/minute) so a density
+-- claim can be checked instead of felt: "3x more cops with mods" needs a
+-- number, and vanilla runs can be compared with the harness `!iter count`.
+local function itr_watch_count(table_or_nil)
+	if type(table_or_nil) ~= 'table' then
+		return 0
+	end
+
+	local n = 0
+
+	for _ in pairs(table_or_nil) do
+		n = n + 1
+	end
+
+	return n
+end
+
+local function itr_watch_population()
+	local cops, crims = 0, 0
+
+	pcall(function()
+		cops = itr_watch_count(managers.enemy:all_enemies())
+	end)
+
+	pcall(function()
+		local state = managers.groupai and managers.groupai:state()
+
+		if state and state.all_AI_criminals then
+			crims = itr_watch_count(state:all_AI_criminals())
+		end
+	end)
+
+	return cops, crims
+end
+
 local function itr_watch_digest(t)
+	local cops, crims = itr_watch_population()
+
 	Iter.diag.watch('digest', {
 		level = Iter:get_level_id(),
 		t = string.format('%.0f', t or 0),
+		cops = cops,
+		crims = crims,
 		elements = itr_watch_worst.elements or 0,
 		reserve_busy = Iter.diag.counters.navlink_reserve_busy or 0,
 		reserve_ok = Iter.diag.counters.navlink_reserve_ok or 0,

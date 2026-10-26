@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-26T12:22:56.096Z
+Generated: 2026-10-26T12:59:35.504Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -13,7 +13,7 @@ Scope: top-level function definitions only. Nested helpers are folded into their
 |---|---:|
 | MOD_EDIT_VANILLA_CHANGED | 6 |
 | MOD_ONLY_HOOK | 9 |
-| MOD_ONLY | 63 |
+| MOD_ONLY | 65 |
 | MOD_EDIT_CLEAN | 31 |
 
 ## lua/coreworldinstancemanager.lua
@@ -90,8 +90,10 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `itr_get_navlink_usage` | 17 | 0 | 0 |  |
 | [ ] | audit | `itr_get_rooms_having_access_to_next_level` | 16 | 0 | 0 |  |
 | [ ] | audit | `itr_log_navlink_usage` | 12 | 0 | 0 |  |
-| [ ] | audit | `itr_watch_digest` | 19 | 0 | 0 |  |
+| [ ] | audit | `itr_watch_count` | 13 | 0 | 0 |  |
+| [ ] | audit | `itr_watch_digest` | 23 | 0 | 0 |  |
 | [ ] | audit | `itr_watch_header` | 14 | 0 | 0 |  |
+| [ ] | audit | `itr_watch_population` | 17 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_copy_door_data` | 11 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_execute_coarce_search` | 231 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_find_best_navlink` | 47 | 0 | 0 |  |

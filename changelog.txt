@@ -1,4 +1,10 @@
-Revision 200.8 (expire the nav-link queue cache on a free link):
+Revision 200.9 (population counts in the watch digest):
+- the 60 s digest now carries `cops=<live enemy units>` and `crims=<AI criminals>`, counted once per digest, so a density claim can be checked instead of felt ("with mods there are 3x more cops" needed a number)
+- added `itr_watch_population` with pcall guards so a missing manager cannot break the digest
+- note for readers: LIES has no working population multiplier in this port - `coplimit` ("Max Enemies Multiplier") and `spawngroupdelays` are stored by their menu callbacks but nothing reads them, and `fixed_spawngroups=1`/`hhtacs=false` skip the spawn-group repair paths, so the extra density is behavioural (cop survival, pathing, assault pacing), not a spawn-count setting
+- no behaviour change; the field is diagnostic only
+
+Player notes: nothing changes in game. With `"watch_log": true` in `mods\saves\iter.txt`, each `[ITER-WATCH] evt=digest` line now also reports how many cops are alive, which is the number to compare against a vanilla run (`!iter count` in the dev harness gives the same figure without Iter installed).Revision 200.8 (expire the nav-link queue cache on a free link):
 - the reservation sweep now clears `itr_navlink_queue_length`, `..._length_in_progress`, `..._frame_t`, `..._oldest_t` and `..._previous_oldest_t` for a link with **no owner** whose cache has not been refreshed for `ITR_QUEUE_CACHE_TTL` (2 s), counting `navlink_queue_cache_cleared` and logging `[ITER-NAV] evt=navlink_queue_cache`
 - cause: those fields are per-frame scratch data written only when a waiting unit polls. When that unit stops polling (repath, action swap, logic change) the cache freezes, so the log reports a waiter that is no longer there and the reservation-order check can read a frozen `previous_oldest_t`
 - evidence (Counterfeit `pal`, Iter 200.7, harness 0.3, session sid `b2d8`): `e_nl_jump_over_1m_var2` 460->247 showed `queue=1 reserved=none wait` climbing 3.8 -> 239.4 over 38 consecutive `diag link` samples, the new `navlink_wait_long` alarm fired for it, and the cop never appeared in `diag cop` (no wait stamp of its own); one poll later the link reserved instantly (`reserved=1150 wait=2.6`). The link was never busy - only its cache was stale

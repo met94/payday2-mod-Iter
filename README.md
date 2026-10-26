@@ -8,7 +8,7 @@ original mod was written against the v5 nav model; the core has been
 reimplemented on the v6 load data, with the subsystem switches documented in
 `MENU_OPTIONS.md`.
 
-- Version: `200.8`
+- Version: `200.9`
 - Base: upstream Iter r200 (`98940fb`) by TdlQ
 - Fork maintenance: met94
 - Target: PAYDAY 2 248.2 (`e3a8b616`), SuperBLT
@@ -24,6 +24,11 @@ reimplemented on the v6 load data, with the subsystem switches documented in
 | Direct-to-pos | working (T4 PASS) |
 | Path extender | working (T5 PASS on counters; no visible slide/stuck) |
 | Map patches | 21 clean blocks (22 level ids), 2 accepted losses, 1 dead, 2 no-op |
+
+**200.9** adds live population counts to the watch digest (`cops=`, `crims=`),
+so "more cops with mods" can be compared against a vanilla run instead of felt.
+LIES has no working population multiplier in this port: `coplimit` and
+`spawngroupdelays` are stored but nothing reads them.
 
 **200.8** expires the nav-link queue cache on a link with no owner: the queue
 fields are per-frame scratch data, and when the waiting cop stops polling they
