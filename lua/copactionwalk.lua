@@ -179,6 +179,17 @@ if Network:is_server() then
 			return itr_original_copactionwalk_playnavlinkanim(self, t)
 		end
 
+		-- This runs every frame the walk action is at the nav link, so it is the
+		-- natural keep-alive for the reservation: a holder that stops calling it
+		-- (repath, stagger, blocked behind another link, stuck in combat) stops
+		-- refreshing and the NavigationManager sweep takes the token back.
+		local navlink_element = self._next_is_nav_link and self._next_is_nav_link.element
+		local navlink_user = navlink_element and navlink_element.itr_reserved_by_unit
+
+		if navlink_user and navlink_user:key() == self._unit:key() then
+			navlink_element.itr_reserved_t = self._last_upd_t
+		end
+
 		if self:itr_check_navlink_delay(t) then
 			self:itr_set_navlink_delay(t)
 			self:itr_clear_navlink_reservation(self._next_is_nav_link.element)
@@ -222,6 +233,7 @@ if Network:is_server() then
 			-- (Counterfeit `pal`: wait up to 375.8 s, reserved=dead). Drop the
 			-- dead reservation before treating the link as free.
 			navlink_element.itr_reserved_by_unit = nil
+			navlink_element.itr_reserved_t = nil
 			navlink_element.itr_navlink_queue_frame_t = nil
 			navlink_element.itr_navlink_queue_oldest_t = nil
 			navlink_element.itr_navlink_queue_previous_oldest_t = nil
@@ -233,6 +245,7 @@ if Network:is_server() then
 			local oldest_t = navlink_element.itr_navlink_queue_previous_oldest_t
 			if not oldest_t or wait_since_t <= oldest_t then
 				navlink_element.itr_reserved_by_unit = self._unit
+				navlink_element.itr_reserved_t = self._last_upd_t
 				Iter.diag.count('navlink_reserve_ok')
 				return true
 			end
@@ -288,6 +301,7 @@ if Network:is_server() then
 					end
 				end
 				alt_navlink_element.itr_reserved_by_unit = self._unit
+				alt_navlink_element.itr_reserved_t = t
 				self.itr_wait_for_navlink = nil
 				Iter.diag.count('navlink_switch_ok')
 
@@ -303,6 +317,7 @@ if Network:is_server() then
 		local user = navlink_element.itr_reserved_by_unit
 		if user and user:key() == self._unit:key() then
 			navlink_element.itr_reserved_by_unit = nil
+			navlink_element.itr_reserved_t = nil
 			if not navlink_element.itr_navlink_queue_frame_t or navlink_element.itr_navlink_queue_frame_t < self._last_upd_t then
 				navlink_element.itr_navlink_queue_frame_t = nil
 				navlink_element.itr_navlink_queue_oldest_t = nil

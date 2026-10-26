@@ -8,7 +8,7 @@ original mod was written against the v5 nav model; the core has been
 reimplemented on the v6 load data, with the subsystem switches documented in
 `MENU_OPTIONS.md`.
 
-- Version: `200.4`
+- Version: `200.5`
 - Base: upstream Iter r200 (`98940fb`) by TdlQ
 - Fork maintenance: met94
 - Target: PAYDAY 2 248.2 (`e3a8b616`), SuperBLT
@@ -24,6 +24,14 @@ reimplemented on the v6 load data, with the subsystem switches documented in
 | Direct-to-pos | working (T4 PASS) |
 | Path extender | working (T5 PASS on counters; no visible slide/stuck) |
 | Map patches | 21 clean blocks (22 level ids), 2 accepted losses, 1 dead, 2 no-op |
+
+**200.5** fixes stale **live** nav-link reservations: a cop could take the token
+and then stop using the link (repath, stagger, blocked behind another link,
+stuck in combat), and nothing released it until that cop died — on Counterfeit
+one cop held the basement stairs link for 204.8 s of sim time. Reservations now
+carry `itr_reserved_t`, refreshed in `_play_nav_link_anim` only while the owner
+is at the link, and the sweep releases a live holder older than 15 s
+(`[ITER-NAV] evt=navlink_stale`). See `changelog.txt`.
 
 **200.4** fixes dead nav-link reservations: a destroyed cop never runs
 `CopActionWalk:on_exit`, so its reservation and queue timestamps could block a

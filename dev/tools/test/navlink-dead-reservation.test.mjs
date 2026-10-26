@@ -191,8 +191,10 @@ test('NavigationManager.update sweeps dead reservations once per second', () => 
   // Iterates the file-local nav-link map registered by register_anim_nav_link.
   assert.match(body, /for _, element in pairs\(_navlink_elements\) do/);
 
-  // Dead user only: a live cop using the link keeps its reservation.
-  assert.match(body, DEAD_GUARD, 'the sweep must only clear dead reservations');
+  // 200.5 supersedes the narrow dead-only guard with one predicate: a dead
+  // owner is always cleared, a live owner only when its reservation stamp is
+  // stale (see navlink-stale-reservation.test.mjs). The dead half must stay.
+  assert.match(body, /local dead = \(not alive\(user\) or user:id\(\) == -1\)/, 'the sweep must clear dead owners');
 
   for (const field of RESERVATION_FIELDS) {
     assert.equal(
@@ -205,23 +207,23 @@ test('NavigationManager.update sweeps dead reservations once per second', () => 
   // Diagnostics: counter for the summary, one event per cleared link.
   assert.match(body, /Iter\.diag\.count\('navlink_dead_reservation_cleared'\)/);
   assert.match(body, /Iter\.diag\.event\('navlink_dead', \{/);
-  assert.match(body, /action = element\._values and element\._values\.so_action/);
+  assert.match(body, /action = action/);
   assert.match(body, /from = element\._values and element\._values\.itr_from_navseg/);
   assert.match(body, /to = element\._values and element\._values\.itr_to_navseg/);
   assert.match(body, /wait = wait/);
 
-  // Order: guard -> clear -> report.
-  const guardAt = body.search(DEAD_GUARD);
+  // Order: predicate -> clear -> report.
+  const deadAt = body.search(/local dead = \(not alive\(user\) or user:id\(\) == -1\)/);
   const clearAt = body.indexOf('element.itr_reserved_by_unit = nil');
   const eventAt = body.search(/Iter\.diag\.event\('navlink_dead'/);
-  assert.ok(guardAt >= 0 && clearAt > guardAt, 'the sweep clear must sit inside the dead guard');
+  assert.ok(deadAt >= 0 && clearAt > deadAt, 'the sweep clear must sit behind the liveness predicate');
   assert.ok(eventAt > clearAt, 'the navlink_dead event must be emitted after the clear');
 
   // No unguarded (live-inclusive) clearing in the sweep.
   assert.equal(
     countMatches(body, /element\.itr_reserved_by_unit = nil/g),
     1,
-    'exactly one clear site, and it is inside the dead guard'
+    'exactly one clear site, behind the dead-or-stale predicate'
   );
 });
 

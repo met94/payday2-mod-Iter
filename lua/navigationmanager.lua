@@ -225,6 +225,15 @@ end)
 -- against 1283 reserves, one link stuck for 375.8 s). CopActionWalk clears the
 -- same fields inline when it wants the link, but a link nobody walks up to
 -- again is never visited, so sweep once per second. 145 links max: cheap.
+--
+-- A live holder can leak the reservation too (200.5): on 200.4 the same heist
+-- showed cop id 1151 holding `e_nl_up_1_down_3m` 288->287 for 204.8 s of sim
+-- time while it was itself blocked (coarse=2/1), until it died. The token is
+-- meant to be held only while the cop is at the link, and
+-- CopActionWalk:_play_nav_link_anim refreshes `itr_reserved_t` there every
+-- frame; anything older than ITR_RESERVED_STALE_T is a parked holder and is
+-- released into the normal queue.
+local ITR_RESERVED_STALE_T = 15
 
 Hooks:PostHook(NavigationManager, 'update', 'Iter_navlink_dead_sweep', function(self, t)
 	t = t or 0
@@ -238,24 +247,51 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_navlink_dead_sweep', function(
 	for _, element in pairs(_navlink_elements) do
 		local user = element.itr_reserved_by_unit
 
-		-- A live reservation belongs to a cop that is using the link: only a
-		-- dead (destroyed) unit is cleared here.
-		if user and (not alive(user) or user:id() == -1) then
-			local wait_t = element.itr_navlink_queue_oldest_t
-			local wait = wait_t and math_max(0, t - wait_t) or 0
+		if user then
+			local dead = (not alive(user) or user:id() == -1)
+			local stale = false
+			local stamp = element.itr_reserved_t
 
-			element.itr_reserved_by_unit = nil
-			element.itr_navlink_queue_frame_t = nil
-			element.itr_navlink_queue_oldest_t = nil
-			element.itr_navlink_queue_previous_oldest_t = nil
+			if dead then
+				-- Destroyed owner: the inline clear in itr_reserve_navlink can
+				-- never run for it when nobody walks up to the link again.
+			elseif not stamp then
+				-- Reservation made before this build or after a level reload:
+				-- adopt it instead of clearing it on sight.
+				element.itr_reserved_t = t
+			elseif t - stamp > ITR_RESERVED_STALE_T then
+				stale = true
+			end
 
-			Iter.diag.count('navlink_dead_reservation_cleared')
-			Iter.diag.event('navlink_dead', {
-				action = element._values and element._values.so_action,
-				from = element._values and element._values.itr_from_navseg,
-				to = element._values and element._values.itr_to_navseg,
-				wait = wait
-			})
+			if dead or stale then
+				local wait_t = element.itr_navlink_queue_oldest_t
+				local wait = wait_t and math_max(0, t - wait_t) or 0
+				local action = element._values and element._values.so_action
+
+				element.itr_reserved_by_unit = nil
+				element.itr_reserved_t = nil
+				element.itr_navlink_queue_frame_t = nil
+				element.itr_navlink_queue_oldest_t = nil
+				element.itr_navlink_queue_previous_oldest_t = nil
+
+				if dead then
+					Iter.diag.count('navlink_dead_reservation_cleared')
+					Iter.diag.event('navlink_dead', {
+						action = action,
+						from = element._values and element._values.itr_from_navseg,
+						to = element._values and element._values.itr_to_navseg,
+						wait = wait
+					})
+				else
+					Iter.diag.count('navlink_stale_reservation_cleared')
+					Iter.diag.event('navlink_stale', {
+						action = action,
+						from = element._values and element._values.itr_from_navseg,
+						to = element._values and element._values.itr_to_navseg,
+						hold = wait
+					})
+				end
+			end
 		end
 	end
 end)
