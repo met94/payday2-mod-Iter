@@ -8,7 +8,7 @@ original mod was written against the v5 nav model; the core has been
 reimplemented on the v6 load data, with the subsystem switches documented in
 `MENU_OPTIONS.md`.
 
-- Version: `200.5`
+- Version: `200.6`
 - Base: upstream Iter r200 (`98940fb`) by TdlQ
 - Fork maintenance: met94
 - Target: PAYDAY 2 248.2 (`e3a8b616`), SuperBLT
@@ -24,6 +24,15 @@ reimplemented on the v6 load data, with the subsystem switches documented in
 | Direct-to-pos | working (T4 PASS) |
 | Path extender | working (T5 PASS on counters; no visible slide/stuck) |
 | Map patches | 21 clean blocks (22 level ids), 2 accepted losses, 1 dead, 2 no-op |
+
+**200.6** stops the wait-start stamp from leaking between links: a unit that
+waited once kept `itr_wait_for_navlink_availability_t` for the whole level, and
+`itr_update_navlink_queue_data` copied it into
+`itr_navlink_queue_oldest_t`, so `!iter links` showed phantom waits (579 s on a
+`queue=1` link while the longest real cop wait was 74.7 s) and the queue-order
+check ran on a level-old timestamp. The stamp is now dropped when the wait ends
+and on exit, and `[ITER-NAV] evt=navlink_stale` logs the real reservation age
+(`hold=`) instead of the queue wait. See `changelog.txt`.
 
 **200.5** fixes stale **live** nav-link reservations: a cop could take the token
 and then stop using the link (repath, stagger, blocked behind another link,

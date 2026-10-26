@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-26T08:02:51.819Z
+Generated: 2026-10-26T11:19:32.691Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -80,7 +80,7 @@ No function definitions (hook/overlay file).
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.on_simulation_ended:Iter_nav_summary` | 5 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.set_load_data:Iter_nav_heist` | 31 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.update:Iter_nav_heartbeat` | 35 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
-| [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.update:Iter_navlink_dead_sweep` | 60 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
+| [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.update:Iter_navlink_dead_sweep` | 66 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit | `get_coarse_dis` | 8 | 0 | 0 |  |
 | [ ] | audit | `is_vec3` | 9 | 0 | 0 |  |
 | [ ] | audit | `itr_add_door_pos_to` | 13 | 0 | 0 |  |
@@ -134,7 +134,7 @@ No function definitions (hook/overlay file).
 
 | done | status | function | mod L | old L | new L | note |
 |---:|---|---|---:|---:|---:|---|
-| [ ] | **PORT** | `CopActionWalk.on_exit` | 7 | 47 | 49 |  |
+| [ ] | **PORT** | `CopActionWalk.on_exit` | 8 | 47 | 49 |  |
 | [ ] | audit | `CopActionWalk.itr_append_next_step` | 31 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_check_extensible` | 19 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_check_navlink_delay` | 9 | 0 | 0 |  |
@@ -147,7 +147,7 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `CopActionWalk.itr_set_navlink_delay` | 10 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_switch_to_sibling_navlink` | 54 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_update_navlink_queue_data` | 17 | 0 | 0 |  |
-| [ ] | audit | `CopActionWalk.itr_update_wait_for_navlink_availability` | 27 | 0 | 0 |  |
+| [ ] | audit | `CopActionWalk.itr_update_wait_for_navlink_availability` | 32 | 0 | 0 |  |
 | [ ] | audit | `itr_alive_navpoint` | 12 | 0 | 0 |  |
 | [ ] | audit | `itr_expand_one_point_path` | 24 | 0 | 0 |  |
 | [ ] | audit | `itr_prepare_init_navlink` | 5 | 0 | 0 |  |

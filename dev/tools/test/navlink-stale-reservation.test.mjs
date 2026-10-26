@@ -173,6 +173,49 @@ test('stale limit is a named file-local constant', () => {
   assert.ok(value >= 10 && value <= 30, `unexpected stale limit: ${value}`);
 });
 
+test('stale event reports how long the holder kept the link', () => {
+  const body = sliceFrom(
+    navCode,
+    "Hooks:PostHook(NavigationManager, 'update', 'Iter_navlink_dead_sweep'",
+    '\nend)'
+  );
+
+  // `hold` must be the reservation age (now - stamp), not the queue wait:
+  // 2026-10-26 sid 991e showed hold=0 on a 15 s stale clear because the old
+  // field reused the (cleared) queue wait.
+  assert.match(body, /local hold = 0/, 'hold accumulator missing');
+  assert.match(body, /hold = math_max\(0, t - element\.itr_reserved_t\)/, 'hold must come from the stamp');
+  assert.match(body, /hold = math\.floor\(hold\)/, 'hold must be logged rounded');
+  assert.doesNotMatch(body, /hold = wait/, 'hold must not reuse the queue wait');
+});
+
+test('the wait-start stamp is dropped when the wait ends', () => {
+  // itr_update_wait_for_navlink_availability success path
+  const waiter = sliceFrom(
+    walkCode,
+    'function CopActionWalk:itr_update_wait_for_navlink_availability(',
+    '\n\tend'
+  );
+  assert.match(
+    waiter,
+    /self\.itr_wait_for_navlink = nil\s*\n\s*self\.itr_wait_for_navlink_availability_t = nil/,
+    'the waiter must drop its wait start together with itr_wait_for_navlink'
+  );
+
+  // on_exit: a unit that leaves must not keep a level-old stamp.
+  const exitBody = sliceFrom(walkCode, 'function CopActionWalk:on_exit(', '\n\tend');
+  assert.match(
+    exitBody,
+    /itr_wait_for_navlink_availability_t = nil/,
+    'on_exit must clear the wait start'
+  );
+
+  // Never reset while the unit is still waiting (before the update call).
+  const resetAt = waiter.indexOf('self.itr_wait_for_navlink_availability_t = nil');
+  const updateAt = waiter.lastIndexOf('self:update(t)');
+  assert.ok(resetAt >= 0 && updateAt > resetAt, 'the reset belongs after a successful grab, before update');
+});
+
 test('stale-reservation predicate truth table', () => {
   // JS mirror of the sweep decision.
   const STALE_T = Number(/local ITR_RESERVED_STALE_T = (\d+)/.exec(navCode)[1]);

@@ -440,12 +440,18 @@ if Network:is_server() then
 		self:_set_updator(self._start_run and '_upd_start_anim_first_frame' or nil)
 		self._common_data.ext_brain:rem_pos_rsrv('stand')
 		self.itr_wait_for_navlink = nil
+		-- The wait is over: drop the wait-start stamp too, or this unit carries
+		-- a level-old timestamp into the next link it queues for, and
+		-- itr_update_navlink_queue_data copies it into
+		-- itr_navlink_queue_oldest_t (phantom waits, broken queue order).
+		self.itr_wait_for_navlink_availability_t = nil
 		self:update(t)
 	end
 
 	local itr_original_CopActionWalk_onexit = CopActionWalk.on_exit
 	function CopActionWalk:on_exit()
 		self.itr_path_ahead = false
+		self.itr_wait_for_navlink_availability_t = nil
 		if self._next_is_nav_link then
 			self:itr_clear_navlink_reservation(self._next_is_nav_link.element)
 		end

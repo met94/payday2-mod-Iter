@@ -266,6 +266,12 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_navlink_dead_sweep', function(
 			if dead or stale then
 				local wait_t = element.itr_navlink_queue_oldest_t
 				local wait = wait_t and math_max(0, t - wait_t) or 0
+				local hold = 0
+
+				if element.itr_reserved_t then
+					hold = math_max(0, t - element.itr_reserved_t)
+				end
+
 				local action = element._values and element._values.so_action
 
 				element.itr_reserved_by_unit = nil
@@ -288,7 +294,7 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_navlink_dead_sweep', function(
 						action = action,
 						from = element._values and element._values.itr_from_navseg,
 						to = element._values and element._values.itr_to_navseg,
-						hold = wait
+						hold = math.floor(hold)
 					})
 				end
 			end

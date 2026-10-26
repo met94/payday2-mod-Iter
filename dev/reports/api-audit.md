@@ -44,22 +44,22 @@ Target: `e3a8b616`
 
 ## Errors
 
-- `lua/navigationmanager.lua:466` `_visibility_groups` - Never assigned in nav v6. `local vis_group_rooms = self._visibility_groups[i_vis_group].rooms`
-- `lua/navigationmanager.lua:475` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `for door_id, door in pairs(self._room_doors) do`
-- `lua/navigationmanager.lua:497` `get_nav_seg_from_i_room` - Reads _rooms/_visibility_groups, which nav v6 never builds. `if segment_id == self:get_nav_seg_from_i_room(room_id) then`
-- `lua/navigationmanager.lua:511` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `local all_doors = self._room_doors`
-- `lua/navigationmanager.lua:563` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `local all_doors = self._room_doors`
-- `lua/navigationmanager.lua:617` `_rooms` - Removed at runtime in nav v6. `local room_data = self._rooms[room_id]`
-- `lua/navigationmanager.lua:664` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `local all_doors = self._room_doors`
-- `lua/navigationmanager.lua:839` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `for door_id, door in pairs(self._room_doors or {}) do`
-- `lua/navigationmanager.lua:1030` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `local door = self._room_doors[door_id]`
-- `lua/navigationmanager.lua:1050` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `return self:itr_get_closest_door_to_pos(self._room_doors, door_list, nil, near_pos, nil, true)`
-- `lua/navigationmanager.lua:1164` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `return self:itr_get_closest_door_to_pos(self._room_doors, doors, nil, near_pos, access_pos, false)`
-- `lua/navigationmanager.lua:1180` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `local all_doors = self._room_doors`
+- `lua/navigationmanager.lua:472` `_visibility_groups` - Never assigned in nav v6. `local vis_group_rooms = self._visibility_groups[i_vis_group].rooms`
+- `lua/navigationmanager.lua:481` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `for door_id, door in pairs(self._room_doors) do`
+- `lua/navigationmanager.lua:503` `get_nav_seg_from_i_room` - Reads _rooms/_visibility_groups, which nav v6 never builds. `if segment_id == self:get_nav_seg_from_i_room(room_id) then`
+- `lua/navigationmanager.lua:517` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `local all_doors = self._room_doors`
+- `lua/navigationmanager.lua:569` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `local all_doors = self._room_doors`
+- `lua/navigationmanager.lua:623` `_rooms` - Removed at runtime in nav v6. `local room_data = self._rooms[room_id]`
+- `lua/navigationmanager.lua:670` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `local all_doors = self._room_doors`
+- `lua/navigationmanager.lua:845` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `for door_id, door in pairs(self._room_doors or {}) do`
+- `lua/navigationmanager.lua:1036` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `local door = self._room_doors[door_id]`
+- `lua/navigationmanager.lua:1056` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `return self:itr_get_closest_door_to_pos(self._room_doors, door_list, nil, near_pos, nil, true)`
+- `lua/navigationmanager.lua:1170` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `return self:itr_get_closest_door_to_pos(self._room_doors, doors, nil, near_pos, access_pos, false)`
+- `lua/navigationmanager.lua:1186` `_room_doors` - Removed in nav v6; doors are position vectors in segment.neighbours. `local all_doors = self._room_doors`
 
 ## Review
 
-- `lua/copactionwalk.lua:486` `_quad_field` - New engine surface; verify method/arg shapes. `_qf = managers.navigation._quad_field`
+- `lua/copactionwalk.lua:492` `_quad_field` - New engine surface; verify method/arg shapes. `_qf = managers.navigation._quad_field`
 - `lua/copbrain.lua:78` `search_coarse` - Start/end validation added at 247. `managers.navigation:search_coarse(params)`
 - `lua/coplogictravel.lua:300` `_quad_field` - New engine surface; verify method/arg shapes. `local pos = nav.itr_get_door_between and not nav._quad_field:is_nav_segment_blocked(follow_unit_nav_seg, data.SO_access) and nav:itr_get_door_between(data.itr_follow_unit_nav_seg, follow_unit_nav_seg,`
 - `lua/drill.lua:14` `search_coarse` - Start/end validation added at 247. `if not managers.navigation:search_coarse(search_params) then`
@@ -70,27 +70,27 @@ Target: `e3a8b616`
 - `lua/navigationmanager.lua:150` `_quad_field` - New engine surface; verify method/arg shapes. `self._quad_field:destroy_nav_tracker(nav_tracker)`
 - `lua/navigationmanager.lua:158` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local navseg = self._nav_segments and self._nav_segments[unique_id]`
 - `lua/navigationmanager.lua:165` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local neighbour = self._nav_segments[neighbour_seg_id]`
-- `lua/navigationmanager.lua:411` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local nav_seg = self._nav_segments[nav_seg_id]`
-- `lua/navigationmanager.lua:426` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local nav_seg = self._nav_segments[nav_seg_id]`
-- `lua/navigationmanager.lua:450` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local nav_seg = self._nav_segments[unique_id]`
-- `lua/navigationmanager.lua:464` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `if self._nav_segments[segment_id] and next(self._nav_segments[segment_id].vis_groups or {}) then`
-- `lua/navigationmanager.lua:465` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `for _, i_vis_group in ipairs(self._nav_segments[segment_id].vis_groups) do`
-- `lua/navigationmanager.lua:665` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local all_nav_segments = self._nav_segments`
-- `lua/navigationmanager.lua:818` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `for segment_id, segment in pairs(self._nav_segments) do`
-- `lua/navigationmanager.lua:822` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `for segment_id, segment in pairs(self._nav_segments) do`
-- `lua/navigationmanager.lua:826` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local neighbour = self._nav_segments[neighbour_seg_id]`
-- `lua/navigationmanager.lua:859` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `for navseg_id in pairs(self._nav_segments) do`
-- `lua/navigationmanager.lua:867` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `for _, segment in pairs(self._nav_segments) do`
-- `lua/navigationmanager.lua:943` `_quad_field` - New engine surface; verify method/arg shapes. `local nav_tracker = self._quad_field:create_nav_tracker(door_pos, true)`
-- `lua/navigationmanager.lua:947` `_quad_field` - New engine surface; verify method/arg shapes. `self._quad_field:destroy_nav_tracker(nav_tracker)`
-- `lua/navigationmanager.lua:1048` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local door_list = self._nav_segments[segment1_id].neighbours[segment2_id]`
-- `lua/navigationmanager.lua:1055` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local door_list = self._nav_segments[segment1_id].neighbours[segment2_id]`
-- `lua/navigationmanager.lua:1140` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local doors = self._nav_segments[segment1_id].neighbours[segment2_id]`
-- `lua/navigationmanager.lua:1145` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local segment1 = self._nav_segments[segment1_id]`
-- `lua/navigationmanager.lua:1179` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local all_segs = self._nav_segments`
-- `lua/navigationmanager.lua:1346` `_quad_field` - New engine surface; verify method/arg shapes. `if access_pos and self._quad_field:is_nav_segment_blocked(end_i_seg, access_pos) then`
-- `lua/navigationmanager.lua:1352` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local all_nav_segments = self._nav_segments`
-- `lua/navigationmanager.lua:1452` `_quad_field` - New engine surface; verify method/arg shapes. `elseif access_pos and self._quad_field:is_nav_segment_blocked(neighbour_seg_id, access_pos) then`
+- `lua/navigationmanager.lua:417` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local nav_seg = self._nav_segments[nav_seg_id]`
+- `lua/navigationmanager.lua:432` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local nav_seg = self._nav_segments[nav_seg_id]`
+- `lua/navigationmanager.lua:456` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local nav_seg = self._nav_segments[unique_id]`
+- `lua/navigationmanager.lua:470` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `if self._nav_segments[segment_id] and next(self._nav_segments[segment_id].vis_groups or {}) then`
+- `lua/navigationmanager.lua:471` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `for _, i_vis_group in ipairs(self._nav_segments[segment_id].vis_groups) do`
+- `lua/navigationmanager.lua:671` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local all_nav_segments = self._nav_segments`
+- `lua/navigationmanager.lua:824` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `for segment_id, segment in pairs(self._nav_segments) do`
+- `lua/navigationmanager.lua:828` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `for segment_id, segment in pairs(self._nav_segments) do`
+- `lua/navigationmanager.lua:832` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local neighbour = self._nav_segments[neighbour_seg_id]`
+- `lua/navigationmanager.lua:865` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `for navseg_id in pairs(self._nav_segments) do`
+- `lua/navigationmanager.lua:873` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `for _, segment in pairs(self._nav_segments) do`
+- `lua/navigationmanager.lua:949` `_quad_field` - New engine surface; verify method/arg shapes. `local nav_tracker = self._quad_field:create_nav_tracker(door_pos, true)`
+- `lua/navigationmanager.lua:953` `_quad_field` - New engine surface; verify method/arg shapes. `self._quad_field:destroy_nav_tracker(nav_tracker)`
+- `lua/navigationmanager.lua:1054` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local door_list = self._nav_segments[segment1_id].neighbours[segment2_id]`
+- `lua/navigationmanager.lua:1061` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local door_list = self._nav_segments[segment1_id].neighbours[segment2_id]`
+- `lua/navigationmanager.lua:1146` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local doors = self._nav_segments[segment1_id].neighbours[segment2_id]`
+- `lua/navigationmanager.lua:1151` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local segment1 = self._nav_segments[segment1_id]`
+- `lua/navigationmanager.lua:1185` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local all_segs = self._nav_segments`
+- `lua/navigationmanager.lua:1352` `_quad_field` - New engine surface; verify method/arg shapes. `if access_pos and self._quad_field:is_nav_segment_blocked(end_i_seg, access_pos) then`
+- `lua/navigationmanager.lua:1358` `_nav_segments` - Keyed by tostring(id); neighbours are door vectors. `local all_nav_segments = self._nav_segments`
+- `lua/navigationmanager.lua:1458` `_quad_field` - New engine surface; verify method/arg shapes. `elseif access_pos and self._quad_field:is_nav_segment_blocked(neighbour_seg_id, access_pos) then`
 
 ## Suppressed (allowlisted)
 
