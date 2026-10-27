@@ -6,7 +6,7 @@
 	"image" : "tdlq.dds",
 	"color" : "0.52 1 0",
 	"contact" : "https://github.com/met94/payday2-mod-Iter",
-	"version" : "200.10",
+	"version" : "200.11",
 	"updates" : [
 		{
 			"identifier" : "Iter",
@@ -42,6 +42,10 @@
 		{
 			"hook_id" : "lib/managers/menumanager",
 			"script_path" : "lua/menumanager.lua"
+		},
+		{
+			"hook_id" : "lib/managers/menumanager",
+			"script_path" : "lua/iter_watch_menu.lua"
 		},
 		{
 			"hook_id" : "lib/managers/missionmanager",

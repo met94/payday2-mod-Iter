@@ -51,6 +51,7 @@ local itr_watch_window_wall0 = nil
 -- Forward-declared so the _clear posthook (defined above the channel) can emit
 -- the teardown summary.
 local itr_watch_final
+local itr_watch_final_done = false
 
 Hooks:PostHook(NavigationManager, '_clear', 'Iter_nav_shim_clear', function(self)
 	IterNavShim.clear(self)
@@ -75,6 +76,8 @@ Hooks:PostHook(NavigationManager, '_clear', 'Iter_nav_shim_clear', function(self
 	if itr_watch_final then
 		itr_watch_final()
 	end
+
+	itr_watch_final_done = false
 
 	if Iter.diag and Iter.diag.watch_reset then
 		Iter.diag.watch_reset()
@@ -288,6 +291,7 @@ local ITR_WATCH_WAIT_LONG = 120
 
 local function itr_watch_header(t)
 	itr_watch_header_done = true
+	itr_watch_final_done = false
 
 	Iter.diag.watch('header', {
 		level = Iter:get_level_id(),
@@ -372,6 +376,7 @@ local function itr_watch_digest(t, event_name)
 		hitch_n = itr_watch_hitches,
 		hitch_ms = string.format('%.0f', hitch_ms),
 		sim_ratio = string.format('%.2f', sim_ratio),
+		lua_kb = math.floor(collectgarbage('count')),
 		elements = itr_watch_worst.elements or 0,
 		reserve_busy = Iter.diag.counters.navlink_reserve_busy or 0,
 		reserve_ok = Iter.diag.counters.navlink_reserve_ok or 0,
@@ -397,7 +402,24 @@ local function itr_watch_digest(t, event_name)
 end
 
 itr_watch_final = function()
+	-- Idempotent per level: on_simulation_ended, _clear and the menu fallback can
+	-- all fire for the same heist, and the menu one runs on every menu open.
+	if itr_watch_final_done then
+		return
+	end
+
+	if (itr_watch_frames or 0) <= 0 and (itr_watch_window_t0 or 0) <= 0 then
+		return
+	end
+
+	itr_watch_final_done = true
 	itr_watch_digest(itr_watch_window_t0 or 0, 'final')
+end
+
+-- Menu fallback: PD2 does not call NavigationManager:_clear when a heist is quit
+-- to the menu, so lua/iter_watch_menu.lua calls this from MenuManager:open.
+function NavigationManager:itr_watch_final()
+	itr_watch_final()
 end
 
 Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_watch', function(self, t, dt)

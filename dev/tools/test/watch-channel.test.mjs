@@ -23,6 +23,19 @@ const core = read('lua', 'corecode.lua');
 const diag = read('lua', 'iter_diag.lua');
 const nav = read('lua', 'navigationmanager.lua');
 
+test('heap size is reported and the final is idempotent', () => {
+  assert.match(nav, /lua_kb = math\.floor\(collectgarbage\('count'\)\)/, 'lua heap missing from digest');
+  assert.match(nav, /if itr_watch_final_done then\s*\n\s*return/, 'final must be idempotent');
+  assert.match(nav, /function NavigationManager:itr_watch_final\(\)/, 'menu fallback entry point missing');
+
+  // The menu fallback exists, is hooked, and is registered in mod.txt.
+  const menu = fs.readFileSync(path.join(repoRoot, 'lua', 'iter_watch_menu.lua'), 'utf8');
+  assert.match(menu, /Hooks:PostHook\(MenuManager, 'open', 'Iter_watch_menu_final'/, 'menu hook missing');
+  assert.match(menu, /managers\.navigation\.itr_watch_final/, 'menu hook must call the manager entry point');
+  const modTxt = fs.readFileSync(path.join(repoRoot, 'mod.txt'), 'utf8');
+  assert.match(modTxt, /"script_path"\s*:\s*"lua\/iter_watch_menu\.lua"/, 'hook not declared in mod.txt');
+});
+
 test('watch_log is opt-in and off by default', () => {
   assert.match(core, /watch_log = false,/, 'watch_log must default to false');
   assert.match(core, /watch_log = tostring\(Iter\.settings\.watch_log\)/, 'boot event should record the switch');

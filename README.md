@@ -8,7 +8,7 @@ original mod was written against the v5 nav model; the core has been
 reimplemented on the v6 load data, with the subsystem switches documented in
 `MENU_OPTIONS.md`.
 
-- Version: `200.10`
+- Version: `200.11`
 - Base: upstream Iter r200 (`98940fb`) by TdlQ
 - Fork maintenance: met94
 - Target: PAYDAY 2 248.2 (`e3a8b616`), SuperBLT
@@ -24,6 +24,11 @@ reimplemented on the v6 load data, with the subsystem switches documented in
 | Direct-to-pos | working (T4 PASS) |
 | Path extender | working (T5 PASS on counters; no visible slide/stuck) |
 | Map patches | 21 clean blocks (22 level ids), 2 accepted losses, 1 dead, 2 no-op |
+
+**200.11** reports the Lua heap (`lua_kb`) in the digest, so a long-heist
+slowdown can be told apart from a leak, and makes the teardown summary actually
+fire by emitting it from a `MenuManager.open` hook (PD2 does not clear the nav
+manager when a heist is quit to the menu).
 
 **200.10** adds frame pacing to the digest (`fps`, `hitch_n`, `hitch_ms`,
 `sim_ratio` from `Application:time()`) and emits the final digest on level

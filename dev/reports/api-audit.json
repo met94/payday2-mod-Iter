@@ -32,6 +32,12 @@
       "reason": ""
     },
     {
+      "hook": "lib/managers/menumanager",
+      "file": "lua/iter_watch_menu.lua",
+      "ok": true,
+      "reason": ""
+    },
+    {
       "hook": "lib/managers/missionmanager",
       "file": "lua/missionmanager.lua",
       "ok": true,
@@ -87,6 +93,15 @@
     }
   ],
   "hookMethodChecks": [
+    {
+      "kind": "PostHook",
+      "className": "MenuManager",
+      "method": "open",
+      "id": "Iter_watch_menu_final",
+      "file": "lua/iter_watch_menu.lua",
+      "ok": true,
+      "inherited": false
+    },
     {
       "kind": "PostHook",
       "className": "NavigationManager",
@@ -325,7 +340,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 97,
+      "line": 100,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -334,7 +349,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 105,
+      "line": 108,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -343,7 +358,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 114,
+      "line": 117,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -352,7 +367,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 193,
+      "line": 196,
       "symbol": "_quad_field",
       "severity": "review",
       "reason": "New engine surface; verify method/arg shapes",
@@ -361,7 +376,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 197,
+      "line": 200,
       "symbol": "_quad_field",
       "severity": "review",
       "reason": "New engine surface; verify method/arg shapes",
@@ -370,7 +385,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 205,
+      "line": 208,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -379,7 +394,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 212,
+      "line": 215,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -388,7 +403,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 738,
+      "line": 760,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -397,7 +412,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 753,
+      "line": 775,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -406,7 +421,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 777,
+      "line": 799,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -415,7 +430,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 791,
+      "line": 813,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -424,7 +439,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 792,
+      "line": 814,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -433,7 +448,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 793,
+      "line": 815,
       "symbol": "_visibility_groups",
       "severity": "error",
       "reason": "Never assigned in nav v6",
@@ -442,7 +457,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 802,
+      "line": 824,
       "symbol": "_room_doors",
       "severity": "error",
       "reason": "Removed in nav v6; doors are position vectors in segment.neighbours",
@@ -451,7 +466,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 824,
+      "line": 846,
       "symbol": "get_nav_seg_from_i_room",
       "severity": "error",
       "reason": "Reads _rooms/_visibility_groups, which nav v6 never builds",
@@ -460,7 +475,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 838,
+      "line": 860,
       "symbol": "_room_doors",
       "severity": "error",
       "reason": "Removed in nav v6; doors are position vectors in segment.neighbours",
@@ -469,7 +484,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 890,
+      "line": 912,
       "symbol": "_room_doors",
       "severity": "error",
       "reason": "Removed in nav v6; doors are position vectors in segment.neighbours",
@@ -478,7 +493,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 944,
+      "line": 966,
       "symbol": "_rooms",
       "severity": "error",
       "reason": "Removed at runtime in nav v6",
@@ -487,7 +502,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 991,
+      "line": 1013,
       "symbol": "_room_doors",
       "severity": "error",
       "reason": "Removed in nav v6; doors are position vectors in segment.neighbours",
@@ -496,7 +511,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 992,
+      "line": 1014,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -505,7 +520,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1145,
+      "line": 1167,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -514,7 +529,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1149,
+      "line": 1171,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -523,7 +538,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1153,
+      "line": 1175,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -532,7 +547,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1166,
+      "line": 1188,
       "symbol": "_room_doors",
       "severity": "error",
       "reason": "Removed in nav v6; doors are position vectors in segment.neighbours",
@@ -541,7 +556,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1186,
+      "line": 1208,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -550,7 +565,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1194,
+      "line": 1216,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -559,7 +574,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1270,
+      "line": 1292,
       "symbol": "_quad_field",
       "severity": "review",
       "reason": "New engine surface; verify method/arg shapes",
@@ -568,7 +583,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1274,
+      "line": 1296,
       "symbol": "_quad_field",
       "severity": "review",
       "reason": "New engine surface; verify method/arg shapes",
@@ -577,7 +592,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1357,
+      "line": 1379,
       "symbol": "_room_doors",
       "severity": "error",
       "reason": "Removed in nav v6; doors are position vectors in segment.neighbours",
@@ -586,7 +601,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1375,
+      "line": 1397,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -595,7 +610,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1377,
+      "line": 1399,
       "symbol": "_room_doors",
       "severity": "error",
       "reason": "Removed in nav v6; doors are position vectors in segment.neighbours",
@@ -604,7 +619,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1382,
+      "line": 1404,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -613,7 +628,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1467,
+      "line": 1489,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -622,7 +637,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1472,
+      "line": 1494,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -631,7 +646,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1491,
+      "line": 1513,
       "symbol": "_room_doors",
       "severity": "error",
       "reason": "Removed in nav v6; doors are position vectors in segment.neighbours",
@@ -640,7 +655,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1506,
+      "line": 1528,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -649,7 +664,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1507,
+      "line": 1529,
       "symbol": "_room_doors",
       "severity": "error",
       "reason": "Removed in nav v6; doors are position vectors in segment.neighbours",
@@ -658,7 +673,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1673,
+      "line": 1695,
       "symbol": "_quad_field",
       "severity": "review",
       "reason": "New engine surface; verify method/arg shapes",
@@ -667,7 +682,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1679,
+      "line": 1701,
       "symbol": "_nav_segments",
       "severity": "review",
       "reason": "Keyed by tostring(id); neighbours are door vectors",
@@ -676,7 +691,7 @@
     },
     {
       "file": "lua/navigationmanager.lua",
-      "line": 1779,
+      "line": 1801,
       "symbol": "_quad_field",
       "severity": "review",
       "reason": "New engine surface; verify method/arg shapes",
