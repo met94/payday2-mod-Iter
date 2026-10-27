@@ -55,6 +55,7 @@ local itr_watch_window_wall_s0 = nil
 -- sluggish movement with a healthy frame rate.
 local itr_watch_pspd_max = 0
 local itr_watch_player_vec = nil
+local itr_watch_slow = 0
 
 -- Forward-declared so the _clear posthook (defined above the channel) can emit
 -- the teardown summary.
@@ -76,6 +77,7 @@ Hooks:PostHook(NavigationManager, '_clear', 'Iter_nav_shim_clear', function(self
 	itr_watch_frames = 0
 	itr_watch_hitches = 0
 	itr_watch_pspd_max = 0
+	itr_watch_slow = 0
 	itr_watch_player_vec = nil
 	itr_watch_window_t0 = 0
 	itr_watch_window_wall_s0 = nil
@@ -370,8 +372,33 @@ local function itr_watch_timer_mul(name)
 	return value
 end
 
+-- Player state + bag: "heavy" at a healthy frame rate is either movement speed
+-- or a state change (carry, downed, zip-line), so name the state instead of
+-- inferring it from speed alone.
+local function itr_watch_player_info()
+	local state = '?'
+	local bag = '?'
+
+	pcall(function()
+		local player = managers.player and managers.player:player_unit()
+
+		if player and player:movement() then
+			state = tostring(player:movement():current_state_name() or '?')
+
+			local carrying = player:movement().carrying_bag
+
+			if type(carrying) == 'function' then
+				bag = player:movement():carrying_bag() and 'yes' or 'no'
+			end
+		end
+	end)
+
+	return state, bag
+end
+
 local function itr_watch_digest(t, event_name)
 	local cops, crims = itr_watch_population()
+	local pstate, pbag = itr_watch_player_info()
 	local fps = 0
 	local hitch_ms = 0
 	local sim_ratio = 1
@@ -421,6 +448,9 @@ local function itr_watch_digest(t, event_name)
 		fps_real = string.format('%.1f', fps_real),
 		wall_s = wall_s,
 		pspd_max = string.format('%.2f', itr_watch_pspd_max or 0),
+		slow_n = itr_watch_slow or 0,
+		pstate = pstate,
+		pbag = pbag,
 		tmul_game = itr_watch_timer_mul('game'),
 		tmul_player = itr_watch_timer_mul('player'),
 		tmul_anim = itr_watch_timer_mul('game_animation'),
@@ -450,6 +480,7 @@ local function itr_watch_digest(t, event_name)
 	itr_watch_frames = 0
 	itr_watch_hitches = 0
 	itr_watch_pspd_max = 0
+	itr_watch_slow = 0
 	itr_watch_window_t0 = t or 0
 	itr_watch_window_wall_s0 = os.time()
 end
@@ -503,6 +534,11 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_watch', function(self, t, 
 
 				if frame > 0.033 then
 					itr_watch_hitches = itr_watch_hitches + 1
+				end
+
+				-- Sub-60 frames: catches mild jitter that a 33 ms threshold hides.
+				if frame > 0.0167 then
+					itr_watch_slow = itr_watch_slow + 1
 				end
 
 				-- Local player speed: catches "it feels heavy" when the frame

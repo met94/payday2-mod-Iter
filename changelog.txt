@@ -1,6 +1,6 @@
 Revision 200.13 (player speed and timer multipliers in the digest):
 - added `pspd_max` (highest local-player speed seen in the minute, units/second) to the digest, sampled per frame from position deltas against the same frame window, using one reusable Vector3 so it does not allocate
-- added `tmul_game`, `tmul_player` and `tmul_animation` (`game`, `player`, `game_animation` timer multipliers, read defensively; `?` when the engine exposes none) - `timespeed_renew` multiplies exactly those three timers, so a half-restored state after a 16x session is now visible instead of being an invisible "feels heavy"
+- added `slow_n` (frames slower than 16.7 ms, i.e. below 60 fps), `pstate` (player movement state name) and `pbag` (carrying a bag) - a 33 ms hitch threshold hides mild jitter and a healthy frame rate hides a movement/state change`r`n- added `tmul_game`, `tmul_player` and `tmul_animation` (`game`, `player`, `game_animation` timer multipliers, read defensively; `?` when the engine exposes none) - `timespeed_renew` multiplies exactly those three timers, so a half-restored state after a 16x session is now visible instead of being an invisible "feels heavy"
 - why: 2026-10-27 session showed 122-126 real fps with zero hitches after the player stopped a 16x phase, yet movement still felt heavy; the game timer was proven back at 1x by the digest cadence, so the remaining suspects are the player/animation timers and the actual movement speed
 - static gate `dev/tools/test/watch-channel.test.mjs` (12 tests) pins the speed probe and all three timer probes
 
