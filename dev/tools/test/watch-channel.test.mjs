@@ -60,6 +60,16 @@ test('player speed and timer multipliers are reported', () => {
   assert.match(nav, /itr_watch_timer_mul\('game_animation'\)/, 'animation timer not probed');
 });
 
+test('spawn and despawn churn are reported', () => {
+  // With Instant Spawn Groups OFF the red2 wave still peaked at 90 cops, so the
+  // question is whether units keep arriving (spawn rate/cap) or never leave
+  // (retirement). Count both per digest from the unit id set.
+  assert.match(nav, /itr_watch_known/, 'no known-unit set');
+  assert.match(nav, /spawn_n = /, 'spawn counter missing from the digest');
+  assert.match(nav, /despawn_n = /, 'despawn counter missing from the digest');
+  assert.match(nav, /cops_peak = /, 'peak cop count missing from the digest');
+});
+
 test('watch_log is opt-in and off by default', () => {
   assert.match(core, /watch_log = false,/, 'watch_log must default to false');
   assert.match(core, /watch_log = tostring\(Iter\.settings\.watch_log\)/, 'boot event should record the switch');

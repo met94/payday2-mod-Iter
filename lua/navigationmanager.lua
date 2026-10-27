@@ -56,6 +56,11 @@ local itr_watch_window_wall_s0 = nil
 local itr_watch_pspd_max = 0
 local itr_watch_player_vec = nil
 local itr_watch_slow = 0
+-- Spawn/despawn churn: with the instant-spawn lever OFF the loud wave still
+-- peaked at 90 cops (2026-10-27 `red2`), so the next question is whether units
+-- keep arriving or never leave. Tracked by unit id between digests.
+local itr_watch_known = {}
+local itr_watch_cops_peak = 0
 
 -- Forward-declared so the _clear posthook (defined above the channel) can emit
 -- the teardown summary.
@@ -79,6 +84,8 @@ Hooks:PostHook(NavigationManager, '_clear', 'Iter_nav_shim_clear', function(self
 	itr_watch_pspd_max = 0
 	itr_watch_slow = 0
 	itr_watch_player_vec = nil
+	itr_watch_known = {}
+	itr_watch_cops_peak = 0
 	itr_watch_window_t0 = 0
 	itr_watch_window_wall_s0 = nil
 
@@ -336,9 +343,27 @@ end
 
 local function itr_watch_population()
 	local cops, crims = 0, 0
+	local spawns, despawns = 0, 0
+	local seen = {}
+	local read_ok = false
 
 	pcall(function()
-		cops = itr_watch_count(managers.enemy:all_enemies())
+		local all = managers.enemy:all_enemies()
+
+		if type(all) ~= 'table' then
+			return
+		end
+
+		read_ok = true
+
+		for key in pairs(all) do
+			cops = cops + 1
+			seen[key] = true
+
+			if not itr_watch_known[key] then
+				spawns = spawns + 1
+			end
+		end
 	end)
 
 	pcall(function()
@@ -349,7 +374,21 @@ local function itr_watch_population()
 		end
 	end)
 
-	return cops, crims
+	if read_ok then
+		for key in pairs(itr_watch_known) do
+			if not seen[key] then
+				despawns = despawns + 1
+			end
+		end
+
+		itr_watch_known = seen
+
+		if cops > itr_watch_cops_peak then
+			itr_watch_cops_peak = cops
+		end
+	end
+
+	return cops, crims, spawns, despawns, itr_watch_cops_peak
 end
 
 -- Timer multipliers: Time Speed multiplies the `player`, `game` and
@@ -397,7 +436,7 @@ local function itr_watch_player_info()
 end
 
 local function itr_watch_digest(t, event_name)
-	local cops, crims = itr_watch_population()
+	local cops, crims, spawn_n, despawn_n, cops_peak = itr_watch_population()
 	local pstate, pbag = itr_watch_player_info()
 	local fps = 0
 	local hitch_ms = 0
@@ -444,6 +483,9 @@ local function itr_watch_digest(t, event_name)
 		t = string.format('%.0f', t or 0),
 		cops = cops,
 		crims = crims,
+		spawn_n = spawn_n,
+		despawn_n = despawn_n,
+		cops_peak = cops_peak,
 		fps = string.format('%.1f', fps),
 		fps_real = string.format('%.1f', fps_real),
 		wall_s = wall_s,

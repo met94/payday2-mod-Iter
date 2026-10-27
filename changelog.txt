@@ -1,4 +1,10 @@
-Revision 200.14 (probe fixes: visible "unavailable", sane player speed):
+Revision 200.15 (cop spawn/despawn churn in the digest):
+- peers `spawn_n` (unit ids that appeared since the last digest), `despawn_n` (ids that vanished) and `cops_peak` (highest live count this level) next to `cops`
+- why: with `Instant Spawn Groups` already OFF the `red2` loud wave still peaked at 90 cops and dropped fps to 85, so either units keep arriving (spawn rate/cap) or nothing leaves (retirement). The two counters separate those cases in one heist: spawns still high = spawn pacing; spawns near zero while the count holds = retirement/despawn is broken
+- implemented with a per-level unit-id set rebuilt once per digest; a failed population read does not fake despawns
+- static gate `dev/tools/test/watch-channel.test.mjs` (13 tests) pins the counters
+
+Player notes: nothing changes in game. With `"watch_log": true` the minute line now also shows how many cops arrived and left, which tells whether a big wave is being spawned faster or just not clearing.Revision 200.14 (probe fixes: visible "unavailable", sane player speed):
 - `iter_diag` sanitize now keeps `?`, so a probe that cannot read a value prints `?` instead of an empty field (2026-10-27 log showed `pbag=` and `tg=/tp=/ta=` with no value at all)
 - `pspd_max` is sampled only when the frame delta is at least 4 ms and is clamped to 50 units/s: sub-frame deltas divided into 1.4 million units/s spikes and a vehicle step produced 44k, both of which made the field useless
 - why: the 2026-10-27 `red2` session is the first with the player-side probes, and three fields came out blank; the frame data itself (`fps` 143 -> 85, `slow_n` 74 at minute 15) is what answers the player's "every other step staggers"
