@@ -36,6 +36,16 @@ test('heap size is reported and the final is idempotent', () => {
   assert.match(modTxt, /"script_path"\s*:\s*"lua\/iter_watch_menu\.lua"/, 'hook not declared in mod.txt');
 });
 
+test('frame pacing uses wall clock and detects a time multiplier', () => {
+  // Application:time() is scaled by the game's time multiplier, so it cannot
+  // measure the multiplier. os.time() is the wall clock.
+  assert.match(nav, /wall_s = os\.time\(\) - itr_watch_window_wall_s0/, 'sim ratio must use os.time()');
+  assert.match(nav, /fps_real = frames \/ wall_s/, 'real frame rate must be derived from the wall window');
+  assert.match(nav, /evt=alarm|diag\.alarm\('sim_timescale'/, 'a time multiplier must raise an alarm');
+  assert.match(nav, /sim_timescale/, 'sim_timescale alarm missing');
+  assert.match(nav, /ratio > 1\.2 or sim_ratio < 0\.8/, 'alarm threshold missing');
+});
+
 test('watch_log is opt-in and off by default', () => {
   assert.match(core, /watch_log = false,/, 'watch_log must default to false');
   assert.match(core, /watch_log = tostring\(Iter\.settings\.watch_log\)/, 'boot event should record the switch');

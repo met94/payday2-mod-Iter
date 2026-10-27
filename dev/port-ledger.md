@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-27T08:28:47.350Z
+Generated: 2026-10-27T14:33:51.000Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -97,7 +97,7 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `itr_get_rooms_having_access_to_next_level` | 16 | 0 | 0 |  |
 | [ ] | audit | `itr_log_navlink_usage` | 12 | 0 | 0 |  |
 | [ ] | audit | `itr_watch_count` | 13 | 0 | 0 |  |
-| [ ] | audit | `itr_watch_digest` | 60 | 0 | 0 |  |
+| [ ] | audit | `itr_watch_digest` | 78 | 0 | 0 |  |
 | [ ] | audit | `itr_watch_final` | 14 | 0 | 0 |  |
 | [ ] | audit | `itr_watch_header` | 15 | 0 | 0 |  |
 | [ ] | audit | `itr_watch_population` | 17 | 0 | 0 |  |

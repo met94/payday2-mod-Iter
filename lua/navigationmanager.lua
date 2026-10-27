@@ -46,7 +46,7 @@ local itr_watch_wall_last = nil
 local itr_watch_frames = 0
 local itr_watch_hitches = 0
 local itr_watch_window_t0 = 0
-local itr_watch_window_wall0 = nil
+local itr_watch_window_wall_s0 = nil
 
 -- Forward-declared so the _clear posthook (defined above the channel) can emit
 -- the teardown summary.
@@ -68,7 +68,7 @@ Hooks:PostHook(NavigationManager, '_clear', 'Iter_nav_shim_clear', function(self
 	itr_watch_frames = 0
 	itr_watch_hitches = 0
 	itr_watch_window_t0 = 0
-	itr_watch_window_wall0 = nil
+	itr_watch_window_wall_s0 = nil
 
 	-- Teardown summary: a heist that is quit instead of finished never reaches
 	-- on_simulation_ended, so emit the final digest here while the counters and
@@ -342,15 +342,11 @@ end
 
 local function itr_watch_digest(t, event_name)
 	local cops, crims = itr_watch_population()
-	local wall = nil
-
-	pcall(function()
-		wall = Application:time()
-	end)
-
 	local fps = 0
 	local hitch_ms = 0
 	local sim_ratio = 1
+	local wall_s = 0
+	local fps_real = 0
 	local frames = itr_watch_frames
 
 	if frames > 0 and itr_watch_wall_sum > 0 then
@@ -358,12 +354,32 @@ local function itr_watch_digest(t, event_name)
 		hitch_ms = itr_watch_wall_max * 1000
 	end
 
-	if wall and itr_watch_window_wall0 then
-		local wall_delta = wall - itr_watch_window_wall0
+	-- `Application:time()` is scaled by the game's time multiplier (Time Speed
+	-- toggles it to 16x on mouse 3), so it cannot measure the multiplier or a
+	-- real frame rate. os.time() is wall clock at 1 s resolution; over a 60 s
+	-- window that is accurate enough to see 16x (ratio ~15-16) versus 1x.
+	if itr_watch_window_wall_s0 then
+		wall_s = os.time() - itr_watch_window_wall_s0
 
-		if wall_delta > 0.5 then
-			sim_ratio = (t - itr_watch_window_t0) / wall_delta
+		if wall_s >= 5 then
+			sim_ratio = (t - itr_watch_window_t0) / wall_s
+
+			if frames > 0 then
+				fps_real = frames / wall_s
+			end
+		else
+			wall_s = 0
 		end
+	end
+
+	-- Always-on alarm: a multiplier makes everything feel heavy while the
+	-- renderer keeps its rate, and nothing else in the log would say so.
+	if wall_s > 0 and (sim_ratio > 1.2 or sim_ratio < 0.8) then
+		Iter.diag.alarm('sim_timescale', {
+			ratio = string.format('%.2f', sim_ratio),
+			sim_s = string.format('%.0f', (t - itr_watch_window_t0)),
+			wall_s = wall_s
+		}, t)
 	end
 
 	Iter.diag.watch(event_name or 'digest', {
@@ -372,6 +388,8 @@ local function itr_watch_digest(t, event_name)
 		cops = cops,
 		crims = crims,
 		fps = string.format('%.1f', fps),
+		fps_real = string.format('%.1f', fps_real),
+		wall_s = wall_s,
 		frames = frames,
 		hitch_n = itr_watch_hitches,
 		hitch_ms = string.format('%.0f', hitch_ms),
@@ -398,7 +416,7 @@ local function itr_watch_digest(t, event_name)
 	itr_watch_frames = 0
 	itr_watch_hitches = 0
 	itr_watch_window_t0 = t or 0
-	itr_watch_window_wall0 = wall
+	itr_watch_window_wall_s0 = os.time()
 end
 
 itr_watch_final = function()
@@ -431,8 +449,8 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_watch', function(self, t, 
 	if Application then
 		local wall = Application:time()
 
-		if not itr_watch_window_wall0 then
-			itr_watch_window_wall0 = wall
+		if not itr_watch_window_wall_s0 then
+			itr_watch_window_wall_s0 = os.time()
 			itr_watch_window_t0 = t
 		end
 
