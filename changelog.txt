@@ -1,4 +1,10 @@
-Revision 200.12 (detect a time multiplier; real frame rate):
+Revision 200.13 (player speed and timer multipliers in the digest):
+- added `pspd_max` (highest local-player speed seen in the minute, units/second) to the digest, sampled per frame from position deltas against the same frame window, using one reusable Vector3 so it does not allocate
+- added `tmul_game`, `tmul_player` and `tmul_animation` (`game`, `player`, `game_animation` timer multipliers, read defensively; `?` when the engine exposes none) - `timespeed_renew` multiplies exactly those three timers, so a half-restored state after a 16x session is now visible instead of being an invisible "feels heavy"
+- why: 2026-10-27 session showed 122-126 real fps with zero hitches after the player stopped a 16x phase, yet movement still felt heavy; the game timer was proven back at 1x by the digest cadence, so the remaining suspects are the player/animation timers and the actual movement speed
+- static gate `dev/tools/test/watch-channel.test.mjs` (12 tests) pins the speed probe and all three timer probes
+
+Player notes: nothing changes in game. With `"watch_log": true`, each digest now reports how fast you were actually moving and what multiplier each timer is running at, so a "heavy" feeling can be traced to a timer instead of guessed at.Revision 200.12 (detect a time multiplier; real frame rate):
 - `sim_ratio` and the new `fps_real` now come from `os.time()` wall-clock deltas instead of `Application:time()`, which is itself scaled by the game's time multiplier and therefore reported 1.00 even at 16x ("sped the time initially" on 2026-10-27: digests 60 sim-seconds apart in ~4 wall seconds, printed fps 3-7 while the real rate was ~45-90)
 - the digest gains `fps_real` (frames / wall seconds) and `wall_s` (window length in real seconds), so a scaled `fps`/`hitch_ms` cannot be mistaken for a real collapse
 - added the always-on `sim_timescale` alarm: fires when the simulation/wall ratio leaves 0.8-1.2 (a time multiplier is active - `timespeed_renew` binds 16x to mouse 3), which is otherwise invisible except as "the game feels heavy"

@@ -46,6 +46,17 @@ test('frame pacing uses wall clock and detects a time multiplier', () => {
   assert.match(nav, /ratio > 1\.2 or sim_ratio < 0\.8/, 'alarm threshold missing');
 });
 
+test('player speed and timer multipliers are reported', () => {
+  // The 2026-10-27 session showed 122-126 fps with zero hitches while the
+  // player still felt heavy after a 16x phase, so the digest has to prove
+  // whether the local player actually moves slower and whether the player /
+  // animation timers kept a multiplier while the game timer was back at 1x.
+  assert.match(nav, /pspd_max/, 'player speed missing from the digest');
+  assert.match(nav, /timer_multiplier|tmul_player/, 'timer multipliers missing');
+  assert.match(nav, /itr_watch_timer_mul\('player'\)/, 'player timer not probed');
+  assert.match(nav, /itr_watch_timer_mul\('game_animation'\)/, 'animation timer not probed');
+});
+
 test('watch_log is opt-in and off by default', () => {
   assert.match(core, /watch_log = false,/, 'watch_log must default to false');
   assert.match(core, /watch_log = tostring\(Iter\.settings\.watch_log\)/, 'boot event should record the switch');

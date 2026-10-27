@@ -8,7 +8,7 @@ original mod was written against the v5 nav model; the core has been
 reimplemented on the v6 load data, with the subsystem switches documented in
 `MENU_OPTIONS.md`.
 
-- Version: `200.12`
+- Version: `200.13`
 - Base: upstream Iter r200 (`98940fb`) by TdlQ
 - Fork maintenance: met94
 - Target: PAYDAY 2 248.2 (`e3a8b616`), SuperBLT
@@ -24,6 +24,10 @@ reimplemented on the v6 load data, with the subsystem switches documented in
 | Direct-to-pos | working (T4 PASS) |
 | Path extender | working (T5 PASS on counters; no visible slide/stuck) |
 | Map patches | 21 clean blocks (22 level ids), 2 accepted losses, 1 dead, 2 no-op |
+
+**200.13** reports the real player speed (`pspd_max`) and the `game`/`player`/
+`game_animation` timer multipliers, so a leftover multiplier (Time Speed touches
+exactly those three) is visible instead of an unexplained heaviness.
 
 **200.12** measures the simulation/wall ratio and a real frame rate with
 `os.time()` (the engine's `Application:time()` is itself scaled by a time

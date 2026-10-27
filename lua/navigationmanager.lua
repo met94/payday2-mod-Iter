@@ -48,6 +48,14 @@ local itr_watch_hitches = 0
 local itr_watch_window_t0 = 0
 local itr_watch_window_wall_s0 = nil
 
+-- Player-side probes for the "heavy at high FPS" case: actual movement speed and
+-- the per-timer multipliers. The 16x phase of 2026-10-27 restored the `game`
+-- timer (the digest cadence proved it) but nothing measured the `player` and
+-- `game_animation` timers, which is where a leftover multiplier would show up as
+-- sluggish movement with a healthy frame rate.
+local itr_watch_pspd_max = 0
+local itr_watch_player_vec = nil
+
 -- Forward-declared so the _clear posthook (defined above the channel) can emit
 -- the teardown summary.
 local itr_watch_final
@@ -67,6 +75,8 @@ Hooks:PostHook(NavigationManager, '_clear', 'Iter_nav_shim_clear', function(self
 	itr_watch_wall_last = nil
 	itr_watch_frames = 0
 	itr_watch_hitches = 0
+	itr_watch_pspd_max = 0
+	itr_watch_player_vec = nil
 	itr_watch_window_t0 = 0
 	itr_watch_window_wall_s0 = nil
 
@@ -340,6 +350,26 @@ local function itr_watch_population()
 	return cops, crims
 end
 
+-- Timer multipliers: Time Speed multiplies the `player`, `game` and
+-- `game_animation` timers, so a half-restored state is possible in principle.
+local function itr_watch_timer_mul(name)
+	local value = '?'
+
+	pcall(function()
+		local timer = TimerManager:timer(Idstring(name))
+
+		if timer then
+			local mul = timer.get_multiplier and timer:get_multiplier() or timer._multiplier
+
+			if type(mul) == 'number' then
+				value = string.format('%.2f', mul)
+			end
+		end
+	end)
+
+	return value
+end
+
 local function itr_watch_digest(t, event_name)
 	local cops, crims = itr_watch_population()
 	local fps = 0
@@ -390,6 +420,10 @@ local function itr_watch_digest(t, event_name)
 		fps = string.format('%.1f', fps),
 		fps_real = string.format('%.1f', fps_real),
 		wall_s = wall_s,
+		pspd_max = string.format('%.2f', itr_watch_pspd_max or 0),
+		tmul_game = itr_watch_timer_mul('game'),
+		tmul_player = itr_watch_timer_mul('player'),
+		tmul_anim = itr_watch_timer_mul('game_animation'),
 		frames = frames,
 		hitch_n = itr_watch_hitches,
 		hitch_ms = string.format('%.0f', hitch_ms),
@@ -415,6 +449,7 @@ local function itr_watch_digest(t, event_name)
 	itr_watch_wall_max = 0
 	itr_watch_frames = 0
 	itr_watch_hitches = 0
+	itr_watch_pspd_max = 0
 	itr_watch_window_t0 = t or 0
 	itr_watch_window_wall_s0 = os.time()
 end
@@ -468,6 +503,28 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_watch', function(self, t, 
 
 				if frame > 0.033 then
 					itr_watch_hitches = itr_watch_hitches + 1
+				end
+
+				-- Local player speed: catches "it feels heavy" when the frame
+				-- rate is healthy.
+				local player = managers.player and managers.player:player_unit()
+
+				if player then
+					local pos = player:position()
+
+					if pos then
+						if itr_watch_player_vec then
+							local speed = mvec3_dis(pos, itr_watch_player_vec) / frame
+
+							if speed > itr_watch_pspd_max then
+								itr_watch_pspd_max = speed
+							end
+						else
+							itr_watch_player_vec = Vector3()
+						end
+
+						mvec3_set(itr_watch_player_vec, pos)
+					end
 				end
 			end
 		end
