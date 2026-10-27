@@ -549,8 +549,14 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_watch', function(self, t, 
 					local pos = player:position()
 
 					if pos then
-						if itr_watch_player_vec then
+						-- A sub-frame delta divides into nonsense (and a vehicle
+						-- movement step can spike), so only sample real frames.
+						if itr_watch_player_vec and frame >= 0.004 then
 							local speed = mvec3_dis(pos, itr_watch_player_vec) / frame
+
+							if speed > 50 then
+								speed = 50
+							end
 
 							if speed > itr_watch_pspd_max then
 								itr_watch_pspd_max = speed

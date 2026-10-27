@@ -17,7 +17,7 @@ end
 local function sanitize(value)
 	local text = tostring(value)
 	text = text:gsub('%s+', '_')
-	text = text:gsub('[^%w%._%+%-/:%[%]]', '')
+	text = text:gsub('[^%w%._%+%-/:%[%]?]', '')
 
 	if #text > 120 then
 		text = text:sub(1, 120)
