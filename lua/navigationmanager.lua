@@ -55,6 +55,7 @@ local itr_watch_window_wall_s0 = nil
 -- sluggish movement with a healthy frame rate.
 local itr_watch_pspd_max = 0
 local itr_watch_player_vec = nil
+local itr_watch_pspd_t = nil
 local itr_watch_slow = 0
 -- Spawn/despawn churn: with the instant-spawn lever OFF the loud wave still
 -- peaked at 90 cops (2026-10-27 `red2`), so the next question is whether units
@@ -84,6 +85,7 @@ Hooks:PostHook(NavigationManager, '_clear', 'Iter_nav_shim_clear', function(self
 	itr_watch_pspd_max = 0
 	itr_watch_slow = 0
 	itr_watch_player_vec = nil
+	itr_watch_pspd_t = nil
 	itr_watch_known = {}
 	itr_watch_cops_peak = 0
 	itr_watch_window_t0 = 0
@@ -435,6 +437,30 @@ local function itr_watch_player_info()
 	return state, bag
 end
 
+-- Allowed walk/run speed from the player's own state, so an actual-vs-allowed
+-- gap (a debuff, carry or modifier) is visible next to the measured speed.
+local function itr_watch_max_speed()
+	local value = '?'
+
+	pcall(function()
+		local player = managers.player and managers.player:player_unit()
+
+		if player and player:movement() then
+			local state = player:movement():current_state()
+
+			if state and state._get_max_walk_speed then
+				local speed = state:_get_max_walk_speed(TimerManager:game():time())
+
+				if type(speed) == 'number' then
+					value = string.format('%.0f', speed)
+				end
+			end
+		end
+	end)
+
+	return value
+end
+
 local function itr_watch_digest(t, event_name)
 	local cops, crims, spawn_n, despawn_n, cops_peak = itr_watch_population()
 	local pstate, pbag = itr_watch_player_info()
@@ -489,7 +515,8 @@ local function itr_watch_digest(t, event_name)
 		fps = string.format('%.1f', fps),
 		fps_real = string.format('%.1f', fps_real),
 		wall_s = wall_s,
-		pspd_max = string.format('%.2f', itr_watch_pspd_max or 0),
+		pspd_max = string.format('%.0f', itr_watch_pspd_max or 0),
+		pmax = itr_watch_max_speed(),
 		slow_n = itr_watch_slow or 0,
 		pstate = pstate,
 		pbag = pbag,
@@ -583,33 +610,34 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_watch', function(self, t, 
 					itr_watch_slow = itr_watch_slow + 1
 				end
 
-				-- Local player speed: catches "it feels heavy" when the frame
-				-- rate is healthy.
+				-- Local player speed, sampled over >=0.5 s windows so a single frame
+				-- delta cannot divide into nonsense (sub-frame deltas used to report
+				-- 1.4M units/s, and a per-frame clamp saturated every minute).
 				local player = managers.player and managers.player:player_unit()
 
 				if player then
 					local pos = player:position()
 
 					if pos then
-						-- A sub-frame delta divides into nonsense (and a vehicle
-						-- movement step can spike), so only sample real frames.
-						if itr_watch_player_vec and frame >= 0.004 then
-							local speed = mvec3_dis(pos, itr_watch_player_vec) / frame
+						if not itr_watch_player_vec then
+							itr_watch_player_vec = Vector3()
+							mvec3_set(itr_watch_player_vec, pos)
+							itr_watch_pspd_t = wall
+						elseif wall - (itr_watch_pspd_t or wall) >= 0.5 then
+							local span = wall - itr_watch_pspd_t
+							local speed = mvec3_dis(pos, itr_watch_player_vec) / span
 
-							-- PD2 sprint is 575 units/s (STANDARD_MAX 350, CROUCHING_MAX 225),
-							-- so 50 was clamped every minute and the field was useless.
-							if speed > 800 then
-								speed = 800
+							if speed > 1200 then
+								speed = 1200
 							end
 
 							if speed > itr_watch_pspd_max then
 								itr_watch_pspd_max = speed
 							end
-						else
-							itr_watch_player_vec = Vector3()
-						end
 
-						mvec3_set(itr_watch_player_vec, pos)
+							mvec3_set(itr_watch_player_vec, pos)
+							itr_watch_pspd_t = wall
+						end
 					end
 				end
 			end

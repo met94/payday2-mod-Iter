@@ -1,4 +1,10 @@
-Revision 200.16 (player-speed clamp fixed):
+Revision 200.17 (player speed sampled over real windows, allowed speed logged):
+- `pspd_max` is now measured over >=0.5 s windows instead of frame-to-frame deltas. Frame deltas on this engine can be smaller than the real frame (the clock is simulation-scaled), which made the field saturate at its clamp in every digest of the 2026-10-28 sessions
+- the clamp moved to 1200 units/s (sprint is 575, so a legit sprint never touches it) and the window math no longer divides by sub-millisecond spans
+- new digest field `pmax`: the player's own allowed walk/run speed from `PlayerStandard:_get_max_walk_speed()`. Comparing `pspd_max` with `pmax` separates "the game slows me down" (debuff/carry/modifier) from "the frame is fine but it feels heavy"
+- static gate `dev/tools/test/watch-channel.test.mjs` still passes (12 tests); no behavioural change
+
+Player notes: nothing changes in game; the dev digest's speed fields are now trustworthy if the heaviness ever needs measuring again.Revision 200.16 (player-speed clamp fixed):
 - `pspd_max` clamps at 800 units/s instead of 50. PD2 movement tops out at 575 units/s (RUNNING_MAX; STANDARD_MAX 350, CROUCHING_MAX 225), so the 50 clamp from 200.14 saturated in every single digest of the 2026-10-28 Death Wish session and made the field unreadable
 - no other change; the digest fields and the alarms are untouched
 

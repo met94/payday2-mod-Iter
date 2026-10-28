@@ -1,5 +1,5 @@
 -- Iter full-nav port test harness. Dev-only; not shipped.
--- Chat commands: !iter help | nav | patch | navdump | navdoors | navquad | navpath | p7 | force | probe [n] | path | ai | bots | cops | count | links | diag [on|off] | alarm | assault | state | setting <key> <value> | dump | reset
+-- Chat commands: !iter help | nav | patch | navdump | navdoors | navquad | navpath | p7 | force | probe [n] | path | ai | bots | cops | count | mem | gc | links | diag [on|off] | alarm | assault | state | setting <key> <value> | dump | reset
 
 Iter_TestHarness = Iter_TestHarness or {}
 local TH = Iter_TestHarness
@@ -1806,6 +1806,62 @@ end
 
 -- Counterfeit evidence: cops that hold a coarse path but are not advancing,
 -- or that are explicitly waiting at a nav link.
+function TH.dump_mem()
+	local kb = 0
+
+	pcall(function()
+		kb = math.floor(collectgarbage('count'))
+	end)
+
+	local enemies, crims = 0, 0
+
+	for _ in pairs(all_enemies()) do
+		enemies = enemies + 1
+	end
+
+	for _ in pairs(all_ai_criminals()) do
+		crims = crims + 1
+	end
+
+	local nav = nav_manager()
+	local links = 0
+
+	if nav and nav.itr_navlink_elements then
+		for _ in pairs(nav.itr_navlink_elements) do
+			links = links + 1
+		end
+	end
+
+	local covers = 0
+
+	if nav and nav._covers then
+		covers = #nav._covers
+	end
+
+	say(string.format('mem lua_kb=%d enemies=%d criminals=%d navlinks=%d covers=%d', kb, enemies, crims, links, covers))
+end
+
+function TH.force_gc()
+	local before = 0
+
+	pcall(function()
+		before = math.floor(collectgarbage('count'))
+	end)
+
+	pcall(function()
+		collectgarbage('collect')
+		collectgarbage('collect')
+	end)
+
+	local after = 0
+
+	pcall(function()
+		after = math.floor(collectgarbage('count'))
+	end)
+
+	say(string.format('gc before_kb=%d after_kb=%d freed_kb=%d', before, after, math.max(0, before - after)))
+end
+
 function TH.dump_count()
 	local enemies = all_enemies()
 	local bots = all_ai_criminals()
@@ -2132,7 +2188,7 @@ function TH.reset()
 end
 
 function TH.help()
-	say('commands: nav | patch | navdump <seg> | navdoors <a> <b> | navquad <id...> | navpath <from> <to> | p7 [auto on|off] | force <level> | probe [n] | path | ai | bots | cops | count | links | diag [on|off] | alarm | assault | state | setting <key> <value> | dump | reset | help')
+	say('commands: nav | patch | navdump <seg> | navdoors <a> <b> | navquad <id...> | navpath <from> <to> | p7 [auto on|off] | force <level> | probe [n] | path | ai | bots | cops | count | mem | gc | links | diag [on|off] | alarm | assault | state | setting <key> <value> | dump | reset | help')
 end
 
 function TH.execute_string(message)
@@ -2185,6 +2241,10 @@ function TH.execute(command)
 		TH.dump_cops()
 	elseif name == 'count' then
 		TH.dump_count()
+	elseif name == 'mem' then
+		TH.dump_mem()
+	elseif name == 'gc' then
+		TH.force_gc()
 	elseif name == 'links' then
 		TH.dump_links()
 	elseif name == 'diag' then
