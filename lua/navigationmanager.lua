@@ -596,8 +596,10 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_watch', function(self, t, 
 						if itr_watch_player_vec and frame >= 0.004 then
 							local speed = mvec3_dis(pos, itr_watch_player_vec) / frame
 
-							if speed > 50 then
-								speed = 50
+							-- PD2 sprint is 575 units/s (STANDARD_MAX 350, CROUCHING_MAX 225),
+							-- so 50 was clamped every minute and the field was useless.
+							if speed > 800 then
+								speed = 800
 							end
 
 							if speed > itr_watch_pspd_max then

@@ -1,4 +1,8 @@
-Revision 200.15 (cop spawn/despawn churn in the digest):
+Revision 200.16 (player-speed clamp fixed):
+- `pspd_max` clamps at 800 units/s instead of 50. PD2 movement tops out at 575 units/s (RUNNING_MAX; STANDARD_MAX 350, CROUCHING_MAX 225), so the 50 clamp from 200.14 saturated in every single digest of the 2026-10-28 Death Wish session and made the field unreadable
+- no other change; the digest fields and the alarms are untouched
+
+Player notes: nothing changes in game; the dev digest's movement-speed field is usable again.Revision 200.15 (cop spawn/despawn churn in the digest):
 - peers `spawn_n` (unit ids that appeared since the last digest), `despawn_n` (ids that vanished) and `cops_peak` (highest live count this level) next to `cops`
 - why: with `Instant Spawn Groups` already OFF the `red2` loud wave still peaked at 90 cops and dropped fps to 85, so either units keep arriving (spawn rate/cap) or nothing leaves (retirement). The two counters separate those cases in one heist: spawns still high = spawn pacing; spawns near zero while the count holds = retirement/despawn is broken
 - implemented with a per-level unit-id set rebuilt once per digest; a failed population read does not fake despawns
