@@ -56,6 +56,8 @@ local itr_watch_window_wall_s0 = nil
 local itr_watch_pspd_max = 0
 local itr_watch_player_vec = nil
 local itr_watch_pspd_t = nil
+local itr_watch_alarm_t = nil
+local itr_watch_alarm_wall = nil
 local itr_watch_slow = 0
 -- Spawn/despawn churn: with the instant-spawn lever OFF the loud wave still
 -- peaked at 90 cops (2026-10-27 `red2`), so the next question is whether units
@@ -86,6 +88,8 @@ Hooks:PostHook(NavigationManager, '_clear', 'Iter_nav_shim_clear', function(self
 	itr_watch_slow = 0
 	itr_watch_player_vec = nil
 	itr_watch_pspd_t = nil
+	itr_watch_alarm_t = nil
+	itr_watch_alarm_wall = nil
 	itr_watch_known = {}
 	itr_watch_cops_peak = 0
 	itr_watch_window_t0 = 0
@@ -578,10 +582,12 @@ end
 Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_watch', function(self, t, dt)
 	t = t or 0
 
-	-- Frame timing per frame, in wall-clock time. Cheap: one engine call and a
-	-- few numbers. `dt` would be simulation time and therefore useless when a
-	-- time multiplier is active.
-	if Application then
+	local watching = Iter.diag.watch_enabled()
+
+	-- Per-frame instrumentation only while the digest is switched on. With it
+	-- off this hook costs one comparison per frame and one os.time() per minute
+	-- (the always-on sim_timescale alarm needs nothing more).
+	if watching and Application then
 		local wall = Application:time()
 
 		if not itr_watch_window_wall_s0 then
@@ -646,8 +652,10 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_watch', function(self, t, 
 		itr_watch_wall_last = wall
 	end
 
-	if not itr_watch_header_done then
-		itr_watch_header(t)
+	if watching then
+		if not itr_watch_header_done then
+			itr_watch_header(t)
+		end
 	end
 
 	if t < itr_watch_next_t then
@@ -656,8 +664,31 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_watch', function(self, t, 
 
 	itr_watch_next_t = t + ITR_WATCH_DIGEST_T
 
-	if Iter.diag.watch_enabled() then
+	if watching then
 		itr_watch_digest(t)
+	else
+		-- Alarm-only path: the time-multiplier check needs no per-frame state,
+		-- just the sim delta and the wall delta since the previous check.
+		local wall_now = os.time()
+
+		if itr_watch_alarm_wall then
+			local alarm_wall_s = wall_now - itr_watch_alarm_wall
+
+			if alarm_wall_s >= 5 then
+				local alarm_ratio = (t - (itr_watch_alarm_t or t)) / alarm_wall_s
+
+				if alarm_ratio > 1.2 or alarm_ratio < 0.8 then
+					Iter.diag.alarm('sim_timescale', {
+						ratio = string.format('%.2f', alarm_ratio),
+						sim_s = string.format('%.0f', (t - (itr_watch_alarm_t or t))),
+						wall_s = alarm_wall_s
+					}, t)
+				end
+			end
+		end
+
+		itr_watch_alarm_t = t
+		itr_watch_alarm_wall = wall_now
 	end
 
 	itr_watch_worst = { hold = 0, queue = 0, wait = 0 }

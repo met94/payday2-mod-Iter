@@ -43,7 +43,7 @@ test('frame pacing uses wall clock and detects a time multiplier', () => {
   assert.match(nav, /fps_real = frames \/ wall_s/, 'real frame rate must be derived from the wall window');
   assert.match(nav, /evt=alarm|diag\.alarm\('sim_timescale'/, 'a time multiplier must raise an alarm');
   assert.match(nav, /sim_timescale/, 'sim_timescale alarm missing');
-  assert.match(nav, /ratio > 1\.2 or sim_ratio < 0\.8/, 'alarm threshold missing');
+  assert.match(nav, /(ratio > 1\.2 or (sim_)?ratio < 0\.8)|(alarm_ratio > 1\.2 or alarm_ratio < 0\.8)/, 'alarm threshold missing');
 });
 
 test('player speed and timer multipliers are reported', () => {
@@ -102,9 +102,13 @@ test('the per-frame hook only emits on the digest cadence', () => {
   assert.match(nav, /local ITR_WATCH_DIGEST_T = 60/, 'digest cadence must be 60 s');
   assert.match(body, /if t < itr_watch_next_t then\s*\n\s*return/, 'cadence gate missing');
   assert.match(body, /itr_watch_next_t = t \+ ITR_WATCH_DIGEST_T/, 'cadence not advanced');
-  assert.match(body, /if Iter\.diag\.watch_enabled\(\) then\s*\n\s*itr_watch_digest\(t\)/, 'digest not gated in the hook');
-  // Alarms live in the 1 s sweep, never in the per-frame hook.
-  assert.doesNotMatch(body, /D\.alarm|diag\.alarm/, 'alarms must not run per frame');
+  assert.match(body, /if watching then\s*\n\s*itr_watch_digest\(t\)/, 'digest not gated in the hook');
+  assert.match(body, /if watching and Application then/, 'per-frame sampling must be gated by the digest switch');
+  // Alarms may live in this hook, but only behind the once-per-minute gate.
+  const gate = body.indexOf('if t < itr_watch_next_t then');
+  const alarmAt = body.search(/diag\.alarm/);
+  assert.ok(gate >= 0, 'cadence gate missing');
+  assert.ok(alarmAt === -1 || alarmAt > gate, 'alarms must sit behind the cadence gate');
 });
 
 test('the sweep raises the three hard-failure alarms', () => {

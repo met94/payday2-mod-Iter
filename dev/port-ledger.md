@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-10-28T11:20:30.078Z
+Generated: 2026-10-28T11:52:18.612Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -79,14 +79,14 @@ No function definitions (hook/overlay file).
 | [ ] | **PORT** | `NavigationManager.register_cover_units` | 27 | 80 | 75 |  |
 | [ ] | **PORT** | `NavigationManager.set_nav_segment_state` | 13 | 36 | 38 |  |
 | [ ] | **PORT** | `NavigationManager.unregister_anim_nav_link` | 15 | 63 | 69 |  |
-| [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._clear:Iter_nav_shim_clear` | 44 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
+| [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._clear:Iter_nav_shim_clear` | 46 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._resolve_segment_neighbours:Iter_nav_prepare` | 3 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager._send_nav_field_to_engine:Iter_nav_shim_rebuild` | 3 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.on_simulation_ended:Iter_nav_link_summary` | 21 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.on_simulation_ended:Iter_nav_summary` | 11 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.set_load_data:Iter_nav_heist` | 31 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.update:Iter_nav_heartbeat` | 35 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
-| [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.update:Iter_nav_watch` | 87 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
+| [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.update:Iter_nav_watch` | 114 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit (hook) | `Hooks.PostHook:NavigationManager.update:Iter_navlink_dead_sweep` | 153 | 0 | 0 | Hooks:PostHook/PreHook callback; audit and port with the hooked method |
 | [ ] | audit | `get_coarse_dis` | 8 | 0 | 0 |  |
 | [ ] | audit | `is_vec3` | 9 | 0 | 0 |  |
