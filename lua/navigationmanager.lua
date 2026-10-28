@@ -59,6 +59,9 @@ local itr_watch_pspd_t = nil
 local itr_watch_alarm_t = nil
 local itr_watch_alarm_wall = nil
 local itr_watch_slow = 0
+local itr_watch_slow8 = 0
+local itr_watch_stagger = 0
+local itr_watch_prev_frame = nil
 -- Spawn/despawn churn: with the instant-spawn lever OFF the loud wave still
 -- peaked at 90 cops (2026-10-27 `red2`), so the next question is whether units
 -- keep arriving or never leave. Tracked by unit id between digests.
@@ -86,6 +89,9 @@ Hooks:PostHook(NavigationManager, '_clear', 'Iter_nav_shim_clear', function(self
 	itr_watch_hitches = 0
 	itr_watch_pspd_max = 0
 	itr_watch_slow = 0
+	itr_watch_slow8 = 0
+	itr_watch_stagger = 0
+	itr_watch_prev_frame = nil
 	itr_watch_player_vec = nil
 	itr_watch_pspd_t = nil
 	itr_watch_alarm_t = nil
@@ -522,6 +528,8 @@ local function itr_watch_digest(t, event_name)
 		pspd_max = string.format('%.0f', itr_watch_pspd_max or 0),
 		pmax = itr_watch_max_speed(),
 		slow_n = itr_watch_slow or 0,
+		slow8_n = itr_watch_slow8 or 0,
+		stagger_n = itr_watch_stagger or 0,
 		pstate = pstate,
 		pbag = pbag,
 		tmul_game = itr_watch_timer_mul('game'),
@@ -554,6 +562,9 @@ local function itr_watch_digest(t, event_name)
 	itr_watch_hitches = 0
 	itr_watch_pspd_max = 0
 	itr_watch_slow = 0
+	itr_watch_slow8 = 0
+	itr_watch_stagger = 0
+	itr_watch_prev_frame = nil
 	itr_watch_window_t0 = t or 0
 	itr_watch_window_wall_s0 = os.time()
 end
@@ -615,6 +626,21 @@ Hooks:PostHook(NavigationManager, 'update', 'Iter_nav_watch', function(self, t, 
 				if frame > 0.0167 then
 					itr_watch_slow = itr_watch_slow + 1
 				end
+
+				-- Sub-120 frames: at 120-144 fps a frame over 8.3 ms is the first
+				-- visible unevenness even when the average looks healthy.
+				if frame > 0.0083 then
+					itr_watch_slow8 = itr_watch_slow8 + 1
+				end
+
+				-- Stagger: a frame at least 1.5x the previous one. An alternating
+				-- 8 ms / 13 ms pattern is what "every other step" feels like and it
+				-- never trips a fixed threshold.
+				if itr_watch_prev_frame and frame > itr_watch_prev_frame * 1.5 and frame > 0.006 then
+					itr_watch_stagger = itr_watch_stagger + 1
+				end
+
+				itr_watch_prev_frame = frame
 
 				-- Local player speed, sampled over >=0.5 s windows so a single frame
 				-- delta cannot divide into nonsense (sub-frame deltas used to report

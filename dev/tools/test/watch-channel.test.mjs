@@ -52,6 +52,8 @@ test('player speed and timer multipliers are reported', () => {
   // whether the local player actually moves slower and whether the player /
   // animation timers kept a multiplier while the game timer was back at 1x.
   assert.match(nav, /slow_n = itr_watch_slow/, 'sub-60 frame counter missing');
+  assert.match(nav, /slow8_n = itr_watch_slow8/, 'sub-120 frame counter missing');
+  assert.match(nav, /stagger_n = itr_watch_stagger/, 'stagger counter missing');
   assert.match(nav, /pstate = pstate/, 'player state missing');
   assert.match(nav, /pbag = pbag/, 'carry flag missing');
   assert.match(nav, /pspd_max/, 'player speed missing from the digest');

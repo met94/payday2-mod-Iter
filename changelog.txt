@@ -1,4 +1,10 @@
-Revision 200.18 (diagnostics cost nothing when switched off):
+Revision 200.19 (sub-120 frame count and a stagger counter):
+- added `slow8_n` (frames slower than 8.3 ms, i.e. below 120 fps) and `stagger_n` (frames at least 1.5x the previous one, above 6 ms) to the digest
+- why: the 2026-10-28 solo session held 116-143 fps with `slow_n` 0 at 94 cops while the player still felt late-heist sluggishness. A 16.7 ms threshold cannot see unevenness at 120+ Hz, and an alternating 8/13 ms pattern never trips a fixed threshold but is exactly what "every other step" feels like
+- both counters are only accumulated while `watch_log` is on (the per-frame gate from 200.18), and reset per digest
+- static gate `dev/tools/test/watch-channel.test.mjs` (13 tests) pins both fields
+
+Player notes: nothing changes in game; with `"watch_log": true` the digest now reports two finer frame-consistency counters for the next session.Revision 200.18 (diagnostics cost nothing when switched off):
 - the per-frame part of the watch channel (frame timing, player position sampling, population reads) now runs only while `watch_log` is on. With it off the hook costs one comparison per frame plus one `os.time()` per minute
 - the always-on `sim_timescale` alarm no longer needs the per-frame accumulators: it compares the simulation delta with the wall delta between minute ticks
 - measured intent: with `watch_log` off (the default) a release session pays nothing for the diagnostics that were added in 200.10-200.17
