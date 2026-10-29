@@ -1958,6 +1958,7 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 
 	local potential_paths = {}
 	local seg_to_search = {}
+	local seg_head, seg_tail = 1, 0
 	local discovered_seg = {
 		[next_seg_id] = {
 			path = tostring(next_seg_id),
@@ -2057,7 +2058,8 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 								local discovered = discovered_seg[neighbour_seg_id]
 								if not discovered then
 									if not candidate or coarse_dis + delay * navlink_coef < candidate.coarse_dis + candidate.delay * navlink_coef then
-										table_insert(seg_to_search, neighbour_seg_id)
+										seg_tail = seg_tail + 1
+										seg_to_search[seg_tail] = neighbour_seg_id
 										discovered = {
 											path = from.path .. ';' .. neighbour_seg_id,
 											delay = delay,
@@ -2069,7 +2071,8 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 									end
 								else
 									if coarse_dis + delay * navlink_coef < discovered.coarse_dis + discovered.delay * navlink_coef then
-										table_insert(seg_to_search, neighbour_seg_id)
+										seg_tail = seg_tail + 1
+										seg_to_search[seg_tail] = neighbour_seg_id
 										discovered.path = from.path .. ';' .. neighbour_seg_id
 										discovered.delay = delay
 										discovered.steps_nr = from.steps_nr + 1
@@ -2084,7 +2087,15 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 			end
 		end
 
-		next_seg_id = table_remove(seg_to_search, 1)
+		-- FIFO pop without shifting the array: vanilla pops the tail (LIFO), this
+		-- search is breadth-first on purpose, so keep the head order and advance a
+		-- cursor instead of paying table_remove(list, 1) which is O(queue length).
+		next_seg_id = seg_to_search[seg_head]
+
+		if next_seg_id then
+			seg_to_search[seg_head] = nil
+			seg_head = seg_head + 1
+		end
 	until not next_seg_id
 
 	local best_score = 100000000

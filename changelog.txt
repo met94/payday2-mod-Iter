@@ -1,3 +1,10 @@
+Revision 200.20 (coarse search queue without the head shift):
+- `NavigationManager._execute_coarce_search` popped its frontier with `table_remove(seg_to_search, 1)`, which shifts the whole array on every pop. The frontier is a breadth-first queue capped at 500 expansions, so each expansion paid a memmove proportional to the queue length
+- replaced with a head/tail cursor: appends write at `seg_tail`, pops read and nil `seg_head`, and the `until not next_seg_id` loop is unchanged. Same order, same 500-node cap, same results
+- order is deliberately preserved: vanilla pops the tail (LIFO), this search is breadth-first, so switching to the vanilla pop would change path quality. Only the shift went away
+- static gates: all seven PASS (node tool tests, harness parser, offline Lua unit tests, LuaJIT syntax, free identifiers, function ledger, API audit), including the navlink queue-cache and stale/dead-reservation tests
+
+Player notes: nothing changes in game — the coarse path search does the same work in the same order, just without shuffling a list on every step.
 Revision 200.19 (sub-120 frame count and a stagger counter):
 - added `slow8_n` (frames slower than 8.3 ms, i.e. below 120 fps) and `stagger_n` (frames at least 1.5x the previous one, above 6 ms) to the digest
 - why: the 2026-10-28 solo session held 116-143 fps with `slow_n` 0 at 94 cops while the player still felt late-heist sluggishness. A 16.7 ms threshold cannot see unevenness at 120+ Hz, and an alternating 8/13 ms pattern never trips a fixed threshold but is exactly what "every other step" feels like

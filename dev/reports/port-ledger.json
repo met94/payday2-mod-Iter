@@ -1,7 +1,7 @@
 {
   "oldRev": "a3180fc",
   "newRev": "e3a8b616",
-  "generated": "2026-10-28T13:51:40.467Z",
+  "generated": "2026-10-29T09:48:12.282Z",
   "files": [
     {
       "file": "lua/coreworldinstancemanager.lua",
@@ -799,7 +799,7 @@
         {
           "name": "NavigationManager.itr_execute_coarce_search",
           "category": "MOD_ONLY",
-          "modLines": 231,
+          "modLines": 242,
           "oldLines": 0,
           "newLines": 0,
           "modParams": "search_data",
