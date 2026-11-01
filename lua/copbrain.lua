@@ -80,7 +80,10 @@ function CopBrain:search_for_coarse_path(search_id, to_seg, verify_clbk, access_
 	if _search_path_queued then
 		local cs = managers.navigation._coarse_searches
 		local last_search = cs[#cs]
-		if last_search then
+		-- Only the search this NPC queued takes its position: `search_coarse`
+		-- queues, so another NPC can have queued last by the time we look
+		-- (upstream r205).
+		if last_search and last_search.id == search_id then
 			last_search.from_pos = self._logic_data.m_pos
 		end
 	end

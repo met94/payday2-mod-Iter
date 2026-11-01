@@ -159,6 +159,12 @@ if Network:is_server() then
 			if not delay_t or t >= delay_t then
 				return true
 			end
+		else
+			-- The link object is gone (door blocker changed, link removed) but
+			-- its mission element is still there, so the animation can play.
+			-- Returning nothing here left the cop waiting at a link that would
+			-- never become available again (upstream r201/r202).
+			return true
 		end
 	end
 
@@ -193,6 +199,10 @@ if Network:is_server() then
 		if self:itr_check_navlink_delay(t) then
 			self:itr_set_navlink_delay(t)
 			self:itr_clear_navlink_reservation(self._next_is_nav_link.element)
+			-- The wait is over: drop the wait-start stamp, or the next link this
+			-- unit queues for inherits the first link's timestamp through
+			-- itr_update_navlink_queue_data (upstream r205).
+			self.itr_wait_for_navlink_availability_t = nil
 			itr_original_copactionwalk_playnavlinkanim(self, t)
 		end
 	end

@@ -27,7 +27,10 @@ function ElementAINavSeg:on_executed(instigator)
 
 	local segs = self._values.segment_ids
 	for i = 1, #segs, 2 do
-		managers.navigation:clbk_navfield(self._values.operation, { [segs[i]] = {segs[i + 1]} })
+		-- `_nav_segments` is keyed by tostring(id) since U247, so numeric ids
+		-- from the mission data resolved to nothing and the element was a
+		-- silent no-op (upstream r201).
+		managers.navigation:clbk_navfield(self._values.operation, { [tostring(segs[i])] = {tostring(segs[i + 1])} })
 	end
 
 	ElementAINavSeg.super.on_executed(self, instigator)

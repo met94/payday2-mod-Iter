@@ -342,3 +342,21 @@ Target: `e3a8b616` (248.2).
   streamline-only branch), `Drill:on_investigate_SO_administered` receiver guard,
   offline test `dev/tests/lua/test_copbrain_follow_unit.lua` (mutation-checked).
 - Release `200.21` on this branch (the line the live install is built from).
+## 2026-11-02 - upstream r205 adopted (release 205.1)
+
+- Upstream Iter is now r205 (TdlQ, code maintenance by BangL), packaged
+  2026-10-18 - i.e. before our 200.1. Its whole delta over r200 is 9 files /
+  +285 lines, so it was evaluated hunk by hunk instead of rebasing.
+- Adopted (A1-A11): map-data resync for branchbank / firestarter_1 /
+  gallery / mex, `append_vis_group` vis-group indices, string nav segment keys
+  in `ElementAINavSeg`, coarse-cache destination + `access_pos` streamline,
+  asymmetric neighbour refresh, `start/end_nav_segment()`, dead-nav-link stall,
+  wait-stamp clear, coarse-search id check, accounting clock fallback, local
+  congestion risk, `check_access(pos, 0)`.
+- Not adopted, with reasons: `dev/reports/upstream-parity.md` (durable ledger;
+  read it before the next upstream comparison).
+- Tests: `upstream-r205-mapdata.test.mjs`, `upstream-r205-navcore.test.mjs`,
+  `test_missionmanager_navseg.lua`, `test_copbrain_search_start.lua`.
+  Static gates: all seven PASS (12 expected API-audit errors, 0 unused).
+- Runtime pending (user deploys): one load each of Bank Heist, Firestarter D1,
+  Art Gallery, Border Crossing to confirm `patch result=applied`.
