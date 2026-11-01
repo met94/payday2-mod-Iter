@@ -331,3 +331,14 @@ Target: `e3a8b616` (248.2).
 - H-04 baseline log scan (Iter Lite, current live log).
 - H-05 gates baseline (`gates.ps1` full run).
 - P1 dossiers (nav first).
+
+## 2026-11-01 - follow-unit UAF (live line)
+
+- Crash 12:39:26 (`auc`): access violation in the nav_ai coarse-path streamliner;
+  `CopBrain:clbk_coarse_pathing_results` dereferenced a destroyed
+  `objective.follow_unit` with a nil check only. Report:
+  `dev/reports/follow-unit-uaf-2026-11-01.md`.
+- Fix: `alive(objective.follow_unit)` in the nav_ai branch (same guard as the
+  streamline-only branch), `Drill:on_investigate_SO_administered` receiver guard,
+  offline test `dev/tests/lua/test_copbrain_follow_unit.lua` (mutation-checked).
+- Release `200.21` on this branch (the line the live install is built from).

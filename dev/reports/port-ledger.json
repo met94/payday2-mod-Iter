@@ -1,7 +1,7 @@
 {
   "oldRev": "a3180fc",
   "newRev": "e3a8b616",
-  "generated": "2026-10-29T09:48:12.282Z",
+  "generated": "2026-11-01T13:45:20.511Z",
   "files": [
     {
       "file": "lua/coreworldinstancemanager.lua",
@@ -1208,7 +1208,7 @@
         {
           "name": "CopBrain.clbk_coarse_pathing_results",
           "category": "MOD_EDIT_CLEAN",
-          "modLines": 31,
+          "modLines": 37,
           "oldLines": 3,
           "newLines": 3,
           "modParams": "search_id, path",
@@ -1233,7 +1233,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 127
+          "startLine": 133
         },
         {
           "name": "CopBrain.search_for_coarse_path",
@@ -1876,7 +1876,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 34
+          "startLine": 41
         },
         {
           "name": "Drill.clbk_investigate_SO_verification",
@@ -1896,7 +1896,7 @@
         {
           "name": "Drill.on_investigate_SO_administered",
           "category": "MOD_EDIT_CLEAN",
-          "modLines": 7,
+          "modLines": 14,
           "oldLines": 8,
           "newLines": 8,
           "modParams": "receiver_unit",

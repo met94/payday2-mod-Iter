@@ -1,3 +1,11 @@
+Revision 200.21 (follow-unit use-after-free in the coarse-path streamliner):
+- `CopBrain:clbk_coarse_pathing_results` (nav_ai branch) rewrote the coarse path's end point from `objective.follow_unit:position()` with a nil check only. A queued coarse search can land after the followed unit was destroyed (criminal downed and removed, player husk cleared); `position()` on the freed unit is an engine access violation. Crash 2026-11-01 12:39:26, heist `auc`: `results_callback() @mods/Iter/lua/copbrain.lua:115` -> `_commence_coarce_searches` -> `NavigationManager:update`. The streamline-only branch of the same file already guarded the identical line with `alive()`.
+- fix: `alive(objective.follow_unit)` in the nav_ai branch. A destroyed follow unit now leaves the streamline end point at the nav-segment position, exactly like a nil follow unit.
+- same class on the drill path: `Drill:on_investigate_SO_administered` dereferenced `receiver_unit:brain()` with no liveness check on a mod-added line; guarded like the surrounding functions.
+- tests: new `dev/tests/lua/test_copbrain_follow_unit.lua` loads the real hook file with stubbed engine globals: a destroyed follow unit whose `position()` raises is never dereferenced, a live unit still sets the streamline end point, an absent objective leaves it alone, and the drill guard is pinned. It runs in `dev/tools/gates.ps1` with the other offline Lua tests. Mutation check: removing the `alive()` term fails with `freed unit dereferenced`.
+- report: `dev/reports/follow-unit-uaf-2026-11-01.md`.
+
+Player notes: no gameplay change. This only stops a rare crash that could happen when a coarse path finished at the moment the unit a cop was following (a teammate being downed or husked) was removed.
 Revision 200.20 (coarse search queue without the head shift):
 - `NavigationManager._execute_coarce_search` popped its frontier with `table_remove(seg_to_search, 1)`, which shifts the whole array on every pop. The frontier is a breadth-first queue capped at 500 expansions, so each expansion paid a memmove proportional to the queue length
 - replaced with a head/tail cursor: appends write at `seg_tail`, pops read and nil `seg_head`, and the `until not next_seg_id` loop is unchanged. Same order, same 500-node cap, same results

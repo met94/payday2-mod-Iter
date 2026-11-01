@@ -1,6 +1,6 @@
 ﻿# Iter 248.2 full-nav static gates
 
-Generated: 2026-10-29 09:49:01Z
+Generated: 2026-11-01 13:45:18Z
 
 ## Node tool tests
 
@@ -11,7 +11,7 @@ Result: PASS
 Γä╣ cancelled 0
 Γä╣ skipped 0
 Γä╣ todo 0
-Γä╣ duration_ms 131.2581
+Γä╣ duration_ms 147.5535
 
 ## Test-harness parser
 
@@ -23,6 +23,8 @@ ok: Iter test-harness parser
 
 Result: PASS
 
+test_copbrain_follow_unit.lua: PASS
+ok: copbrain follow-unit guard (15 checks)
 test_corecode.lua: PASS
 corecode settings: 29 checks PASS
 test_diag.lua: PASS
@@ -65,8 +67,8 @@ Findings: 0
 
 Result: PASS
 
-unchanged dev/port-ledger.md
-unchanged dev/reports/port-ledger.json
+wrote dev/port-ledger.md
+wrote dev/reports/port-ledger.json
 files=22 functions=117 errors=0 unhooked=7
 MOD_EDIT_CLEAN=31 MOD_ONLY=70 MOD_EDIT_VANILLA_CHANGED=6 MOD_ONLY_HOOK=10
 

@@ -111,7 +111,13 @@ function CopBrain:clbk_coarse_pathing_results(search_id, path)
 		if not my_data.itr_direct_to_pos and Iter.settings.nav_streamline then
 			path[1][2] = data.m_pos
 
-			if objective and objective.follow_unit then
+			-- `alive()` is required: a queued coarse search can land after the
+			-- followed unit was destroyed (player husk cleared, criminal downed)
+			-- and `position()` on the freed unit is an engine access violation.
+			-- Crash 2026-11-01 12:39:26, heist `auc`: access violation with
+			-- `results_callback()` in `CopBrain:clbk_coarse_pathing_results` on
+			-- the stack. Same guard as the streamline-only branch of this file.
+			if objective and objective.follow_unit and alive(objective.follow_unit) then
 				path[#path][2] = objective.follow_unit:position()
 			end
 

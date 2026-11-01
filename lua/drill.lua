@@ -25,6 +25,13 @@ local itr_original_drill_oninvestigatesoadministered = Drill.on_investigate_SO_a
 function Drill:on_investigate_SO_administered(receiver_unit)
 	itr_original_drill_oninvestigatesoadministered(self, receiver_unit)
 
+	-- The interaction can complete after the receiver was destroyed; the
+	-- original body only stores the unit, so the brain dereference below is
+	-- mod-added and needs the same liveness guard as the functions around it.
+	if not alive(receiver_unit) then
+		return
+	end
+
 	local brain = receiver_unit:brain()
 	brain.itr_fallback_objective = brain.itr_fallback_objective_temp
 	brain.itr_fallback_objective_temp = nil
