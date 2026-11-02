@@ -80,6 +80,9 @@ test('A5: a segment state change refreshes every referencing segment', () => {
   has(body, 'for navseg_id, navseg in pairs(self._nav_segments) do', 'A5');
   has(body, 'if navseg_id == unique_id or (navseg.neighbours and navseg.neighbours[unique_id]) then', 'A5');
   has(body, 'self:itr_make_neighbours_list(navseg_id)', 'A5');
+  // Deviation from r205: no pre-loop call, the loop already covers the changed
+  // segment itself (pinned so the double rebuild cannot come back).
+  hasNot(body, 'self:itr_make_neighbours_list(unique_id)', 'A5');
 });
 
 test('A6: register_anim_nav_link reads the segments from the nav link', () => {
@@ -91,6 +94,24 @@ test('A6: register_anim_nav_link reads the segments from the nav link', () => {
   has(body, 'values.itr_to_navseg = to_seg', 'A6');
   // The tracker guess is gone.
   hasNot(body, 'create_nav_tracker', 'A6');
+});
+
+test('A6: a link without readable segments is not a nav-link choice', () => {
+  // Deviation from r205: upstream indexes `self._nav_segments[segment1_id]`
+  // directly, which raises with the nil that the A6 rewrite can now leave.
+  const body = fn(nav, 'function NavigationManager:itr_find_best_navlink(segment1_id, segment2_id, access_pos, near_pos, current_navlink_element)');
+
+  has(body, 'local segment1 = segment1_id and self._nav_segments[segment1_id]', 'A6 guard');
+  has(body, 'local door_list = segment1 and segment1.neighbours[segment2_id]', 'A6 guard');
+});
+
+test('A6: the wait position tolerates a link without segments', () => {
+  // Deviation from r205: `{[nil] = true}` raises "table index is nil" inside
+  // the cop action update, so the wall fallback is taken instead.
+  const body = fn(walk, 'function CopActionWalk:itr_get_wait_pos(navseg_id, near_pos)');
+
+  has(body, 'if not navseg_id then', 'A6 wait pos');
+  assert.ok(body.indexOf('_get_pos_on_wall') >= 0, 'A6 wait pos: wall fallback missing');
 });
 
 test('A7: a dead nav link no longer blocks the animation', () => {

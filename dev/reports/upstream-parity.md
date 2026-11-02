@@ -135,18 +135,24 @@ verbatim. Each one is pinned by a test, so a future merge cannot silently
 | A5 `set_nav_segment_state` | one loop | one loop (no redundant pre-call) | the loop already covers `navseg_id == unique_id`; the pre-call rebuilt the list twice |
 | A6 `itr_find_best_navlink` | indexes `self._nav_segments[segment1_id]` directly | guards a missing segment | a link whose `start_nav_segment()` could not be read leaves `itr_from_navseg` nil; upstream would index nil |
 | A6 `itr_get_wait_pos` | — | returns the wall fallback when `navseg_id` is nil | `{[nil] = true}` raises "table index is nil" inside the cop action update |
-| A7 dead nav link | plays the animation | same, plus the `navlink_play_dead` counter | vanilla `_upd_nav_link` reads `_nav_link.c_class` in the branch taken only when the animation never started; the counter is the signal to check it in a log |
+| A7 dead nav link | plays the animation | same, plus the `navlink_play_dead` counter | the animation needs only the mission element, but vanilla's post-animation `_sync` branch reads the link's collision object; the counter is the signal to check that in a log |
 
 **A7 residual risk (known, accepted):** playing the animation with a destroyed
-nav-link `c_class` keeps the cop moving (the animation only needs the mission
-element), but if the animation fails to start, vanilla's `_upd_nav_link` calls
-`c_class:end_position()` / `c_class:set_delay_time(0)` unguarded
-(`lib/units/enemies/cop/actions/lower_body/copactionwalk.lua:2498, 2508, 2555`).
-The alternative — dropping the link and letting the path continue — trades a
-certain stall for a cop walking into geometry it cannot traverse, so upstream's
-behaviour was kept. In-game check: a level where a nav link's blocker is removed
-mid-heist (Counterfeit `pal` is the recorded case) with `navlink_play_dead` in
-the digest and no Lua error in the log.
+nav-link `c_class` keeps the cop moving, because the animation only uses the
+mission element. Vanilla installs `_upd_nav_link` only when the redirect
+animation succeeded (`play_redirect` → `_set_updator("_upd_nav_link")`), and its
+post-animation branch then reads the collision object: `c_class:end_position()`
+(`copactionwalk.lua:2498`, behind a successful raycast) and
+`c_class:set_delay_time(0)` (`:2508` and `:2555`, behind `nav_link_delay() > 0`,
+`_sync` cops). A failed redirect takes the `else` branch instead, which *is*
+guarded by `alive(self._nav_link.c_class)` (`:2451`). So the exposure is the
+single post-animation frame for a synced cop whose link was destroyed while the
+animation played — not the "never started" case. The alternative — dropping the
+link and letting the path continue — still dereferences the same dead userdata
+through `_nav_point_pos` → `nav_point:script_data()`, i.e. a certain stall for
+no safety gain, so upstream's behaviour was kept. In-game check: a level where a
+nav link's blocker is removed mid-heist (Counterfeit `pal` is the recorded case),
+watching `navlink_play_dead` and the log for a Lua error in `_upd_nav_link`.
 
 
 ## 3. Adopted in 205.1 (for reference)

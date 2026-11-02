@@ -164,10 +164,10 @@ if Network:is_server() then
 			-- its mission element is still there, so the animation can play.
 			-- Returning nothing here left the cop waiting at a link that would
 			-- never become available again (upstream r201/r202).
-			-- Exposure to keep an eye on: vanilla `_upd_nav_link` reads
-			-- `self._nav_link.c_class` in the branch taken when the animation
-			-- never started; that branch is not reached after a successful
-			-- play, but a digest with this counter is the signal to check it.
+			-- Exposure to keep an eye on: vanilla installs `_upd_nav_link` only
+			-- after a successful redirect, and its post-animation `_sync`
+			-- branch reads the link's collision object (copactionwalk.lua:2498,
+			-- :2508). A digest with this counter is the signal to check there.
 			Iter.diag.count('navlink_play_dead')
 			return true
 		end
