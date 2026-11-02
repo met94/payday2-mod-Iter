@@ -1,17 +1,17 @@
 ﻿# Iter 248.2 full-nav static gates
 
-Generated: 2026-11-01 13:45:18Z
+Generated: 2026-11-02 06:32:18Z
 
 ## Node tool tests
 
 Result: PASS
 
-Γä╣ pass 98
+Γä╣ pass 116
 Γä╣ fail 0
 Γä╣ cancelled 0
 Γä╣ skipped 0
 Γä╣ todo 0
-Γä╣ duration_ms 147.5535
+Γä╣ duration_ms 142.778
 
 ## Test-harness parser
 
@@ -25,12 +25,16 @@ Result: PASS
 
 test_copbrain_follow_unit.lua: PASS
 ok: copbrain follow-unit guard (15 checks)
+test_copbrain_search_start.lua: PASS
+7 checks, copbrain search-start test passed
 test_corecode.lua: PASS
 corecode settings: 29 checks PASS
 test_diag.lua: PASS
 9 checks, diag gate test passed
 test_harness_bot_obj.lua: PASS
 11 checks, harness bot objective test passed
+test_missionmanager_navseg.lua: PASS
+10 checks, missionmanager nav-seg key test passed
 test_nav_patches.lua: PASS
 17 checks, P7 wrapper test passed
 test_shim.lua: PASS
@@ -67,8 +71,8 @@ Findings: 0
 
 Result: PASS
 
-wrote dev/port-ledger.md
-wrote dev/reports/port-ledger.json
+unchanged dev/port-ledger.md
+unchanged dev/reports/port-ledger.json
 files=22 functions=117 errors=0 unhooked=7
 MOD_EDIT_CLEAN=31 MOD_ONLY=70 MOD_EDIT_VANILLA_CHANGED=6 MOD_ONLY_HOOK=10
 
@@ -76,7 +80,7 @@ MOD_EDIT_CLEAN=31 MOD_ONLY=70 MOD_EDIT_VANILLA_CHANGED=6 MOD_ONLY_HOOK=10
 
 Result: PASS
 
-hooks=15/15 methods=11/11 errors=12 review=32 suppressed=12 allowUnused=0
+hooks=15/15 methods=11/11 errors=12 review=33 suppressed=12 allowUnused=0
 Baseline errors: 12 (current: 12)
 Unused allowlist entries: 0
 

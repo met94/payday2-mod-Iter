@@ -202,6 +202,19 @@ The pre-scheme `202-dev` label is historical. Iter Lite r201 was a separate
 mod name/branch (`Iter Lite`), not a release in this sequence, so renaming the
 full fork to `200.1` does not move backwards relative to an Iter release.
 
+2026-11-02: the base moved to **r205** without a rebase. Upstream r201-r205 is
+BangL's restoration of the r200 pathfinding on the U247+ navigation: 9 files,
++285/-82, over the same r200 sources — the same target this fork ported to v6.
+It was adopted as eleven patches into the existing port instead of replacing
+the core (reasoning and per-item dispositions: `reports/upstream-parity.md`).
+`205.1` is therefore the first release whose upstream base is r205 while the
+port lineage is still r200 (`98940fb`); the version string no longer tells you
+which code the nav core came from, the ledger does.
+
+Cost if wrong: a reader may assume `205.1` contains BangL's implementation. It
+does not — it contains every r201-r205 behaviour that survived review, on this
+fork's port.
+
 Cost if wrong: an already-published `202-dev` artifact would look newer than
 `200.1`; the fork has not published a release under that label, and the
 changelog/README now state the mapping.

@@ -17,6 +17,7 @@ cards, and baselines are Iter-specific.
 | `test-harness/` | separate dev mod with `!iter` chat commands |
 | `test/cards/` | acceptance JSON for `log-scan --card` |
 | `reports/` | intent map, decisions, drop log, dossiers, reviews, smoke reports |
+| `reports/upstream-parity.md` | upstream revision ledger: adopted / not adopted / already present, with reasons |
 | `build.ps1` | package `dist/Iter`; never touches the game |
 
 ## Daily loop
@@ -34,9 +35,12 @@ node dev\tools\log-scan.mjs <path-to-log> --mod . --card dev\test\cards\T0-load.
 
 ## Baselines
 
-- Iter source: `98940fb` (r200).
+- Iter source: `98940fb` (r200); upstream base for versioning: r205 (`205.1`).
 - Old vanilla: `a3180fc` (246.1; parseable restyle).
 - Target vanilla: `e3a8b616` (248.2).
+
+Upstream revisions are tracked in `reports/upstream-parity.md` — read it before
+comparing a new upstream package, it records what was deliberately not adopted.
 
 ## Chat commands
 

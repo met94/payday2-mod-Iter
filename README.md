@@ -8,10 +8,15 @@ original mod was written against the v5 nav model; the core has been
 reimplemented on the v6 load data, with the subsystem switches documented in
 `MENU_OPTIONS.md`.
 
-- Version: `200.21`
-- Base: upstream Iter r200 (`98940fb`) by TdlQ
+- Version: `205.1`
+- Base: upstream Iter r205 (TdlQ, code maintenance by BangL); the nav core is
+  this fork's own v6 port of r200 (`98940fb`)
 - Fork maintenance: met94
 - Target: PAYDAY 2 248.2 (`e3a8b616`), SuperBLT
+
+Upstream revisions and what was deliberately **not** taken from them are tracked
+in `dev/reports/upstream-parity.md`; read it before comparing a new upstream
+package.
 
 ## Status
 
@@ -24,6 +29,15 @@ reimplemented on the v6 load data, with the subsystem switches documented in
 | Direct-to-pos | working (T4 PASS) |
 | Path extender | working (T5 PASS on counters; no visible slide/stuck) |
 | Map patches | 21 clean blocks (22 level ids), 2 accepted losses, 1 dead, 2 no-op |
+| Upstream parity | r201-r205 reviewed: adopted or consciously skipped (`205.1`) |
+
+**205.1** moves the base to upstream r205 and adopts every fix of r201-r205
+that applies to this port: the four map patches whose CRC signatures went stale
+with the U247+ nav data (`branchbank`, `firestarter_1`, `gallery`/`framing_frame_1`,
+`mex`), the visibility-group index contract in `append_vis_group`, string nav
+segment ids in `ElementAINavSeg`, the coarse-cache destination, the asymmetric
+neighbour refresh, `start_nav_segment()`/`end_nav_segment()`, the dead-nav-link
+stall and the queue start-position/timestamp fixes. See `changelog.txt`.
 
 **200.13** reports the real player speed (`pspd_max`) and the `game`/`player`/
 `game_animation` timer multipliers, so a leftover multiplier (Time Speed touches
@@ -99,9 +113,11 @@ instead of the game helper. See `changelog.txt`.
 
 Versions use `<upstream revision>.<fork release>`:
 
-- `200.1` is the first full-nav fork release on upstream r200;
-- `200.2`, `200.3`, ... are later fork releases on the same upstream base;
-- after merging a new upstream revision the base changes (`201.1`).
+- `200.1` was the first full-nav fork release, on upstream r200;
+- `200.2` … `200.21` were fork releases on the r200 base;
+- `205.1` moves the base to upstream r205 (r201-r205 adopted) while the nav
+  core stays this fork's v6 port;
+- the next upstream revision changes the base again (`206.1`).
 
 Upstream integer revisions are never reused, so a future TdlQ release cannot
 collide with a fork build. Release tags mirror the version (`v200.1`).

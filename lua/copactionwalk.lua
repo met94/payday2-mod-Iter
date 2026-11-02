@@ -159,6 +159,17 @@ if Network:is_server() then
 			if not delay_t or t >= delay_t then
 				return true
 			end
+		else
+			-- The link object is gone (door blocker changed, link removed) but
+			-- its mission element is still there, so the animation can play.
+			-- Returning nothing here left the cop waiting at a link that would
+			-- never become available again (upstream r201/r202).
+			-- Exposure to keep an eye on: vanilla installs `_upd_nav_link` only
+			-- after a successful redirect, and its post-animation `_sync`
+			-- branch reads the link's collision object (copactionwalk.lua:2498,
+			-- :2508). A digest with this counter is the signal to check there.
+			Iter.diag.count('navlink_play_dead')
+			return true
 		end
 	end
 
@@ -193,6 +204,10 @@ if Network:is_server() then
 		if self:itr_check_navlink_delay(t) then
 			self:itr_set_navlink_delay(t)
 			self:itr_clear_navlink_reservation(self._next_is_nav_link.element)
+			-- The wait is over: drop the wait-start stamp, or the next link this
+			-- unit queues for inherits the first link's timestamp through
+			-- itr_update_navlink_queue_data (upstream r205).
+			self.itr_wait_for_navlink_availability_t = nil
 			itr_original_copactionwalk_playnavlinkanim(self, t)
 		end
 	end
@@ -329,6 +344,13 @@ if Network:is_server() then
 	end
 
 	function CopActionWalk:itr_get_wait_pos(navseg_id, near_pos)
+		-- A nav link whose segments could not be read leaves itr_from_navseg nil
+		-- (NavigationManager:register_anim_nav_link); `{[nil] = true}` would
+		-- raise "table index is nil", so wait against the wall instead.
+		if not navseg_id then
+			return CopLogicTravel._get_pos_on_wall(near_pos, 400)
+		end
+
 		local cover = managers.navigation:find_cover_in_nav_seg_3({[navseg_id] = true}, 400, near_pos)
 		local wait_pos = cover and cover[1] or CopLogicTravel._get_pos_on_wall(near_pos, 400)
 		return wait_pos

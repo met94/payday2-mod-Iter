@@ -10,6 +10,13 @@ Static classification of each level block:
   neighbour writes themselves are discarded by `_convert_nav_data_v5_to_v6`.
 - **DEAD_ONLY** — only neighbour writes; the patch is a no-op at 248.2.
 
+**2026-11-02 (205.1):** the ids inside `branchbank`, `firestarter_1`,
+`gallery`/`framing_frame_1` and `mex` were resynced to the U247+ nav data
+(upstream r204) and their CRC signatures changed with them; quad/door ids and
+line numbers quoted for those four levels in `p7-partial-audit-a.md` are from
+the r200 data. The classification in this table is unaffected (same geometry
+ops, no neighbour writes).
+
 | Level | Verdict | Neighbour writes | Geometry ops | Other data edits |
 |---|---|---:|---:|---:|
 | alex_2 | PARTIAL | 2 | 9 | 1 |

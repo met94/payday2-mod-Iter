@@ -900,16 +900,6 @@ function NavigationManager:register_anim_nav_link(element)
 			e_nl_fwd_4m = 1,
 		}
 
-		local tracker = managers.navigation:create_nav_tracker(values.position, true)
-		if tracker then
-			values.itr_from_navseg = tracker:nav_segment()
-			if values.search_position then
-				tracker:move(values.search_position)
-			end
-			values.itr_to_navseg = tracker:nav_segment()
-			self:destroy_nav_tracker(tracker)
-		end
-
 		local so_action = values.so_action
 		if (Iter.settings.nav_streamline or Iter.settings.navlink_queue) and type(so_action) == 'string' then
 			local interval = math.max(values.interval or 1000, 0)
@@ -944,6 +934,19 @@ function NavigationManager:register_anim_nav_link(element)
 
 	local nav_link = element:nav_link()
 	if nav_link then
+		-- The nav link knows the two segments it joins; a nav tracker placed at
+		-- values.position/search_position guessed them and disagreed for links
+		-- that span a door (upstream r205, same source as vanilla's own
+		-- register_anim_nav_link).
+		local from_seg = nav_link:start_nav_segment()
+		local to_seg = nav_link:end_nav_segment()
+		if from_seg and to_seg then
+			values.itr_from_navseg = from_seg
+			values.itr_to_navseg = to_seg
+		else
+			Iter.diag.count('navlink_segments_missing')
+		end
+
 		_navlink_elements[nav_link:key()] = element
 		Iter.diag.count('navlink_registered')
 
@@ -1041,11 +1044,13 @@ function NavigationManager:set_nav_segment_state(id, ...)
 	itr_original_navigationmanager_setnavsegmentstate(self, unique_id, ...)
 	self.itr_coarse_cache = {}
 
-	self:itr_make_neighbours_list(unique_id)
-	local nav_seg = self._nav_segments[unique_id]
-	if nav_seg and nav_seg.neighbours then
-		for neighbour_id in pairs(nav_seg.neighbours) do
-			self:itr_make_neighbours_list(neighbour_id)
+	-- Nav links make the neighbourhood asymmetric: a segment can list this one
+	-- without being listed back, so refreshing only the changed segment and its
+	-- own neighbours left stale enabled-neighbour lists behind (upstream r205).
+	-- The loop covers the changed segment itself (navseg_id == unique_id).
+	for navseg_id, navseg in pairs(self._nav_segments) do
+		if navseg_id == unique_id or (navseg.neighbours and navseg.neighbours[unique_id]) then
+			self:itr_make_neighbours_list(navseg_id)
 		end
 	end
 end
@@ -1565,7 +1570,7 @@ function NavigationManager:itr_get_closest_door_to_pos(all_doors, door_list, pos
 		elseif is_direct then
 			-- qued
 
-		elseif itr_alive(i_door) and not i_door:is_obstructed() and i_door:check_access(access_pos) then
+		elseif itr_alive(i_door) and not i_door:is_obstructed() and i_door:check_access(access_pos, 0) then
 			local element = _navlink_elements[i_door:key()]
 
 			if element then
@@ -1607,7 +1612,7 @@ function NavigationManager:itr_get_closest_door_to_pos(all_doors, door_list, pos
 	else
 		through_navlink = through_navlink or through_navlink_with_delay
 		if through_navlink and navlink_accounting then
-			itr_log_navlink_usage(through_navlink, t)
+			itr_log_navlink_usage(through_navlink, t or TimerManager:game():time())
 		end
 	end
 
@@ -1647,7 +1652,10 @@ function NavigationManager:itr_get_door_between(segment1_id, segment2_id, near_p
 end
 
 function NavigationManager:itr_find_best_navlink(segment1_id, segment2_id, access_pos, near_pos, current_navlink_element)
-	local door_list = self._nav_segments[segment1_id].neighbours[segment2_id]
+	-- A nav link whose segments could not be read leaves itr_from_navseg nil
+	-- (register_anim_nav_link); a missing segment is not a nav-link choice.
+	local segment1 = segment1_id and self._nav_segments[segment1_id]
+	local door_list = segment1 and segment1.neighbours[segment2_id]
 	if not door_list then
 		return
 	end
@@ -1657,7 +1665,7 @@ function NavigationManager:itr_find_best_navlink(segment1_id, segment2_id, acces
 	local best_navlink, best_navlink_element
 	for i = #door_list, 1, -1 do
 		local navlink = door_list[i]
-		if type(navlink) == 'userdata' and itr_alive(navlink) and not navlink:is_obstructed() and navlink:check_access(access_pos) then
+		if type(navlink) == 'userdata' and itr_alive(navlink) and not navlink:is_obstructed() and navlink:check_access(access_pos, 0) then
 			local navlink_element = _navlink_elements[navlink:key()]
 
 			if navlink_element then
@@ -1853,7 +1861,7 @@ function NavigationManager:itr_get_accessibility(door_list, access_pos, access_n
 
 				if nav_link_delay > 0 then
 					local user = element.itr_reserved_by_unit
-					congestion_risk = math_max(0, i_door:delay_time() - t)
+					local congestion_risk = math_max(0, i_door:delay_time() - t)
 						+ (
 							(alive(user) and user:id() ~= -1 and 0 or 1)
 							+ (element.itr_navlink_queue_length or 0)
@@ -1931,10 +1939,21 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 		end
 	else
 		if t - cached_result.t < self.itr_coarse_cache_lifetime then
-			Iter.diag.count('search_cache_hit')
-			local result = path_copy(cached_result)
-			result.t = nil
-			return search_data.results_callback and result or self:itr_streamline(result)
+			-- The cached steps belong to the search that filled the cache, the
+			-- destination belongs to the search being answered now: a cop that
+			-- reused another cop's entry walked to the other cop's objective
+			-- (upstream r205). Without a usable destination the cached endpoint
+			-- would be stale, so the cache is not used at all.
+			local end_pos = search_data.to_pos or (self._nav_segments[end_i_seg] and self._nav_segments[end_i_seg].pos)
+			if end_pos then
+				Iter.diag.count('search_cache_hit')
+				local result = path_copy(cached_result)
+				result.t = nil
+				result[#result][2] = end_pos
+				return search_data.results_callback and result or self:itr_streamline(result, access_pos)
+			end
+
+			Iter.diag.count('search_cache_unusable')
 		end
 	end
 
@@ -2138,7 +2157,7 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 		self.itr_coarse_cache[path_key] = cache_result
 	end
 
-	return search_data.results_callback and result or self:itr_streamline(result)
+	return search_data.results_callback and result or self:itr_streamline(result, access_pos)
 end
 
 -- The custom search is a separate gate from the streamliner so proxies can be

@@ -160,24 +160,25 @@ elseif level_id == 'born' then
 elseif level_id == 'branchbank' then
 
 	return function(self, data)
+		-- ids resynced to the U247+ nav data (upstream r204)
 		-- prevent chars to walk into wall
-		local rid = 551
+		local rid = 470
 		data.room_borders_y_pos[rid] = 41
-		local did = 999
+		local did = 863
 		mvector3.set_y(data.door_high_pos[did], 41)
 
 		-- Parking, grid side
 		rid = append_room(-129, -130, 76, 53, 22.5, 22.5, 22.5, 22.5, 17)
-		append_door(Vector3(-130, 76, 22.5), Vector3(-129, 76, 22.5), 504, rid)
-		append_door(Vector3(-130, 53, 22.5), Vector3(-129, 53, 22.5), 553, rid)
+		append_door(Vector3(-130, 76, 22.5), Vector3(-129, 76, 22.5), 423, rid)
+		append_door(Vector3(-130, 53, 22.5), Vector3(-129, 53, 22.5), 472, rid)
 
-		data.room_borders_x_pos[508] = -130
-		append_door(Vector3(-130, 66, 22.5), Vector3(-130, 67, 22.5), 508, rid)
+		data.room_borders_x_pos[427] = -130
+		append_door(Vector3(-130, 66, 22.5), Vector3(-130, 67, 22.5), 427, rid)
 
 		-- Parking, other side
 		rid = append_room(-110, -124, 114, 113, 22.5, 22.5, 22.5, 22.5, 15)
-		append_door(Vector3(-110, 113, 22.5), Vector3(-110, 114, 22.5), 375, rid)
-		append_door(Vector3(-124, 113, 22.5), Vector3(-124, 114, 22.5), 414, rid)
+		append_door(Vector3(-110, 113, 22.5), Vector3(-110, 114, 22.5), 294, rid)
+		append_door(Vector3(-124, 113, 22.5), Vector3(-124, 114, 22.5), 333, rid)
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
@@ -280,11 +281,11 @@ elseif level_id == 'escape_street' then
 elseif level_id == 'firestarter_1' then
 
 	return function(self, data)
-		-- access around a truck
-		data.room_borders_x_pos[576] = -12
-		data.room_borders_y_neg[576] = 159
+		-- access around a truck (ids resynced to the U247+ nav data, upstream r204)
+		data.room_borders_x_pos[572] = -12
+		data.room_borders_y_neg[572] = 159
 
-		append_door(Vector3(-13, 159, 21.98), Vector3(-12, 159, 21.98), 576, 1124)
+		append_door(Vector3(-13, 159, 21.98), Vector3(-12, 159, 21.98), 572, 1120)
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
@@ -299,15 +300,15 @@ elseif level_id == 'framing_frame_1' or level_id == 'gallery' then
 		local vg = append_vis_group(100, Vector3(2457, 6, 0))
 
 		vg.rooms = {
-			[858] = true,
-			[859] = true,
-			[870] = true,
-			[871] = true,
-			[872] = true,
-			[873] = true,
-			[881] = true,
-			[883] = true,
-			[884] = true
+			[807] = true,
+			[808] = true,
+			[819] = true,
+			[820] = true,
+			[821] = true,
+			[822] = true,
+			[830] = true,
+			[832] = true,
+			[833] = true
 		}
 		for room_id in pairs(vg.rooms) do
 			data.vis_groups[seg2vg[13]].rooms[room_id] = nil
@@ -403,16 +404,17 @@ elseif level_id == 'kosugi' then
 elseif level_id == 'mex' then
 
 	return function(self, data)
-		transfer_room(3908, 235, 192)
-		transfer_room(3916, 235, 192)
-		transfer_room(3907, 235, 192)
-		transfer_room(3896, 235, 192)
-		transfer_room(3906, 235, 192)
-		transfer_room(3899, 235, 192)
-		transfer_room(3889, 235, 192)
-		transfer_room(3898, 235, 192)
+		-- ids resynced to the U247+ nav data (upstream r204)
+		transfer_room(3883, 235, 192)
+		transfer_room(3891, 235, 192)
+		transfer_room(3882, 235, 192)
+		transfer_room(3871, 235, 192)
+		transfer_room(3880, 235, 192)
+		transfer_room(3874, 235, 192)
+		transfer_room(3864, 235, 192)
+		transfer_room(3873, 235, 192)
 
-		transfer_room(2627, 214, 192)
+		transfer_room(2602, 214, 192)
 
 		itr_original_navigationmanager_setloaddata(self, data)
 	end
@@ -663,18 +665,18 @@ local nav_data_sigs = {
 	arm_for = -1033523562,
 	big = 1250090475,
 	born = -752015988,
-	branchbank = -115776117,
+	branchbank = -1119519727,
 	chas = 1118766387,
 	crojob2 = 1676845123,
 	escape_park = 466880952,
 	escape_street = 1470878858,
-	firestarter_1 = 952805177,
-	gallery = 1380658305,
+	firestarter_1 = -1378527392,
+	gallery = 697226673,
 	jewelry_store = 1306078024,
 	jolly = 617794335,
 	kenaz = 1079949878,
 	kosugi = 373270794,
-	mex = -415457450,
+	mex = 59608889,
 	mia_1 = 710528854,
 	moon = -814267024,
 	pbr = 1972593354,
@@ -803,8 +805,16 @@ local function prepare_helpers(data)
 			seg = navseg_id,
 			vis_groups = {}
 		}
+		-- Visibility groups reference each other by index into data.vis_groups,
+		-- not by nav segment id: the U247+ converter copies these keys straight
+		-- into the v6 `visible_groups` array, which the engine reads as indices
+		-- (upstream r204). Writing navseg_id here produced an out-of-range index.
+		-- No self-reference: the game's own builder never lists a group in its
+		-- own list (lib/managers/navfieldbuilder.lua:283, 442, 3293), so r204's
+		-- extra self-entry is deliberately not adopted.
+		local i_vg = #data.vis_groups + 1
 		for k, v in pairs(data.vis_groups) do
-			v.vis_groups[navseg_id] = true
+			v.vis_groups[i_vg] = true
 			vg.vis_groups[k] = true
 		end
 		table.insert(data.vis_groups, vg)
