@@ -809,12 +809,14 @@ local function prepare_helpers(data)
 		-- not by nav segment id: the U247+ converter copies these keys straight
 		-- into the v6 `visible_groups` array, which the engine reads as indices
 		-- (upstream r204). Writing navseg_id here produced an out-of-range index.
+		-- No self-reference: the game's own builder never lists a group in its
+		-- own list (lib/managers/navfieldbuilder.lua:283, 442, 3293), so r204's
+		-- extra self-entry is deliberately not adopted.
 		local i_vg = #data.vis_groups + 1
 		for k, v in pairs(data.vis_groups) do
 			v.vis_groups[i_vg] = true
 			vg.vis_groups[k] = true
 		end
-		vg.vis_groups[i_vg] = true
 		table.insert(data.vis_groups, vg)
 		stats.vis_groups = stats.vis_groups + 1
 

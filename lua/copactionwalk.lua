@@ -164,6 +164,11 @@ if Network:is_server() then
 			-- its mission element is still there, so the animation can play.
 			-- Returning nothing here left the cop waiting at a link that would
 			-- never become available again (upstream r201/r202).
+			-- Exposure to keep an eye on: vanilla `_upd_nav_link` reads
+			-- `self._nav_link.c_class` in the branch taken when the animation
+			-- never started; that branch is not reached after a successful
+			-- play, but a digest with this counter is the signal to check it.
+			Iter.diag.count('navlink_play_dead')
 			return true
 		end
 	end
@@ -339,6 +344,13 @@ if Network:is_server() then
 	end
 
 	function CopActionWalk:itr_get_wait_pos(navseg_id, near_pos)
+		-- A nav link whose segments could not be read leaves itr_from_navseg nil
+		-- (NavigationManager:register_anim_nav_link); `{[nil] = true}` would
+		-- raise "table index is nil", so wait against the wall instead.
+		if not navseg_id then
+			return CopLogicTravel._get_pos_on_wall(near_pos, 400)
+		end
+
 		local cover = managers.navigation:find_cover_in_nav_seg_3({[navseg_id] = true}, 400, near_pos)
 		local wait_pos = cover and cover[1] or CopLogicTravel._get_pos_on_wall(near_pos, 400)
 		return wait_pos

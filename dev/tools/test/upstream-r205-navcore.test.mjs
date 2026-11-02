@@ -59,9 +59,11 @@ test('A4: the cached path takes the destination of the current search', () => {
   const hit = cacheHitBranch();
 
   has(hit, 'local end_pos = search_data.to_pos or (self._nav_segments[end_i_seg] and self._nav_segments[end_i_seg].pos)', 'A4 cache');
-  // Never nil the endpoint: a positionless last step disables the streamliner.
+  // A cache entry without a usable destination must not answer with the stale
+  // endpoint: the branch falls through to a real search instead.
   has(hit, 'if end_pos then', 'A4 cache');
   has(hit, 'result[#result][2] = end_pos', 'A4 cache');
+  has(hit, 'search_cache_unusable', 'A4 cache');
   has(hit, 'self:itr_streamline(result, access_pos)', 'A4 cache');
 });
 
@@ -99,6 +101,9 @@ test('A7: a dead nav link no longer blocks the animation', () => {
     /else\s*\n\s*--[\s\S]*?\n\s*return true/.test(body),
     'A7 delay: missing `else return true` for a dead nav link',
   );
+  // Observe when this path is taken: vanilla `_upd_nav_link` touches c_class in
+  // the branch taken only when the animation never started.
+  has(body, "Iter.diag.count('navlink_play_dead')", 'A7 delay');
 });
 
 test('A7: the wait stamp is dropped when the animation plays', () => {
@@ -112,7 +117,9 @@ test('A7: the wait stamp is dropped when the animation plays', () => {
 });
 
 test('A9: nav-link accounting falls back to the game clock', () => {
-  has(nav, 'itr_log_navlink_usage(through_navlink, t or TimerManager:game():time())', 'A9');
+  const body = fn(nav, 'function NavigationManager:itr_get_closest_door_to_pos(all_doors, door_list, pos_from, pos_to, access_pos, navlink_accounting)');
+
+  has(body, 'itr_log_navlink_usage(through_navlink, t or TimerManager:game():time())', 'A9');
 });
 
 test('A10: the congestion risk is a local', () => {
@@ -122,6 +129,9 @@ test('A10: the congestion risk is a local', () => {
 });
 
 test('A11: nav-link access checks pass the negative filter explicitly', () => {
-  has(nav, 'i_door:check_access(access_pos, 0)', 'A11 door');
-  has(nav, 'navlink:check_access(access_pos, 0)', 'A11 navlink');
+  const doors = fn(nav, 'function NavigationManager:itr_get_closest_door_to_pos(all_doors, door_list, pos_from, pos_to, access_pos, navlink_accounting)');
+  const navlinks = fn(nav, 'function NavigationManager:itr_find_best_navlink(segment1_id, segment2_id, access_pos, near_pos, current_navlink_element)');
+
+  has(doors, 'i_door:check_access(access_pos, 0)', 'A11 door');
+  has(navlinks, 'navlink:check_access(access_pos, 0)', 'A11 navlink');
 });

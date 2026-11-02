@@ -130,6 +130,9 @@ test('append_vis_group registers the new group by index, not by segment id', () 
   has(body, 'v.vis_groups[i_vg] = true', 'append_vis_group');
   // The new group lists the existing groups by their own indices.
   has(body, 'vg.vis_groups[k] = true', 'append_vis_group');
+  // Deliberate deviation from r204: no self-reference. The game's own builder
+  // never lists a group in its own list (navfieldbuilder.lua:283, 442, 3293).
+  hasNot(body, 'vg.vis_groups[i_vg] = true', 'append_vis_group');
   // The segment id must not leak into the visibility table.
   hasNot(body, 'vis_groups[navseg_id]', 'append_vis_group');
 });

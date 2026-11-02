@@ -122,9 +122,36 @@ endpoint would let it overwrite the fork with an r2xx package (README,
 | `e_so_ntl_idle_look3` workaround | `lua/coplogicidle.lua` |
 | `GroupAIStateBase:on_nav_seg_neighbour_state` refresh | `lua/groupaistatebase.lua` |
 
+### 2.9 Deviations inside adopted items (deliberate, from code review)
+
+These are places where we adopted an upstream item but did **not** copy its code
+verbatim. Each one is pinned by a test, so a future merge cannot silently
+"restore" the upstream shape:
+
+| item | upstream | ours | why |
+|---|---|---|---|
+| A2 `append_vis_group` | also self-references the new group (`vg.vis_groups[i_vg]`) | no self-reference | the game's own builder never lists a group in its own list (`lib/managers/navfieldbuilder.lua:283, 442, 3293`) |
+| A4 cache hit | always answers from the cache | falls through to a real search (`search_cache_unusable`) when `to_pos` and the end segment are both unavailable | answering with the cached endpoint would keep the stale destination this fix removes |
+| A5 `set_nav_segment_state` | one loop | one loop (no redundant pre-call) | the loop already covers `navseg_id == unique_id`; the pre-call rebuilt the list twice |
+| A6 `itr_find_best_navlink` | indexes `self._nav_segments[segment1_id]` directly | guards a missing segment | a link whose `start_nav_segment()` could not be read leaves `itr_from_navseg` nil; upstream would index nil |
+| A6 `itr_get_wait_pos` | — | returns the wall fallback when `navseg_id` is nil | `{[nil] = true}` raises "table index is nil" inside the cop action update |
+| A7 dead nav link | plays the animation | same, plus the `navlink_play_dead` counter | vanilla `_upd_nav_link` reads `_nav_link.c_class` in the branch taken only when the animation never started; the counter is the signal to check it in a log |
+
+**A7 residual risk (known, accepted):** playing the animation with a destroyed
+nav-link `c_class` keeps the cop moving (the animation only needs the mission
+element), but if the animation fails to start, vanilla's `_upd_nav_link` calls
+`c_class:end_position()` / `c_class:set_delay_time(0)` unguarded
+(`lib/units/enemies/cop/actions/lower_body/copactionwalk.lua:2498, 2508, 2555`).
+The alternative — dropping the link and letting the path continue — trades a
+certain stall for a cop walking into geometry it cannot traverse, so upstream's
+behaviour was kept. In-game check: a level where a nav link's blocker is removed
+mid-heist (Counterfeit `pal` is the recorded case) with `navlink_play_dead` in
+the digest and no Lua error in the log.
+
+
 ## 3. Adopted in 205.1 (for reference)
 
-Eleven items, all from r201–r205, each pinned by a test:
+Eleven items, all from r201-r205, each pinned by a test:
 
 | item | upstream | test |
 |---|---|---|

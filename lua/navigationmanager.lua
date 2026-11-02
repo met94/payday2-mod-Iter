@@ -1044,10 +1044,10 @@ function NavigationManager:set_nav_segment_state(id, ...)
 	itr_original_navigationmanager_setnavsegmentstate(self, unique_id, ...)
 	self.itr_coarse_cache = {}
 
-	self:itr_make_neighbours_list(unique_id)
 	-- Nav links make the neighbourhood asymmetric: a segment can list this one
 	-- without being listed back, so refreshing only the changed segment and its
 	-- own neighbours left stale enabled-neighbour lists behind (upstream r205).
+	-- The loop covers the changed segment itself (navseg_id == unique_id).
 	for navseg_id, navseg in pairs(self._nav_segments) do
 		if navseg_id == unique_id or (navseg.neighbours and navseg.neighbours[unique_id]) then
 			self:itr_make_neighbours_list(navseg_id)
@@ -1939,18 +1939,21 @@ function NavigationManager:itr_execute_coarce_search(search_data)
 		end
 	else
 		if t - cached_result.t < self.itr_coarse_cache_lifetime then
-			Iter.diag.count('search_cache_hit')
-			local result = path_copy(cached_result)
-			result.t = nil
 			-- The cached steps belong to the search that filled the cache, the
 			-- destination belongs to the search being answered now: a cop that
 			-- reused another cop's entry walked to the other cop's objective
-			-- (upstream r205).
+			-- (upstream r205). Without a usable destination the cached endpoint
+			-- would be stale, so the cache is not used at all.
 			local end_pos = search_data.to_pos or (self._nav_segments[end_i_seg] and self._nav_segments[end_i_seg].pos)
 			if end_pos then
+				Iter.diag.count('search_cache_hit')
+				local result = path_copy(cached_result)
+				result.t = nil
 				result[#result][2] = end_pos
+				return search_data.results_callback and result or self:itr_streamline(result, access_pos)
 			end
-			return search_data.results_callback and result or self:itr_streamline(result, access_pos)
+
+			Iter.diag.count('search_cache_unusable')
 		end
 	end
 
