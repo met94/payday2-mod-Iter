@@ -38,6 +38,17 @@ function fn(source, header) {
   return rest.slice(0, match ? match.index : rest.length);
 }
 
+// CopActionWalk members are indented one tab inside `if Network:is_server() then`,
+// so their closing `end` is `\n\tend\n`; the generic slicer would run past it into
+// the next member and a lookalike line there would satisfy an assertion.
+function walkFn(source, header) {
+  const start = source.indexOf(header);
+  assert.ok(start >= 0, `\`${header}\` missing`);
+  const rest = source.slice(start + header.length);
+  const end = rest.indexOf('\n\tend\n');
+  return rest.slice(0, end < 0 ? rest.length : end);
+}
+
 function has(haystack, needle, label) {
   assert.ok(haystack.includes(needle), `${label}: expected \`${needle}\``);
 }
@@ -108,14 +119,14 @@ test('A6: a link without readable segments is not a nav-link choice', () => {
 test('A6: the wait position tolerates a link without segments', () => {
   // Deviation from r205: `{[nil] = true}` raises "table index is nil" inside
   // the cop action update, so the wall fallback is taken instead.
-  const body = fn(walk, 'function CopActionWalk:itr_get_wait_pos(navseg_id, near_pos)');
+  const body = walkFn(walk, 'function CopActionWalk:itr_get_wait_pos(navseg_id, near_pos)');
 
   has(body, 'if not navseg_id then', 'A6 wait pos');
   assert.ok(body.indexOf('_get_pos_on_wall') >= 0, 'A6 wait pos: wall fallback missing');
 });
 
 test('A7: a dead nav link no longer blocks the animation', () => {
-  const body = fn(walk, 'function CopActionWalk:itr_check_navlink_delay(t)');
+  const body = walkFn(walk, 'function CopActionWalk:itr_check_navlink_delay(t)');
 
   has(body, 'if itr_alive_navpoint(navlink) then', 'A7 delay');
   assert.ok(
@@ -128,7 +139,7 @@ test('A7: a dead nav link no longer blocks the animation', () => {
 });
 
 test('A7: the wait stamp is dropped when the animation plays', () => {
-  const body = fn(walk, 'function CopActionWalk:_play_nav_link_anim(t)');
+  const body = walkFn(walk, 'function CopActionWalk:_play_nav_link_anim(t)');
 
   const clearAt = body.indexOf('self.itr_wait_for_navlink_availability_t = nil');
   const playAt = body.indexOf('itr_original_copactionwalk_playnavlinkanim(self, t)', clearAt);

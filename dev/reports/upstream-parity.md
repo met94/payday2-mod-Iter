@@ -146,12 +146,13 @@ post-animation branch then reads the collision object: `c_class:end_position()`
 `c_class:set_delay_time(0)` (`:2508` and `:2555`, behind `nav_link_delay() > 0`,
 `_sync` cops). A failed redirect takes the `else` branch instead, which *is*
 guarded by `alive(self._nav_link.c_class)` (`:2451`). So the exposure is the
-single post-animation frame for a synced cop whose link was destroyed while the
-animation played — not the "never started" case. The alternative — dropping the
-link and letting the path continue — still dereferences the same dead userdata
-through `_nav_point_pos` → `nav_point:script_data()`, i.e. a certain stall for
-no safety gain, so upstream's behaviour was kept. In-game check: a level where a
-nav link's blocker is removed mid-heist (Counterfeit `pal` is the recorded case),
+single post-animation frame for a synced cop whose link was already dead when
+the animation started — not the "never started" case, and not only links
+destroyed mid-animation. The alternative — dropping the link and letting the
+path continue — still dereferences the same dead userdata through
+`_nav_point_pos` → `nav_point:script_data()`, i.e. a certain stall for no safety
+gain, so upstream's behaviour was kept. In-game check: a level where a nav
+link's blocker is removed mid-heist (Counterfeit `pal` is the recorded case),
 watching `navlink_play_dead` and the log for a Lua error in `_upd_nav_link`.
 
 
