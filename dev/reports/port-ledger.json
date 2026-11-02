@@ -1,7 +1,7 @@
 {
   "oldRev": "a3180fc",
   "newRev": "e3a8b616",
-  "generated": "2026-11-01T18:22:45.516Z",
+  "generated": "2026-11-02T06:25:49.152Z",
   "files": [
     {
       "file": "lua/coreworldinstancemanager.lua",
@@ -799,7 +799,7 @@
         {
           "name": "NavigationManager.itr_execute_coarce_search",
           "category": "MOD_ONLY",
-          "modLines": 250,
+          "modLines": 253,
           "oldLines": 0,
           "newLines": 0,
           "modParams": "search_data",
@@ -1273,7 +1273,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 405
+          "startLine": 417
         },
         {
           "name": "CopActionWalk._chk_correct_pose",
@@ -1288,7 +1288,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 568
+          "startLine": 580
         },
         {
           "name": "CopActionWalk._chk_shortcut_pos_to_pos",
@@ -1303,7 +1303,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 506
+          "startLine": 518
         },
         {
           "name": "CopActionWalk._play_nav_link_anim",
@@ -1318,7 +1318,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 183
+          "startLine": 188
         },
         {
           "name": "CopActionWalk._upd_nav_link_first_frame",
@@ -1333,7 +1333,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 558
+          "startLine": 570
         },
         {
           "name": "CopActionWalk.itr_append_next_step",
@@ -1368,7 +1368,7 @@
         {
           "name": "CopActionWalk.itr_check_navlink_delay",
           "category": "MOD_ONLY",
-          "modLines": 15,
+          "modLines": 20,
           "oldLines": 0,
           "newLines": 0,
           "modParams": "t",
@@ -1393,7 +1393,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 326
+          "startLine": 331
         },
         {
           "name": "CopActionWalk.itr_delete_path_ahead",
@@ -1408,7 +1408,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 472
+          "startLine": 484
         },
         {
           "name": "CopActionWalk.itr_get_alternate_navlink",
@@ -1423,12 +1423,12 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 210
+          "startLine": 215
         },
         {
           "name": "CopActionWalk.itr_get_wait_pos",
           "category": "MOD_ONLY",
-          "modLines": 5,
+          "modLines": 12,
           "oldLines": 0,
           "newLines": 0,
           "modParams": "navseg_id, near_pos",
@@ -1438,7 +1438,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 341
+          "startLine": 346
         },
         {
           "name": "CopActionWalk.itr_prepare_for_upcoming_navlink",
@@ -1453,7 +1453,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 365
+          "startLine": 377
         },
         {
           "name": "CopActionWalk.itr_reserve_navlink",
@@ -1468,7 +1468,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 222
+          "startLine": 227
         },
         {
           "name": "CopActionWalk.itr_set_navlink_delay",
@@ -1483,7 +1483,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 171
+          "startLine": 176
         },
         {
           "name": "CopActionWalk.itr_switch_to_sibling_navlink",
@@ -1498,7 +1498,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 271
+          "startLine": 276
         },
         {
           "name": "CopActionWalk.itr_update_navlink_queue_data",
@@ -1513,7 +1513,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 347
+          "startLine": 359
         },
         {
           "name": "CopActionWalk.itr_update_wait_for_navlink_availability",
@@ -1528,7 +1528,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 428
+          "startLine": 440
         },
         {
           "name": "CopActionWalk.on_exit",
@@ -1543,7 +1543,7 @@
           "isHook": false,
           "form": "colon",
           "note": "",
-          "startLine": 462
+          "startLine": 474
         },
         {
           "name": "itr_alive_navpoint",

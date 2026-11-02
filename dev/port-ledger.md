@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-11-01T18:22:45.516Z
+Generated: 2026-11-02T06:25:49.152Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -105,7 +105,7 @@ No function definitions (hook/overlay file).
 | [ ] | audit | `itr_watch_population` | 49 | 0 | 0 |  |
 | [ ] | audit | `itr_watch_timer_mul` | 17 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_copy_door_data` | 11 | 0 | 0 |  |
-| [ ] | audit | `NavigationManager.itr_execute_coarce_search` | 250 | 0 | 0 |  |
+| [ ] | audit | `NavigationManager.itr_execute_coarce_search` | 253 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_find_best_navlink` | 50 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_find_choke_point` | 24 | 0 | 0 |  |
 | [ ] | audit | `NavigationManager.itr_find_proxies` | 156 | 0 | 0 |  |
@@ -153,11 +153,11 @@ No function definitions (hook/overlay file).
 | [ ] | **PORT** | `CopActionWalk.on_exit` | 8 | 47 | 49 |  |
 | [ ] | audit | `CopActionWalk.itr_append_next_step` | 31 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_check_extensible` | 19 | 0 | 0 |  |
-| [ ] | audit | `CopActionWalk.itr_check_navlink_delay` | 15 | 0 | 0 |  |
+| [ ] | audit | `CopActionWalk.itr_check_navlink_delay` | 20 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_clear_navlink_reservation` | 14 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_delete_path_ahead` | 22 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_get_alternate_navlink` | 11 | 0 | 0 |  |
-| [ ] | audit | `CopActionWalk.itr_get_wait_pos` | 5 | 0 | 0 |  |
+| [ ] | audit | `CopActionWalk.itr_get_wait_pos` | 12 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_prepare_for_upcoming_navlink` | 38 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_reserve_navlink` | 48 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_set_navlink_delay` | 10 | 0 | 0 |  |
