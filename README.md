@@ -8,7 +8,7 @@ original mod was written against the v5 nav model; the core has been
 reimplemented on the v6 load data, with the subsystem switches documented in
 `MENU_OPTIONS.md`.
 
-- Version: `205.1`
+- Version: `205.2`
 - Base: upstream Iter r205 (TdlQ, code maintenance by BangL); the nav core is
   this fork's own v6 port of r200 (`98940fb`)
 - Fork maintenance: met94
@@ -17,6 +17,20 @@ reimplemented on the v6 load data, with the subsystem switches documented in
 Upstream revisions and what was deliberately **not** taken from them are tracked
 in `dev/reports/upstream-parity.md`; read it before comparing a new upstream
 package.
+
+## Part of the AI suite
+
+This mod is tested as one stack with the rest of our 248.2 AI suite, and is
+intended to be run together with it:
+
+| Mod | Repo | Role |
+| --- | --- | --- |
+| **LIES** | [met94/Little-Intelligence-Enhancements-x64](https://github.com/met94/Little-Intelligence-Enhancements-x64) | enemy AI: detection, aim, cover, travel |
+| **Iter** (this mod) | [met94/payday2-mod-Iter](https://github.com/met94/payday2-mod-Iter) | navigation, coarse search, nav-link queue, level nav fixes |
+| **Keepers** | [met94/payday2-mod-Keepers](https://github.com/met94/payday2-mod-Keepers) | bot orders, revives, jokers |
+| **Monkeepers** | [met94/payday2-mod-Monkeepers](https://github.com/met94/payday2-mod-Monkeepers) | bot bag logistics |
+| **Useful Bots** 2.6.3 (by Hoppip, not part of this set) | [ModWorkshop #31221](https://modworkshop.net/mod/31221) | bot combat and utility; requires HopLib |
+| The Fixes (optional) | - | general game fixes |
 
 ## Status
 
@@ -29,7 +43,7 @@ package.
 | Direct-to-pos | working (T4 PASS) |
 | Path extender | working (T5 PASS on counters; no visible slide/stuck) |
 | Map patches | 21 clean blocks (22 level ids), 2 accepted losses, 1 dead, 2 no-op |
-| Upstream parity | r201-r205 reviewed: adopted or consciously skipped (`205.1`) |
+| Upstream parity | r201-r205 reviewed: adopted or consciously skipped (`205.2`) |
 
 **205.1** moves the base to upstream r205 and adopts every fix of r201-r205
 that applies to this port: the four map patches whose CRC signatures went stale
@@ -147,22 +161,20 @@ publish it with a `meta.json` asset from a release tagged `v<version>`.
   `CopLogicTravel:_chk_stop_for_follow_unit`; it wraps LIES's
   `register_anim_nav_link`, `set_nav_segment_state`, `add_obstacle`,
   `register_cover_units`, `_clear` and `update`.
-- **NavFixes:** do not run together. NavFixes replaces
-  `register_anim_nav_link` and would break Iter's nav-link map.
-- **The Fixes:** priority -10; owns `CopActionWalk._init` in the full profile.
-  Iter re-wraps the winning function after all mods load, so path expansion
-  and nav-link prepare still run. Tested with `path_extender=true` and The
-  Fixes: T5 PASS.
-- **Keepers:** target priority 10 in the AI suite contract (the current
-  checkout has no `priority` key, so it loads at 0). Direct-to-pos is live
-  again; needs a converted-keeper smoke.
-- **Monkeepers:** target priority 99 in the AI suite contract (the current
-  checkout still ships 100), matching the LIES documentation. Iter's
-  `cop_idle_fix` only changes an idle animation variant, so the two do not
-  collide.
-- **Useful Bots:** priority 0. Iter publishes the legacy `streamline_path`
-  runtime mirror (`nav_overlay and nav_streamline`), so Useful Bots 2.4.3's
-  load-time guard recognises Iter's streamliner and skips its own path
+- **The Fixes:** optional and loads last; owns `CopActionWalk._init` in the
+  full profile. Iter re-wraps the winning function after all mods load, so path
+  expansion and nav-link prepare still run. Tested with `path_extender=true`
+  and The Fixes: T5 PASS.
+- **Keepers:** compatible; it runs after LIES and its bot orders do not touch
+  Iter's navigation functions. Direct-to-pos is live again; a converted-keeper
+  smoke is still open.
+- **Monkeepers:** compatible; it runs after LIES and owns bot bag logistics.
+  Iter's `cop_idle_fix` only changes an idle animation variant, so the two do
+  not collide.
+- **Useful Bots:** Iter publishes the legacy `streamline_path`
+  runtime mirror (`nav_overlay and nav_streamline`), so [Useful Bots
+  2.6.3](https://modworkshop.net/mod/31221)'s load-time guard recognises Iter's
+  streamliner and skips its own path
   re-check. `Iter:save()` recomputes the mirror from the live switches and
   persists it (`true` when pathing is on, `false` when it is off), so the
   in-memory value never goes stale and a downgrade to upstream r200 keeps the
