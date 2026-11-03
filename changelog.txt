@@ -1,3 +1,10 @@
+Revision 205.2 (public README: the AI suite statement):
+- `README.md` now says what this fork is built and tested with: LIES, Iter, Keepers, Monkeepers and Useful Bots 2.6.3 (Hoppip, ModWorkshop #31221, requires HopLib), with The Fixes optional, and links each maintained repository. No load order or priority numbers are published - the order ships with the mods and is not a user setting
+- stale compatibility notes corrected: Useful Bots 2.4.3 -> 2.6.3 (same load-time `streamline_path` guard, the audited release), Keepers and Monkeepers no longer described through a priority-less checkout state, and the retired Nav Fixes mod dropped from the compatibility list
+- no Lua, menu, option or packaging change; `version` in `mod.txt` is the only functional edit besides the README
+
+Player notes: no gameplay change. Iter paths, streamlines and queues nav links exactly as in 205.1; the README now tells you which mods it is built and tested with.
+
 Revision 205.1 (upstream r201-r205 adopted; four map patches live again):
 - base moved to upstream Iter r205 (TdlQ, "code maintenance by BangL"). r205's whole delta over r200 is 9 files / +285 lines; every item is either adopted here or consciously skipped, with reasons, in `dev/reports/upstream-parity.md` (durable ledger) and the workspace assessment `docs/investigations/iter-upstream-r205-assessment.md` (evidence, commands). The nav core stays this fork's own v6 port; nothing was rebased
 - map data resync (upstream r204): `branchbank`, `firestarter_1`, `gallery`/`framing_frame_1` and `mex` still carried the r200 CRC signatures, so at 248.2 they logged `mismatch` and the block was skipped. New signatures and remapped room/door ids for the U247+ nav data
