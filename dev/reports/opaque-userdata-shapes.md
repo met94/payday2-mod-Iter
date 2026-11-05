@@ -7,7 +7,9 @@ work removes is the LIES class (opaque userdata indexed as a table/Vector3)
 arriving through a *new* probe added later, which the new static gate flags.
 
 - **Target:** PAYDAY 2 248.2 (`e3a8b616`), SuperBLT
-- **Iter:** `205.2` → `205.3` on `feat/opaque-userdata-shapes`
+- **Iter:** `205.2` on `feat/opaque-userdata-shapes`. The release version bump
+  and `changelog.txt` entry land after the user's in-game test (205.3 never
+  shipped without it).
 - **Handoff:** `docs/investigations/iter-opaque-userdata-handoff.md`
 - **Origin:** LIES 2026-11-05 taser crash
   (`mods/LIES/dev/reports/watch-settle-attention-unit-type-crash.md`)
@@ -23,27 +25,29 @@ nav link.
 
 ## 2. Baseline (gate with an empty allowlist)
 
+The gate parses the Lua AST (luaparse), so wrapped expressions are found too:
+
 ```
-lua/copactionwalk.lua:19: type() used as a shape proof: if not obj or type(obj) ~= 'userdata' then
-lua/coplogictravel.lua:221: type() used as a shape proof: if type(coarse_path[j][2]) ~= 'userdata' then
-lua/navigationmanager.lua:179: type() used as a shape proof: if type(value) ~= 'userdata' then
-lua/navigationmanager.lua:196: type() used as a shape proof: if type(obj) ~= 'userdata' or is_vec3(obj) then
-lua/navigationmanager.lua:1668: type() used as a shape proof: if type(navlink) == 'userdata' and itr_alive(navlink) ...
+lua/copactionwalk.lua:22: type() used as a shape proof in itr_alive_navpoint (~=)
+lua/coplogictravel.lua:225: type() used as a shape proof in get_turn_back_index (~=)
+lua/navigationmanager.lua:190: type() used as a shape proof in is_vec3 (~=)
+lua/navigationmanager.lua:210: type() used as a shape proof in itr_alive (~=)
+lua/navigationmanager.lua:1682: type() used as a shape proof in NavigationManager.itr_find_best_navlink (==)
 ```
 
 Five sites, matching the handoff §2.1-§2.5, plus one site found during the
-audit (§3.6).
+audit (site 2.6).
 
 ## 3. Per-site verdict
 
-| # | Site | Verdict | Why |
+| # | Site (tip) | Verdict | Why |
 | --- | --- | --- | --- |
-| 2.1 | `navigationmanager.lua:178-186` `is_vec3` | PROVEN | every argument source enumerated in §4; all are engine Vector3 or a value handled by an earlier branch |
-| 2.2 | `navigationmanager.lua:191-206` `itr_alive` | PROVEN | callers §4.1; Vector3 rejected by `is_vec3`, nav links fall through |
-| 2.3 | `copactionwalk.lua:18-29` `itr_alive_navpoint` | PROVEN | callers §4.2; same domain as 2.2 |
-| 2.4 | `coplogictravel.lua:219-224` coarse-path slot 2 | PROVEN + rejection guard retained | slot 2 is Vector3 or nil at every writer (§4.3). The `type() ~= 'userdata'` test stays: it also rejects tables/numbers, which a nil check would not |
-| 2.5 | `navigationmanager.lua:1668` nav-link filter | PROVEN + rejection guard retained | `door_list` entries are Vector3 / nav link / numeric patch id (§3.5); `itr_alive` already rejects non-userdata, the `type()` term stays as a second barrier |
-| 2.6 | `copactionwalk.lua:130` `nav_point.x` | PROVEN (found by the audit) | vanilla does the identical read on the same path entries: game `copbrain.lua:594` (`if not nav_point.x and (not alive(nav_point) ...`) |
+| 2.1 | `navigationmanager.lua:189` `is_vec3` | PROVEN | every argument source enumerated in §4; all are engine Vector3 or a value handled by an earlier branch |
+| 2.2 | `navigationmanager.lua:205` `itr_alive` | PROVEN | callers §4.1; Vector3 rejected by `is_vec3`, nav links fall through |
+| 2.3 | `copactionwalk.lua:21` `itr_alive_navpoint` | PROVEN | callers §4.2; same domain as 2.2 |
+| 2.4 | `coplogictravel.lua:219-231` coarse-path slot 2 (type test at `:225`) | PROVEN + rejection guard retained | slot 2 is Vector3 or nil at every writer (§4.4). The `type() ~= 'userdata'` test stays: it also rejects tables/numbers, which a nil check would not |
+| 2.5 | `navigationmanager.lua:1682` nav-link filter | PROVEN + rejection guard retained | `door_list` entries are Vector3 / nav link / numeric patch id (§3.5); `itr_alive` already rejects non-userdata, the `type()` term stays as a second barrier |
+| 2.6 | `copactionwalk.lua:135` `nav_point.x` | PROVEN (found by the audit) | vanilla reads the same field on every path entry: game `CopLogicIdle._nav_point_pos` (`lib/units/enemies/cop/logics/coplogicidle.lua:1027-1029`, unconditional) |
 
 No site needed the GUARDED variant. `is_vec3` keeps R12's numeric x/y/z rule
 (`dev/reports/decisions.md`).
@@ -61,43 +65,52 @@ Writers:
 
 Readers that already assume the domain:
 
-- game `on_simulation_ended` iterates every neighbour list and drops entries
-  without `.x`: `lib/managers/navigationmanager.lua:1731-1737` (`:1734`);
-- game `copbrain.lua:594` reads `nav_point.x` before calling `alive(nav_point)`
-  on path entries;
+- game `_sort_nav_segs_after_pos` calls `door:is_obstructed()` /
+  `door:check_access()` on every entry while answering a search
+  (`lib/managers/navigationmanager.lua:1362-1368`);
+- game `find_segment_doors` reads `door.x` on every entry per call
+  (`:1211-1213`);
+- game `on_simulation_ended` drops entries without `.x`
+  (`:1731-1737`) - end-of-simulation backstop, not the per-search barrier;
+- game `CopLogicIdle._nav_point_pos` reads `nav_point.x` unconditionally on
+  path entries (`lib/units/enemies/cop/logics/coplogicidle.lua:1027-1029`);
 - upstream Iter dispatches with `i_door.x`
   (`dev/reports/upstream-parity.md:31`).
 
-An Idstring in one of these lists would crash vanilla `on_simulation_ended`
-(and every `_upd_path` iteration) before Iter ever saw it. Numeric patch ids
-are handled by the `type(i_door) == 'number'` branch that precedes every
-`is_vec3` call on a door entry.
+An Idstring in one of these lists would break vanilla `find_segment_doors` or
+`_sort_nav_segs_after_pos` before Iter ever saw it. Numeric patch ids are
+handled by the `type(i_door) == 'number'` branch that precedes every `is_vec3`
+call on a door entry.
 
 ## 4. Argument audit for `is_vec3`
 
-### 4.1 `is_vec3(obj)` from `itr_alive` (`:196`)
+### 4.1 `is_vec3(obj)` from `itr_alive` (`:210`)
 
-| Caller | `obj` source | Domain |
+| Caller (tip) | `obj` source | Domain |
 | --- | --- | --- |
-| `:1234` `itr_add_door_pos_to` | keys of `door_flood_levels` | `itr_flood` only records `type(door_id) == 'number'` (`:1156-1161`), and its input `door_list` is built from numbers only (`:1278-1284`) or from `itr_shim_door_by_pair` (numeric ids, `iter_nav_v6_shim.lua:306-326`). The `itr_alive` branch is unreachable; number otherwise |
-| `:1360` `important_doors` | `room_to_doors` ← `_room_doors` keys | numeric door ids from the shim (`iter_nav_v6_shim.lua:384-387`); unreachable branch |
-| `:1573`, `:1855` `i_door` | `door_list` | §3.5; number handled by the preceding `type(i_door) == 'number'` branch |
-| `:1668` `navlink` | `door_list` | §3.5; Vector3 rejected by `is_vec3`, nav link has `__index` |
+| `:1248` `itr_add_door_pos_to` | keys of `door_flood_levels` | `itr_flood` only records `type(door_id) == 'number'` (`:1170-1175`), and its input `door_list` is built from numbers only (`:1292-1298`) or from `itr_shim_door_by_pair` (numeric ids, `iter_nav_v6_shim.lua:306-326`). The `itr_alive` branch is unreachable; number otherwise |
+| `:1374` `important_doors` | `room_to_doors` ← `_room_doors` keys | numeric door ids from the shim (`iter_nav_v6_shim.lua:384-387`); unreachable branch |
+| `:1587`, `:1869` `i_door` | `door_list` | §3.5; number handled by the preceding `type(i_door) == 'number'` branch |
+| `:1682` `navlink` | `door_list` | §3.5; Vector3 rejected by `is_vec3`, nav link has `__index` |
 
-### 4.2 `is_vec3` called from `itr_alive_navpoint` paths
+`is_vec3(i_door)` in `itr_get_door_in_alignment` (`:1734`, fed by
+`itr_streamline` at `:1839`) reads the same `door_list` and is covered by the
+same row.
 
-`copactionwalk.lua` callers `:132` (`nav_point`), `:157`, `:180`
-(`navlink`). `nav_point` is a path entry; vanilla reads `nav_point.x` on the
-same list (game `copbrain.lua:594`). `navlink` comes from
-`_next_is_nav_link` / the nav-link element table. No Idstring producer.
+### 4.2 `is_vec3` called on nav points (`copactionwalk.lua`)
+
+`itr_alive_navpoint` callers `:137` (`nav_point`), `:162`, `:185` (`navlink`).
+`nav_point` is a path entry; vanilla reads `nav_point.x` on the same list (game
+`coplogicidle.lua:1027-1029`). `navlink` comes from `_next_is_nav_link` / the
+nav-link element table. No Idstring producer.
 
 ### 4.3 `is_vec3` called on positions
 
-| Call site | Arguments | Writer |
+| Call site (tip) | Arguments | Writer |
 | --- | --- | --- |
-| `:1524` / `:1529` | `pos_to`, `pos_from` | callers `:1650` (`near_pos` of `itr_get_door_between`), `:1767` (`near_pos` of `itr_get_coarse_pos_between`), `:1825` (`proxy` = path slot 2 or proxy position) |
-| `:1739` | `near_pos` | `itr_get_coarse_pos_between` callers `:2029`, `:2073` pass `from.pos`; `from.pos` is `search_data.from_pos` (game `CopBrain:search_for_path_from_pos`, set from `self._logic_data.m_pos`, game `copbrain.lua:519-521`) or `start_segment.pos` (converter Vector3) or a `through_pos` from this same function |
-| `:1777` / `:1788` | `path[#path][2]`, `step1[2]` | `itr_streamline` callers: `copbrain.lua:34`, `:127` (path slot 2 rewritten from `objective.follow_unit:position()`, Vector3, guarded by `alive`), `coplogictravel.lua:259` (coarse path, §4.4), `navigationmanager.lua:1953`, `:2160` (engine coarse search results) |
+| `:1538` / `:1543` | `pos_to`, `pos_from` | callers `:1664` (`near_pos` of `itr_get_door_between`), `:1781` (`near_pos` of `itr_get_coarse_pos_between`), `:1839` (`proxy` = path slot 2 or proxy position) |
+| `:1753` | `near_pos` | `itr_get_coarse_pos_between` callers `:2043`, `:2087` pass `from.pos`; `from.pos` is `search_data.from_pos` (game `CopBrain:search_for_path_from_pos`, set from `self._logic_data.m_pos`, game `copbrain.lua:519-521`) or `start_segment.pos` (converter Vector3) or a `through_pos` from this same function |
+| `:1791` / `:1802` | `path[#path][2]`, `step1[2]` | `itr_streamline` callers: `copbrain.lua:34`, `:127` (path slot 2 rewritten from `objective.follow_unit:position()`, Vector3, guarded by `alive`), `coplogictravel.lua:259` (coarse path, §4.4), `navigationmanager.lua:1967`, `:2174` (engine coarse search results) |
 
 `itr_get_door_between(..., follow_unit:position())`
 (`coplogictravel.lua:300`) and `to_pos` sources (`objective.pos`,
@@ -107,15 +120,15 @@ external caller of `itr_streamline` exists in the workspace mods; the legacy
 `streamline_path` key is a settings mirror, not a callable alias
 (`lua/corecode.lua:108-115`).
 
-### 4.4 Coarse-path slot 2 (`coplogictravel.lua:219-224`)
+### 4.4 Coarse-path slot 2 (`coplogictravel.lua:219-231`)
 
 | Writer | Value |
 | --- | --- |
 | game `_begin_coarse_pathing` precise path | `mvector3.copy(end_pos)` (`coplogictravel.lua:91-101`) |
 | game coarse path from `path_data` | `mvector3.copy(point.position)` (`:114-122`) |
+| game `coarse_complete` branch | `deep_clone(objective.path_data)` (`:126-129`); `deep_clone` returns userdata unchanged (`core/lib/utils/coretable.lua:17-20`) |
 | game `complete_coarse_path` | `mvector3.copy(all_nav_segs[first_seg_id].pos)` when slot 2 is missing (`:1088-1096`) |
-| engine `search_coarse` result | Vector3 entries (`:128-129`) |
-| Iter `deep_clone` | returns userdata unchanged (`core/lib/utils/coretable.lua:17-20`) |
+| engine `search_coarse` result | `{seg_id, pos}` entries built from `to_pos` / `seg.pos` (`lib/managers/navigationmanager.lua:1268-1291`) |
 
 `type(coarse_path[j][2]) ~= 'userdata'` therefore rejects `nil` and non-Vector3
 junk; it is not a proof that userdata is a Vector3 (an Idstring would pass),
@@ -123,14 +136,20 @@ which is why the domain table above is the actual proof.
 
 ## 5. Tests
 
-- `dev/tools/test/userdata-shape.test.mjs` — static gate: rules 1-2, allowlist
-  scoped to the enclosing function, stale-entry assertion, plus an assertion
-  that the five guards keep their rejection shape. Baseline output in §2.
-- `dev/tests/lua/test_userdata_shape.lua` — slices `is_vec3`, `itr_alive`,
-  `itr_alive_navpoint` from the shipped files and pins the truth table with
-  `newproxy` stand-ins (Vector3-like, nav-link-like, nil, number, table).
-- `dev/tests/lua/test_coarse_path_slots.lua` — slices
-  `check_turn_back_on_axis`/`get_turn_back_index`; pins nil/table/number
+- `dev/tools/test/userdata-shape.test.mjs` - static gate over the Lua AST
+  (luaparse): rules 1-2, allowlist scoped by file + enclosing function +
+  comparison direction (`~=` guards, one `==` filter), stale-entry assertion,
+  plus a source assertion that all five guards keep their rejection shape.
+  Baseline output in §2.
+- `dev/tests/lua/test_userdata_shape.lua` - slices `is_vec3`, `itr_alive`,
+  `itr_alive_navpoint` and `itr_find_best_navlink` from the shipped files and
+  pins the truth table with `newproxy(true)` stand-ins (Vector3-like,
+  nav-link-like, nil, number, table). The nav-link filter case feeds a list
+  holding a Vector3, a table and a link, and asserts only the link is chosen.
+  `newproxy(false)` (opaque Idstring stand-in) is deliberately not fed: these
+  guards index userdata, and the domain proof - not a pcall guard - is the fix.
+- `dev/tests/lua/test_coarse_path_slots.lua` - slices
+  `check_turn_back_on_axis`/`get_turn_back_index`; pins nil/table/number/string
   rejection and the Vector3-like path.
 
 Both Lua tests run in `dev/tools/gates.ps1` (`dev/tests/lua/test_*.lua`) and are
@@ -167,7 +186,7 @@ dev\tools\gates.ps1
   already index the same values), and retain the cheap rejection guards so
   tables/numbers stay rejected exactly as in 205.2.
 - **Rejected:** structural kind-tagging of `door_list` (game-owned, rebuilt at
-  load; a parallel map would create a second source of truth — see
+  load; a parallel map would create a second source of truth - see
   `dev/reports/upstream-parity.md` §2.2); `pcall` probes (not needed: no site
   lacked a proof); the handoff's nil-check shortcut for 2.4 (would widen
   acceptance to truthy non-Vector3 values).
@@ -176,5 +195,6 @@ dev\tools\gates.ps1
   `dev/tools/test/userdata-shape.test.mjs`; tests
   `dev/tests/lua/test_userdata_shape.lua`,
   `dev/tests/lua/test_coarse_path_slots.lua`; this report.
-- **Deploy/test split:** the branch was built and deployed for the user's
-  in-game test; release (merge + changelog) follows the user's approval.
+- **Deploy/test split:** the branch is built and deployed for the user's
+  in-game test; release (version bump, changelog, merge) follows the user's
+  approval. The user deploys; the agent copies the build only on request.

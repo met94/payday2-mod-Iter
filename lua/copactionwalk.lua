@@ -15,8 +15,10 @@ local mvec3_z = mvector3.z
 -- Door/nav-link userdata is not a unit and may not implement alive() (Car
 -- Shop). Call alive() only when the method exists; otherwise treat it as
 -- existing so the game's own error path is not triggered.
--- Rejection guard over the nav-point/nav-link domain; an Idstring cannot reach
--- it (vanilla reads `.x` on the same entries, game copbrain.lua:594). See
+-- Rejection guard over the nav-point/nav-link domain. No writer puts an
+-- Idstring on a nav path or a door list: vanilla builds them from Vector3
+-- positions and nav links, and reads `.x` on every path entry
+-- (lib/units/enemies/cop/logics/coplogicidle.lua:1027-1029). See
 -- dev/reports/opaque-userdata-shapes.md.
 local function itr_alive_navpoint(obj)
 	if not obj or type(obj) ~= 'userdata' then

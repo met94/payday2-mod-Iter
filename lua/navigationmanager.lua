@@ -181,11 +181,12 @@ local tmp_vec1 = Vector3()
 -- nav link and an Idstring alike. Callers only pass engine positions
 -- (coarse-path slot 2, CopBrain positions, nav-segment positions) or door-list
 -- entries (Vector3, nav link, or a numeric patch id handled by an earlier
--- branch). An Idstring cannot reach here without vanilla crashing first: the
--- game reads `.x` on every neighbour-list entry
--- (lib/managers/navigationmanager.lua:1731-1737) and on every path entry
--- (lib/units/enemies/cop/copbrain.lua:594). Domain table:
--- dev/reports/opaque-userdata-shapes.md. R12 keeps the numeric x/y/z rule.
+-- branch). No writer puts an Idstring in those lists: the game fills them with
+-- Vector3 door positions and nav-link userdata only
+-- (lib/managers/navigationmanager.lua:326-350, :891-935) and reads `.x` /
+-- calls methods on every entry while searching (:1211-1213, :1362-1368).
+-- Domain table: dev/reports/opaque-userdata-shapes.md. R12 keeps the numeric
+-- x/y/z rule.
 local function is_vec3(value)
 	if type(value) ~= 'userdata' then
 		return false
