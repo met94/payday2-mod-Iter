@@ -27,9 +27,21 @@ import { createRequire } from 'node:module';
 
 const root = fileURLToPath(new URL('../../../', import.meta.url));
 const LUA_ROOT = path.join(root, 'lua');
-const workspaceRoot = path.resolve(root, '..', '..');
 const require = createRequire(import.meta.url);
-const luaparse = require(path.join(workspaceRoot, 'tools', 'lua', 'node_modules', 'luaparse'));
+
+function findLuaparse() {
+  let dir = root;
+
+  for (let i = 0; i < 6; i++) {
+    const candidate = path.join(dir, 'tools', 'lua', 'node_modules', 'luaparse');
+    if (fs.existsSync(candidate)) return candidate;
+    dir = path.resolve(dir, '..');
+  }
+
+  throw new Error('luaparse not found (expected under <workspace>/tools/lua/node_modules)');
+}
+
+const luaparse = require(findLuaparse());
 
 // `file` is repo-relative, `fn` the enclosing declaration, `op` the comparison
 // direction. A guard rejects with `~=`; only the nav-link filter is positive.
@@ -117,6 +129,12 @@ function isUserdataLiteral(node) {
   return /^(['"])userdata\1$/.test(node.raw || '');
 }
 
+function literalText(node) {
+  if (!node || node.type !== 'StringLiteral') return null;
+  if (typeof node.value === 'string') return node.value;
+  return (node.raw || '').replace(/^(['"])|(['"])$/g, '');
+}
+
 function visit(node, scope, onNode) {
   if (!node || typeof node !== 'object') return;
 
@@ -130,7 +148,12 @@ function visit(node, scope, onNode) {
   let current = scope;
 
   if (node.type === 'FunctionDeclaration') {
-    current = functionName(node) || scope;
+    const name = functionName(node);
+    current = name || ('<anonymous@' + (node.loc ? node.loc.start.line : '?') + '>');
+  } else if (node.type === 'FunctionExpression') {
+    // An anonymous function gets a label that can never match an allowlist
+    // entry: a probe inside one must not inherit the enclosing guard's name.
+    current = '<anonymous@' + (node.loc ? node.loc.start.line : '?') + '>';
   }
 
   onNode(node, current);
@@ -143,13 +166,18 @@ function visit(node, scope, onNode) {
 
 function findingsFor(file) {
   const rel = path.relative(root, file).replaceAll('\\', '/');
-  const source = fs.readFileSync(file, 'utf8');
+  return findingsFromSource(rel, fs.readFileSync(file, 'utf8'));
+}
+
+function findingsFromSource(rel, source) {
   const ast = luaparse.parse(source, { locations: true });
   const findings = [];
 
   visit(ast, null, (node, scope) => {
-    if (node.type === 'MemberExpression' && node.index
-      && node.index.type === 'Identifier' && node.index.name === 'type_name') {
+    const memberName = node.type === 'MemberExpression' && node.identifier && node.identifier.name;
+    const indexName = node.type === 'IndexExpression' && node.index && literalText(node.index);
+
+    if (memberName === 'type_name' || indexName === 'type_name') {
       findings.push({
         rel,
         fn: scope,
@@ -210,6 +238,41 @@ test('no code treats a possibly-opaque userdata as a table or a Vector3', () => 
     [],
     'stale allowlist entries (the probe moved, changed direction or disappeared)'
   );
+});
+
+test('the gate flags both type_name forms and multi-line comparisons', () => {
+  const findings = findingsFromSource('lua/fixture.lua', [
+    'local function f(v)',
+    '  local a = v.type_name',
+    '  local b = v["type_name"]',
+    "  if type(v) ~= 'userdata' then return false end",
+    '  if type(',
+    '    v',
+    "  ) == 'userdata' then return false end",
+    'end',
+  ].join('\n'));
+
+  const ids = findings.map((finding) => finding.id).sort();
+  assert.deepEqual(ids, [
+    'type() used as a shape proof',
+    'type() used as a shape proof',
+    'type_name read',
+    'type_name read',
+  ]);
+});
+
+test('a probe inside an anonymous function cannot inherit the guard name', () => {
+  const findings = findingsFromSource('lua/fixture.lua', [
+    'local function is_vec3(v)',
+    '  local probe = function()',
+    "    if type(v) ~= 'userdata' then return false end",
+    '  end',
+    '  return probe',
+    'end',
+  ].join('\n'));
+
+  assert.equal(findings.length, 1);
+  assert.match(findings[0].fn, /^<anonymous@/);
 });
 
 test('the allowlisted guards keep their rejection shape', () => {
