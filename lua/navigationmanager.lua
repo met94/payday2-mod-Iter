@@ -174,7 +174,18 @@ local table_remove = table.remove
 local tmp_vec1 = Vector3()
 
 -- Distinguish engine Vector3 userdata from nav-link userdata without calling
--- vector math on the latter (248.2 access violation in itr_get_closest_door_to_pos).
+-- vector math on the latter (248.2 access violation in
+-- itr_get_closest_door_to_pos).
+--
+-- Rejection guard, not a shape proof: `type()` is "userdata" for a Vector3, a
+-- nav link and an Idstring alike. Callers only pass engine positions
+-- (coarse-path slot 2, CopBrain positions, nav-segment positions) or door-list
+-- entries (Vector3, nav link, or a numeric patch id handled by an earlier
+-- branch). An Idstring cannot reach here without vanilla crashing first: the
+-- game reads `.x` on every neighbour-list entry
+-- (lib/managers/navigationmanager.lua:1731-1737) and on every path entry
+-- (lib/units/enemies/cop/copbrain.lua:594). Domain table:
+-- dev/reports/opaque-userdata-shapes.md. R12 keeps the numeric x/y/z rule.
 local function is_vec3(value)
 	if type(value) ~= 'userdata' then
 		return false
@@ -188,6 +199,9 @@ end
 -- Some door/nav-link userdata (e.g. Santa's Workshop `cane`) has no alive()
 -- method, so the game's alive() would raise "attempt to call method 'alive'". Treat a
 -- non-unit userdata as existing; only call alive() when the method exists.
+-- Callers pass door-list entries and path points; the value domain (and why an
+-- Idstring cannot arrive) is pinned in is_vec3 above and in
+-- dev/reports/opaque-userdata-shapes.md.
 local function itr_alive(obj)
 	if not obj then
 		return false

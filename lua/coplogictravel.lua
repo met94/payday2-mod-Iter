@@ -217,6 +217,10 @@ function CopLogicTravel.itr_simplify_coarse_path(data, my_data)
 		end
 
 		local function get_turn_back_index()
+			-- Slot 2 is a Vector3 or nil at every writer (game
+			-- coplogictravel.lua:83-101, :114-122, :128-129, :1088-1096;
+			-- deep_clone keeps userdata). This test is a rejection guard for
+			-- non-vector junk, not a proof that userdata is a Vector3.
 			for j = coarse_path_index, coarse_path_nr do
 				if type(coarse_path[j][2]) ~= 'userdata' then
 					return

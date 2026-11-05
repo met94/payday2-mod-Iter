@@ -15,6 +15,9 @@ local mvec3_z = mvector3.z
 -- Door/nav-link userdata is not a unit and may not implement alive() (Car
 -- Shop). Call alive() only when the method exists; otherwise treat it as
 -- existing so the game's own error path is not triggered.
+-- Rejection guard over the nav-point/nav-link domain; an Idstring cannot reach
+-- it (vanilla reads `.x` on the same entries, game copbrain.lua:594). See
+-- dev/reports/opaque-userdata-shapes.md.
 local function itr_alive_navpoint(obj)
 	if not obj or type(obj) ~= 'userdata' then
 		return false
@@ -127,6 +130,8 @@ if Network:is_server() then
 
 		local processed_path = {}
 		for _, nav_point in ipairs(path) do
+			-- Vanilla reads the same field on the same path entries
+			-- (game copbrain.lua:594): an entry is a Vector3 or a nav link.
 			if nav_point.x then
 				table.insert(processed_path, nav_point)
 			elseif itr_alive_navpoint(nav_point) then
