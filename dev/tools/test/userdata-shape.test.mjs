@@ -208,7 +208,7 @@ function findingsFromSource(rel, source) {
 }
 
 test('no code treats a possibly-opaque userdata as a table or a Vector3', () => {
-  const used = new Set();
+  const used = new Map();
   const unresolved = [];
 
   for (const file of walk(LUA_ROOT)) {
@@ -218,7 +218,7 @@ test('no code treats a possibly-opaque userdata as a table or a Vector3', () => 
         && entry.op === finding.op);
 
       if (allow) {
-        used.add(allow);
+        used.set(allow, (used.get(allow) || 0) + 1);
         continue;
       }
 
@@ -238,6 +238,13 @@ test('no code treats a possibly-opaque userdata as a table or a Vector3', () => 
     [],
     'stale allowlist entries (the probe moved, changed direction or disappeared)'
   );
+
+  // Each entry covers exactly one known probe. A second match means a copy of
+  // the probe was added inside the same allowlisted function.
+  const duplicated = ALLOWED
+    .filter((entry) => (used.get(entry) || 0) > 1)
+    .map((entry) => `${entry.file}: ${entry.fn} matched ${used.get(entry)} times (${entry.reason})`);
+  assert.deepEqual(duplicated, [], 'duplicated probes inside an allowlisted guard');
 });
 
 test('the gate flags both type_name forms and multi-line comparisons', () => {

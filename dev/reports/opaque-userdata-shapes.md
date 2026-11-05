@@ -141,10 +141,11 @@ which is why the domain table above is the actual proof.
   (luaparse): rules 1-2, allowlist scoped by file + enclosing function +
   comparison direction (`~=` guards, one `==` filter), stale-entry assertion,
   plus a source assertion that all five guards keep their rejection shape.
-  Three self-tests pin the gate itself: `.type_name` and `["type_name"]` are
-  both flagged, a wrapped/multi-line `type(...) == 'userdata'` is flagged, and
-  a probe inside an anonymous function cannot inherit an allowlisted name.
-  Baseline output in §2.
+  Two self-tests cover three cases: `.type_name` and `["type_name"]` are both
+  flagged, a wrapped/multi-line `type(...) == 'userdata'` is flagged, and a
+  probe inside an anonymous function cannot inherit an allowlisted name.
+  Each allowlist entry must match exactly one probe, so a copy inside the same
+  guard also fails. Baseline output in §2.
 - `dev/tests/lua/test_userdata_shape.lua` - slices `is_vec3`, `itr_alive`,
   `itr_alive_navpoint` and `itr_find_best_navlink` from the shipped files and
   pins the truth table with `newproxy(true)` stand-ins (Vector3-like,
