@@ -1,17 +1,17 @@
 ﻿# Iter 248.2 full-nav static gates
 
-Generated: 2026-11-05 15:18:17Z
+Generated: 2026-11-05 15:23:28Z
 
 ## Node tool tests
 
 Result: PASS
 
-Γä╣ pass 118
+Γä╣ pass 120
 Γä╣ fail 0
 Γä╣ cancelled 0
 Γä╣ skipped 0
 Γä╣ todo 0
-Γä╣ duration_ms 160.0457
+Γä╣ duration_ms 157.0219
 
 ## Test-harness parser
 
@@ -76,7 +76,7 @@ Findings: 0
 Result: PASS
 
 unchanged dev/port-ledger.md
-wrote dev/reports/port-ledger.json
+unchanged dev/reports/port-ledger.json
 files=22 functions=117 errors=0 unhooked=7
 MOD_EDIT_CLEAN=31 MOD_ONLY=70 MOD_EDIT_VANILLA_CHANGED=6 MOD_ONLY_HOOK=10
 
