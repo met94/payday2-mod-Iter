@@ -125,7 +125,6 @@ check(is_vec3('pos') == false, 'is_vec3(string)')
 check(is_vec3({ x = 1, y = 2, z = 3 }) == false, 'is_vec3(table)')
 check(is_vec3(vector) == true, 'is_vec3(Vector3-like)')
 check(is_vec3(navlink) == false, 'is_vec3(nav-link-like)')
-checks = checks + 1
 
 -- itr_alive: non-userdata is absent; Vector3 is not a unit; a nav link without
 -- alive() counts as existing; alive() decides when it exists.
@@ -137,10 +136,9 @@ check(itr_alive(navlink) == true, 'itr_alive(nav-link without alive)')
 check(itr_alive(live_navlink) == true, 'itr_alive(nav-link alive)')
 check(itr_alive(dead_navlink) == false, 'itr_alive(nav-link dead)')
 check(itr_alive(flagged_navlink) == true, 'itr_alive(non-function alive)')
-checks = checks + 1
 
 -- copactionwalk copy. Unlike itr_alive it has no is_vec3 term: its callers
--- route positions through `nav_point.x` first (copactionwalk.lua:130), so a
+-- route positions through `nav_point.x` first (copactionwalk.lua:135), so a
 -- Vector3-like userdata is not expected here and counts as "existing".
 check(itr_alive_navpoint(nil) == false, 'navpoint(nil)')
 check(itr_alive_navpoint(1) == false, 'navpoint(number)')
@@ -149,6 +147,62 @@ check(itr_alive_navpoint(vector) == true, 'navpoint(Vector3-like has no alive)')
 check(itr_alive_navpoint(navlink) == true, 'navpoint(nav-link without alive)')
 check(itr_alive_navpoint(live_navlink) == true, 'navpoint(nav-link alive)')
 check(itr_alive_navpoint(dead_navlink) == false, 'navpoint(nav-link dead)')
-checks = checks + 1
+
+-- Out of domain, on purpose: newproxy(false) is the faithful Idstring stand-in
+-- (any field read raises). It is not fed to these helpers because the guards do
+-- index userdata; the proof that a key cannot arrive is the writer/reader
+-- enumeration in dev/reports/opaque-userdata-shapes.md, not a pcall guard.
+
+-- Site 2.5: the nav-link filter in itr_find_best_navlink. Slice the method and
+-- feed the list a Vector3, a table and a nav link: the filter must pick the
+-- link and never treat a position as one.
+local method = slice(
+	nav_source,
+	'function NavigationManager:itr_find_best_navlink(',
+	'function NavigationManager:itr_find_best_navlink('
+)
+local method_factory = assert(loadstring(
+	'return function(NavigationManager, is_vec3, itr_alive, _navlink_elements, mvec3_dis, math_max, alive)\n'
+	.. method
+	.. '\nreturn NavigationManager.itr_find_best_navlink\nend'
+))()
+
+local link_key = {}
+local link_element = {
+	_values = { itr_interval = 0 },
+	value = function(self, name) return vector3_like(10, 20, 30) end,
+	itr_navlink_queue_length = 0
+}
+local link_object = navlink_like({
+	key = function() return link_key end,
+	is_obstructed = function() return false end,
+	check_access = function() return true end
+})
+local nav = {
+	_nav_segments = {
+		[1] = { neighbours = { [2] = { vector3_like(0, 0, 0), {}, link_object } } }
+	},
+	itr_navlink_coef = 1
+}
+local find_best = method_factory(
+	nav,
+	is_vec3,
+	itr_alive,
+	{ [link_key] = link_element },
+	function() return 0 end,
+	math.max,
+	function(unit) return unit ~= nil end
+)
+
+local best, best_element = find_best(nav, 1, 2, vector3_like(0, 0, 0), nil, nil)
+check(best == link_object, 'nav-link filter picks the link and skips Vector3/table')
+check(best_element == link_element, 'nav-link filter returns the element')
+
+local position_only = {
+	_nav_segments = { [1] = { neighbours = { [2] = { vector3_like(0, 0, 0) } } } },
+	itr_navlink_coef = 1
+}
+local no_link, no_element = find_best(position_only, 1, 2, vector3_like(0, 0, 0), nil, nil)
+check(no_link == nil and no_element == nil, 'position-only list yields no nav link')
 
 io.write(string.format('ok: userdata shape guards (%d checks)\n', checks))

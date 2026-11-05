@@ -83,7 +83,6 @@ local path = {
 }
 local _, get_turn_back_index = factory(path, 1, 3)
 check(get_turn_back_index() == 2, 'Vector3-like slot 2 resolves the turn-back')
-checks = checks + 1
 
 -- 2. nil slot 2 is rejected (the guard's documented outcome).
 local nil_path = {
@@ -93,7 +92,6 @@ local nil_path = {
 }
 _, get_turn_back_index = factory(nil_path, 1, 3)
 check(get_turn_back_index() == nil, 'nil slot 2 is rejected')
-checks = checks + 1
 
 -- 3. A truthy table in slot 2 is still rejected - the check removed by the
 --    nil-check shortcut would be caught here.
@@ -104,7 +102,6 @@ local table_path = {
 }
 _, get_turn_back_index = factory(table_path, 1, 3)
 check(get_turn_back_index() == nil, 'table slot 2 is rejected')
-checks = checks + 1
 
 -- 4. Number / string slot 2 (truthy non-userdata) are rejected too.
 local number_path = {
@@ -114,7 +111,6 @@ local number_path = {
 }
 _, get_turn_back_index = factory(number_path, 1, 3)
 check(get_turn_back_index() == nil, 'number slot 2 is rejected')
-checks = checks + 1
 
 local string_path = {
 	{ 10, vector3_like(0, 0, 0) },
@@ -123,6 +119,5 @@ local string_path = {
 }
 _, get_turn_back_index = factory(string_path, 1, 3)
 check(get_turn_back_index() == nil, 'string slot 2 is rejected')
-checks = checks + 1
 
 io.write(string.format('ok: coarse-path slot guard (%d checks)\n', checks))
