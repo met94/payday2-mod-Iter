@@ -360,3 +360,19 @@ Target: `e3a8b616` (248.2).
   Static gates: all seven PASS (12 expected API-audit errors, 0 unused).
 - Runtime pending (user deploys): one load each of Bank Heist, Firestarter D1,
   Art Gallery, Border Crossing to confirm `patch result=applied`.
+
+## 2026-11-05 - opaque-userdata shape audit (branch feat/opaque-userdata-shapes)
+
+- Handoff `docs/investigations/iter-opaque-userdata-handoff.md` (LIES taser
+  crash class) closed without a Lua logic change: the five `type()=='userdata'`
+  probes are rejection guards, not shape proofs. Domains are pinned by game
+  writers and by vanilla readers that already index the same values, plus the
+  one extra site found here (`copactionwalk.lua` `nav_point.x`).
+- New gate `dev/tools/test/userdata-shape.test.mjs` parses the Lua AST and
+  allowlists the five guards by file + enclosing function + comparison
+  direction. Tests `dev/tests/lua/test_userdata_shape.lua` and
+  `test_coarse_path_slots.lua` slice the shipped helpers.
+- Report: `dev/reports/opaque-userdata-shapes.md`. Static gates: all seven PASS.
+- Runtime pending (user deploys the branch build): loud heist 10+ minutes, scan
+  logs for index-on-userdata errors. Release bump/changelog deferred until
+  after that test (user request, 2026-11-05).
