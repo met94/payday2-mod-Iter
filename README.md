@@ -1,27 +1,17 @@
 # Iter — PAYDAY 2 248.2 x64 navigation port
 
 Iter improves NPC navigation: long-path weighting, path streamlining, nav-link
-queueing, direct-to-pos, path extension, and a set of per-level nav fixes.
-
-This repository is the 248.2 fork of the r200 port (Diesel 3 / nav-v6). The
-original mod was written against the v5 nav model; the core has been
-reimplemented on the v6 load data, with the subsystem switches documented in
-`MENU_OPTIONS.md`.
+queueing, direct-to-pos, path extension, and a set of per-level nav fixes. NPCs
+use ladders, doors and jumps without piling up on the same link, and levels
+whose nav data broke after U247 path again.
 
 - Version: `205.3`
-- Base: upstream Iter r205 (TdlQ, code maintenance by BangL); the nav core is
-  this fork's own v6 port of r200 (`98940fb`)
-- Fork maintenance: met94
-- Target: PAYDAY 2 248.2 (`e3a8b616`), SuperBLT
-
-Upstream revisions and what was deliberately **not** taken from them are tracked
-in `dev/reports/upstream-parity.md`; read it before comparing a new upstream
-package.
+- Target: PAYDAY 2 248.2 x64 (Diesel 3), SuperBLT
 
 ## Part of the AI suite
 
-This mod is tested as one stack with the rest of our 248.2 AI suite, and is
-intended to be run together with it:
+Tested as one stack and meant to run with it. One download for all four:
+[**AI Suite**](https://github.com/met94/payday2-ai-suite/releases).
 
 | Mod | Repo | Role |
 | --- | --- | --- |
@@ -30,92 +20,19 @@ intended to be run together with it:
 | **Keepers** | [met94/payday2-mod-Keepers](https://github.com/met94/payday2-mod-Keepers) | bot orders, revives, jokers |
 | **Monkeepers** | [met94/payday2-mod-Monkeepers](https://github.com/met94/payday2-mod-Monkeepers) | bot bag logistics |
 | **Useful Bots** 2.6.3 (by Hoppip, not part of this set) | [ModWorkshop #31221](https://modworkshop.net/mod/31221) | bot combat and utility; requires HopLib |
-| The Fixes (optional) | - | general game fixes |
+| The Fixes (optional) | [ModWorkshop #23732](https://modworkshop.net/mod/23732) | general game fixes |
 
-## Status
+## What it changes in-game
 
-| Subsystem | State |
-|---|---|
-| v6 geometry shim | working (T1 PASS) |
-| Path streamline | working (T2/T2b PASS) |
-| Nav-link queue/reservations | working (T3 PASS) |
-| Iter coarse search + cache | working (T4 PASS) |
-| Direct-to-pos | working (T4 PASS) |
-| Path extender | working (T5 PASS on counters; no visible slide/stuck) |
-| Map patches | 21 clean blocks (22 level ids), 2 accepted losses, 1 dead, 2 no-op |
-| Upstream parity | r201-r205 reviewed: adopted or consciously skipped (`205.2`) |
-
-**205.1** moves the base to upstream r205 and adopts every fix of r201-r205
-that applies to this port: the four map patches whose CRC signatures went stale
-with the U247+ nav data (`branchbank`, `firestarter_1`, `gallery`/`framing_frame_1`,
-`mex`), the visibility-group index contract in `append_vis_group`, string nav
-segment ids in `ElementAINavSeg`, the coarse-cache destination, the asymmetric
-neighbour refresh, `start_nav_segment()`/`end_nav_segment()`, the dead-nav-link
-stall and the queue start-position/timestamp fixes. See `changelog.txt`.
-
-**200.13** reports the real player speed (`pspd_max`) and the `game`/`player`/
-`game_animation` timer multipliers, so a leftover multiplier (Time Speed touches
-exactly those three) is visible instead of an unexplained heaviness.
-
-**200.12** measures the simulation/wall ratio and a real frame rate with
-`os.time()` (the engine's `Application:time()` is itself scaled by a time
-multiplier), and raises an always-on `sim_timescale` alarm when a multiplier is
-active.
-
-**200.11** reports the Lua heap (`lua_kb`) in the digest, so a long-heist
-slowdown can be told apart from a leak, and makes the teardown summary actually
-fire by emitting it from a `MenuManager.open` hook (PD2 does not clear the nav
-manager when a heist is quit to the menu).
-
-**200.10** adds frame pacing to the digest (`fps`, `hitch_n`, `hitch_ms`,
-`sim_ratio` from `Application:time()`) and emits the final digest on level
-teardown, so a heist quit to the menu still gets a summary. See `changelog.txt`.
-
-**200.9** adds live population counts to the watch digest (`cops=`, `crims=`),
-so "more cops with mods" can be compared against a vanilla run instead of felt.
-LIES has no working population multiplier in this port: `coplimit` and
-`spawngroupdelays` are stored but nothing reads them.
-
-**200.8** expires the nav-link queue cache on a link with no owner: the queue
-fields are per-frame scratch data, and when the waiting cop stops polling they
-froze (Counterfeit 2026-10-26 reported `queue=1 reserved=none wait=239.4` on a
-link nobody held). Cleared after 2 s, so digests and alarms describe the real
-queue. See `changelog.txt`.
-
-**200.7** adds the watch channel: an opt-in `[ITER-WATCH]` digest (one line per
-minute of play, `"watch_log": true` in `iter.txt`) plus always-on hard-failure
-alarms that stay silent on a healthy heist (queue over 20, a cop waiting over
-120 s, a burst of stale reservations). The Counterfeit fault of 2026-10-26 was
-only visible because the dev harness was installed; this makes a repeat visible
-in any log. See `changelog.txt` and `MENU_OPTIONS.md`.
-
-**200.6** stops the wait-start stamp from leaking between links: a unit that
-waited once kept `itr_wait_for_navlink_availability_t` for the whole level, and
-`itr_update_navlink_queue_data` copied it into
-`itr_navlink_queue_oldest_t`, so `!iter links` showed phantom waits (579 s on a
-`queue=1` link while the longest real cop wait was 74.7 s) and the queue-order
-check ran on a level-old timestamp. The stamp is now dropped when the wait ends
-and on exit, and `[ITER-NAV] evt=navlink_stale` logs the real reservation age
-(`hold=`) instead of the queue wait. See `changelog.txt`.
-
-**200.5** fixes stale **live** nav-link reservations: a cop could take the token
-and then stop using the link (repath, stagger, blocked behind another link,
-stuck in combat), and nothing released it until that cop died — on Counterfeit
-one cop held the basement stairs link for 204.8 s of sim time. Reservations now
-carry `itr_reserved_t`, refreshed in `_play_nav_link_anim` only while the owner
-is at the link, and the sweep releases a live holder older than 15 s
-(`[ITER-NAV] evt=navlink_stale`). See `changelog.txt`.
-
-**200.4** fixes dead nav-link reservations: a destroyed cop never runs
-`CopActionWalk:on_exit`, so its reservation and queue timestamps could block a
-nav link forever. `itr_reserve_navlink` now drops a dead reservation before
-reserving, and a once-per-second `NavigationManager.update` sweep clears links
-nobody walks up to again (`[ITER-NAV] evt=navlink_dead`). See `changelog.txt`.
-
-**200.3** fixes the Santa's Workshop (`cane`) nav-link crash: door and nav-link
-userdata that does not implement `alive()` (Santa's Workshop's sibling-nav-link
-switch on a heavy assault) now goes through `itr_alive` / `itr_alive_navpoint`
-instead of the game helper. See `changelog.txt`.
+- Cops, bots and civilians queue for ladders, doors and vaults instead of
+  clumping on one link.
+- Paths are streamlined and shortened where the nav mesh allows it, with cached
+  coarse searches so repeated pathing is cheaper.
+- Units can be sent directly to a position, and their path can be extended
+  ahead while they walk.
+- Per-level nav fixes restore routing on maps whose nav data changed after
+  U247 (Branch Bank, Firestarter day 1, Gallery/Framing Frame day 1, Met).
+- A watch digest (`[ITER-WATCH]`) can log queue health; off by default.
 
 ## Requirements
 
@@ -123,72 +40,51 @@ instead of the game helper. See `changelog.txt`.
 - SuperBLT
 - No BeardLib requirement
 
-## Auto-updates and versioning
+## Installation
 
-Versions use `<upstream revision>.<fork release>`:
+1. Close PAYDAY 2.
+2. Remove or rename an older `Iter` folder in `...\PAYDAY 2\mods\`.
+3. Extract `Iter_v205.3.zip` so the result is exactly
+   `...\PAYDAY 2\mods\Iter\mod.txt`.
+4. Launch the game and open **Mod Options → Iter**.
 
-- `200.1` was the first full-nav fork release, on upstream r200;
-- `200.2` … `200.21` were fork releases on the r200 base;
-- `205.1` moves the base to upstream r205 (r201-r205 adopted) while the nav
-  core stays this fork's v6 port;
-- the next upstream revision changes the base again (`206.1`).
+If you download the GitHub source ZIP instead, rename the extracted
+`payday2-mod-Iter-master` folder to `Iter`.
 
-Upstream integer revisions are never reused, so a future TdlQ release cannot
-collide with a fork build. Release tags mirror the version (`v200.1`).
+> Do not install two folders with the same `mod.txt` name. SuperBLT treats the
+> name as the dependency key and one copy will win unpredictably.
+
+## Auto-updates
+
 `mod.txt` points SuperBLT's updater at
-`releases/latest/download/meta.json` in this repository. Upstream's own update
-endpoint is not referenced: it only knows its own package and would overwrite
-the fork.
-
-Release checklist: bump `version` in `mod.txt`, prepend a `Revision <version>:`
-block to `changelog.txt`, build a zip whose single root folder is `Iter`, and
-publish it with a `meta.json` asset from a release tagged `v<version>`.
+`releases/latest/download/meta.json` in this repository; upstream's own update
+endpoint is not referenced (it only knows the upstream package). Versions are
+`<upstream revision>.<fork release>` and tags mirror them (`v205.3`).
 
 ## Compatibility
 
-- **LIES:** optional, not a dependency. LIES owns enemy AI; Iter owns
-  navigation — congestion control, the coarse search and the nav-link queue.
-  LIES never fills its own `[4]` multi-navlink slot: it declares
-  `has_multiple_navlink_elements` without ever assigning it and only reads
-  `seg.multiple_nav_links`, so that branch is dead on any path, Iter or vanilla.
-  Its `[3]` wait still reads the single navlink Iter's streamliner chose
-  (`lua/navigationmanager.lua:1125`), but ordering and congestion belong to
-  Iter's queue. LIES's squad push coordination
-  (`CopLogicTravel.chk_group_ready_to_move`) still runs. Iter is standalone on
-  vanilla cover registration; when both are installed LIES's own cover
-  generation/search still runs. Iter owns `_execute_coarce_search`,
-  `CopLogicTravel:_check_start_path_ahead` and
-  `CopLogicTravel:_chk_stop_for_follow_unit`; it wraps LIES's
-  `register_anim_nav_link`, `set_nav_segment_state`, `add_obstacle`,
-  `register_cover_units`, `_clear` and `update`.
-- **The Fixes:** optional and loads last; owns `CopActionWalk._init` in the
-  full profile. Iter re-wraps the winning function after all mods load, so path
-  expansion and nav-link prepare still run. Tested with `path_extender=true`
-  and The Fixes: T5 PASS.
-- **Keepers:** compatible; it runs after LIES and its bot orders do not touch
-  Iter's navigation functions. Direct-to-pos is live again; a converted-keeper
-  smoke is still open.
-- **Monkeepers:** compatible; it runs after LIES and owns bot bag logistics.
-  Iter's `cop_idle_fix` only changes an idle animation variant, so the two do
-  not collide.
-- **Useful Bots:** Iter publishes the legacy `streamline_path`
-  runtime mirror (`nav_overlay and nav_streamline`), so [Useful Bots
-  2.6.3](https://modworkshop.net/mod/31221)'s load-time guard recognises Iter's
-  streamliner and skips its own path
+- **LIES** — optional. LIES owns enemy AI; Iter owns navigation: congestion
+  control, the coarse search and the nav-link queue. LIES' squad push
+  coordination still runs, and its navlink-delay setting feeds Iter's queue.
+- **Keepers**, **Monkeepers** — compatible; they run after LIES and do not
+  touch Iter's navigation functions.
+- **Useful Bots** — compatible. Iter publishes the legacy `streamline_path`
+  runtime mirror (`nav_overlay and nav_streamline`), so Useful Bots 2.6.3's
+  load-time guard recognises Iter's streamliner and skips its own path
   re-check. `Iter:save()` recomputes the mirror from the live switches and
-  persists it (`true` when pathing is on, `false` when it is off), so the
-  in-memory value never goes stale and a downgrade to upstream r200 keeps the
-  effective setting. Useful Bots reads the key once, at load: a menu toggle
-  only reaches it after a game restart. Useful Bots itself is untouched.
+  persists the result, so a menu toggle only reaches Useful Bots after a game
+  restart.
+- **The Fixes** — optional and compatible; it loads last and owns the cop
+  walk-action initialisation, and Iter re-wraps the winning function so path
+  expansion and nav-link preparation still run.
 
-See `dev/reports/compatibility-iter.md` for the function-level matrix.
+Function-level matrix and the acceptance log: [`MAINTAINING.md`](MAINTAINING.md).
 
 ## Options
 
-See `MENU_OPTIONS.md`. The menu exposes the master **Improve NPC pathing**
-switch, **Rebuild NavLinks**, and the per-map toggles. Subsystem flags
-(streamline, search, AI, nav-link queue, path extender, direct-to-pos, map
-patches, idle cosmetic) are settings-only for troubleshooting and default on.
+See [MENU_OPTIONS.md](MENU_OPTIONS.md). The menu exposes the master **Improve
+NPC pathing** switch, **Rebuild NavLinks**, and per-map toggles. The remaining
+subsystem flags are troubleshooting switches and default on.
 
 ## Credits
 
