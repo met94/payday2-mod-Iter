@@ -125,6 +125,19 @@ Cost if wrong: a legitimate Vector3 whose components are not exposed as
 numbers would be treated as a nav-link and skipped; paths fall back to
 distance-only picks. No crash.
 
+Domain proof (2026-11-05, `dev/reports/opaque-userdata-shapes.md`): the probes
+are rejection guards, not shape proofs. `nav_seg.neighbours` lists are written
+by the game with Vector3 door positions (`lib/managers/navigationmanager.lua:335`)
+and nav-link userdata (`:929`); Iter adds numeric ids (`lua/_navdatapatches.lua:517-577`),
+which the `type(i_door) == 'number'` branch handles first. Vanilla reads `.x` or
+calls methods on every list entry while searching (`:1211-1213`, `:1362-1368`)
+and reads `.x` on every path entry (`lib/units/enemies/cop/logics/coplogicidle.lua:1027-1029`),
+so an Idstring would break vanilla before Iter sees it. The cheap rejection
+guards stay in place - switching the coarse-path test to a nil check would
+widen it to truthy non-Vector3 values. `dev/tools/test/userdata-shape.test.mjs`
+allowlists only these five guards, scoped by file + enclosing function +
+comparison direction.
+
 ## R13. Map patches deferred
 
 P7 is a separate phase: the r200 file selects its level at file-load time and

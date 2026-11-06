@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-11-02T06:25:49.152Z
+Generated: 2026-11-05T15:07:48.034Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -151,7 +151,7 @@ No function definitions (hook/overlay file).
 | done | status | function | mod L | old L | new L | note |
 |---:|---|---|---:|---:|---:|---|
 | [ ] | **PORT** | `CopActionWalk.on_exit` | 8 | 47 | 49 |  |
-| [ ] | audit | `CopActionWalk.itr_append_next_step` | 31 | 0 | 0 |  |
+| [ ] | audit | `CopActionWalk.itr_append_next_step` | 33 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_check_extensible` | 19 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_check_navlink_delay` | 20 | 0 | 0 |  |
 | [ ] | audit | `CopActionWalk.itr_clear_navlink_reservation` | 14 | 0 | 0 |  |
@@ -187,7 +187,7 @@ No function definitions (hook/overlay file).
 |---:|---|---|---:|---:|---:|---|
 | [ ] | audit | `_on_enemy_weapons_hot` | 3 | 0 | 0 |  |
 | [ ] | audit | `_update_destination` | 17 | 0 | 0 |  |
-| [ ] | audit | `CopLogicTravel.itr_simplify_coarse_path` | 127 | 0 | 0 |  |
+| [ ] | audit | `CopLogicTravel.itr_simplify_coarse_path` | 131 | 0 | 0 |  |
 | [ ] | keep | `CopLogicTravel._begin_coarse_pathing` | 8 | 19 | 19 |  |
 | [ ] | keep | `CopLogicTravel._check_start_path_ahead` | 41 | 26 | 26 |  |
 | [ ] | keep | `CopLogicTravel._chk_request_action_walk_to_advance_pos` | 13 | 31 | 31 |  |

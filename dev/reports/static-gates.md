@@ -1,17 +1,17 @@
 ﻿# Iter 248.2 full-nav static gates
 
-Generated: 2026-11-03 11:18:22Z
+Generated: 2026-11-06 15:37:55Z
 
 ## Node tool tests
 
 Result: PASS
 
-Γä╣ pass 116
+Γä╣ pass 120
 Γä╣ fail 0
 Γä╣ cancelled 0
 Γä╣ skipped 0
 Γä╣ todo 0
-Γä╣ duration_ms 142.1728
+Γä╣ duration_ms 166.0493
 
 ## Test-harness parser
 
@@ -23,6 +23,8 @@ ok: Iter test-harness parser
 
 Result: PASS
 
+test_coarse_path_slots.lua: PASS
+ok: coarse-path slot guard (7 checks)
 test_copbrain_follow_unit.lua: PASS
 ok: copbrain follow-unit guard (15 checks)
 test_copbrain_search_start.lua: PASS
@@ -50,6 +52,8 @@ ok survives_bad_optional_data
 ok unowned_vis_group_and_missing_pos
 ok vanilla_accessor_uses_shim
 144 checks, 11 tests passed
+test_userdata_shape.lua: PASS
+ok: userdata shape guards (33 checks)
 test_watch.lua: PASS
 14 checks, watch channel test passed
 
