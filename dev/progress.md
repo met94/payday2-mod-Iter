@@ -373,6 +373,6 @@ Target: `e3a8b616` (248.2).
   direction. Tests `dev/tests/lua/test_userdata_shape.lua` and
   `test_coarse_path_slots.lua` slice the shipped helpers.
 - Report: `dev/reports/opaque-userdata-shapes.md`. Static gates: all seven PASS.
-- Runtime pending (user deploys the branch build): loud heist 10+ minutes, scan
-  logs for index-on-userdata errors. Release bump/changelog deferred until
-  after that test (user request, 2026-11-05).
+- Runtime: branch build deployed and tested in-game 2026-11-06 (loud heist,
+  heavy nav-link traffic): no index-on-userdata error, no crash. Release 205.3
+  merged after that test.

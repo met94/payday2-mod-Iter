@@ -1,3 +1,12 @@
+Revision 205.3 (opaque-userdata shape audit - no gameplay change):
+- audited the five `type(x) == 'userdata'` probes in the nav core (`is_vec3`, `itr_alive`, `itr_alive_navpoint`, the coarse-path slot-2 check and the nav-link filter) plus the `nav_point.x` read in the path extender. All are rejection guards, not shape proofs: their value domains are pinned to the game writers (Vector3 positions, nav-link userdata, numeric patch ids) and to vanilla readers that already index the same values (`find_segment_doors`, `_sort_nav_segs_after_pos`, `CopLogicIdle._nav_point_pos`). No Lua logic changed
+- new static gate `dev/tools/test/userdata-shape.test.mjs`: parses the Lua AST, allowlists only those five probes by file + enclosing function + comparison direction, and fails on a copied probe, a changed direction, a stale entry, a duplicated match, `.type_name` / `["type_name"]` reads, wrapped multi-line comparisons and anonymous-function scope leaks
+- tests `dev/tests/lua/test_userdata_shape.lua` and `dev/tests/lua/test_coarse_path_slots.lua` slice the shipped helpers and pin the accepted domains (nil/number/string/table rejection, Vector3 vs nav-link truth table, coarse-path slot 2) plus a behavioural case for the nav-link filter. Both run in `dev/tools/gates.ps1`
+- report `dev/reports/opaque-userdata-shapes.md` with the per-argument audit and 248.2 game-source citations; decision R12 extended with the domain proof
+- in-game test of the branch build (loud heist, heavy nav-link traffic): no `attempt to index ... (a userdata value)`, no `FATAL ERROR`, no crash
+
+Player notes: no gameplay change. Routes, door picks and nav-link queueing are identical to 205.2; this release makes a future nav check unable to crash the game on an engine key mistaken for a vector, and locks the current five checks with tests.
+
 Revision 205.2 (public README: the AI suite statement):
 - `README.md` now says what this fork is built and tested with: LIES, Iter, Keepers, Monkeepers and Useful Bots 2.6.3 (Hoppip, ModWorkshop #31221, requires HopLib), with The Fixes optional, and links each maintained repository. No load order or priority numbers are published - the order ships with the mods and is not a user setting
 - stale compatibility notes corrected: Useful Bots 2.4.3 -> 2.6.3 (same load-time `streamline_path` guard, the audited release), Keepers and Monkeepers no longer described through a priority-less checkout state, and the retired Nav Fixes mod dropped from the compatibility list

@@ -8,7 +8,7 @@ original mod was written against the v5 nav model; the core has been
 reimplemented on the v6 load data, with the subsystem switches documented in
 `MENU_OPTIONS.md`.
 
-- Version: `205.2`
+- Version: `205.3`
 - Base: upstream Iter r205 (TdlQ, code maintenance by BangL); the nav core is
   this fork's own v6 port of r200 (`98940fb`)
 - Fork maintenance: met94

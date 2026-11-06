@@ -7,9 +7,9 @@ work removes is the LIES class (opaque userdata indexed as a table/Vector3)
 arriving through a *new* probe added later, which the new static gate flags.
 
 - **Target:** PAYDAY 2 248.2 (`e3a8b616`), SuperBLT
-- **Iter:** `205.2` on `feat/opaque-userdata-shapes`. The release version bump
-  and `changelog.txt` entry land after the user's in-game test (205.3 never
-  shipped without it; user asked for test-before-release on 2026-11-05).
+- **Iter:** `205.2` -> `205.3` on `feat/opaque-userdata-shapes` (in-game test
+  of the branch build 2026-11-06: no nav errors, no crash; release commit
+  follows).
 - **Handoff:** `docs/investigations/iter-opaque-userdata-handoff.md`
 - **Origin:** LIES 2026-11-05 taser crash
   (`mods/LIES/dev/reports/watch-settle-attention-unit-type-crash.md`)
@@ -167,13 +167,14 @@ picking as 205.2. The work removes the risk that a future nav probe crashes
 the game when it meets an engine key instead of a vector, and it documents why
 the current probes are safe.
 
-## 7. Unknowns / in-game test
+## 7. In-game test
 
-Static evidence only; engine userdata shapes only exist in-game. Test card:
-play a loud heist with heavy nav-link traffic for 10+ minutes, then scan
-`mods/logs/*.txt` for `FATAL ERROR` / `attempt to index ... (a userdata value)`
-and check `crash.txt`. The branch changes no runtime logic, so the expected
-result is indistinguishable from 205.2.
+Static evidence first; engine userdata shapes only exist in-game. The branch
+build (commit `1366a27`, version 205.2) was deployed and played on a loud heist
+with heavy nav-link traffic on 2026-11-06. `mods/logs/*.txt` showed no
+`attempt to index ... (a userdata value)` and no `FATAL ERROR`; no `crash.txt`
+was written. The branch changes no runtime logic, so behaviour is
+indistinguishable from 205.2. Release 205.3 was prepared after that test.
 
 ## 8. Commands
 
@@ -200,6 +201,7 @@ dev\tools\gates.ps1
   `dev/tools/test/userdata-shape.test.mjs`; tests
   `dev/tests/lua/test_userdata_shape.lua`,
   `dev/tests/lua/test_coarse_path_slots.lua`; this report.
-- **Deploy/test split:** the branch is built and deployed for the user's
-  in-game test; release (version bump, changelog, merge) follows the user's
-  approval. The user deploys; the agent copies the build only on request.
+- **Deploy/test split:** the branch was built and deployed for the user's
+  in-game test (loud heist, heavy nav-link traffic, 2026-11-06) and passed: no
+  `attempt to index ... (a userdata value)`, no `FATAL ERROR`, no crash. The
+  release commit then bumped `mod.txt` to 205.3 and added the changelog entry.
