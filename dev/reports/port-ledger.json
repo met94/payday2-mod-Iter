@@ -1,7 +1,7 @@
 {
   "oldRev": "a3180fc",
   "newRev": "e3a8b616",
-  "generated": "2026-11-25T12:00:55.942Z",
+  "generated": "2026-11-25T14:21:22.445Z",
   "files": [
     {
       "file": "lua/coreworldinstancemanager.lua",
@@ -1700,7 +1700,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 414
+          "startLine": 432
         },
         {
           "name": "CopLogicTravel._check_start_path_ahead",
@@ -1715,7 +1715,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 354
+          "startLine": 372
         },
         {
           "name": "CopLogicTravel._chk_request_action_walk_to_advance_pos",
@@ -1730,12 +1730,12 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 340
+          "startLine": 358
         },
         {
           "name": "CopLogicTravel._chk_stop_for_follow_unit",
           "category": "MOD_EDIT_CLEAN",
-          "modLines": 50,
+          "modLines": 52,
           "oldLines": 25,
           "newLines": 25,
           "modParams": "data, my_data",
@@ -1745,7 +1745,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 271
+          "startLine": 287
         },
         {
           "name": "CopLogicTravel._get_allowed_travel_nav_segs",
@@ -1805,7 +1805,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 323
+          "startLine": 341
         },
         {
           "name": "CopLogicTravel.enter",
@@ -1825,7 +1825,7 @@
         {
           "name": "CopLogicTravel.itr_simplify_coarse_path",
           "category": "MOD_ONLY",
-          "modLines": 131,
+          "modLines": 133,
           "oldLines": 0,
           "newLines": 0,
           "modParams": "data, my_data",
@@ -1835,7 +1835,7 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 139
+          "startLine": 153
         },
         {
           "name": "CopLogicTravel.upd_advance",
@@ -1850,12 +1850,27 @@
           "isHook": false,
           "form": "decl",
           "note": "",
-          "startLine": 397
+          "startLine": 415
+        },
+        {
+          "name": "itr_clamp_pending_jump",
+          "category": "MOD_ONLY",
+          "modLines": 7,
+          "oldLines": 0,
+          "newLines": 0,
+          "modParams": "my_data",
+          "oldParams": "",
+          "newParams": "",
+          "isLocal": true,
+          "isHook": false,
+          "form": "decl",
+          "note": "",
+          "startLine": 145
         }
       ],
       "errors": [],
       "totals": {
-        "MOD_ONLY": 3,
+        "MOD_ONLY": 4,
         "MOD_EDIT_CLEAN": 10
       }
     },

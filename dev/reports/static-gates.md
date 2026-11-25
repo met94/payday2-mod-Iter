@@ -1,6 +1,6 @@
 ﻿# Iter 248.2 full-nav static gates
 
-Generated: 2026-11-25 12:56:07Z
+Generated: 2026-11-25 14:21:20Z
 
 ## Node tool tests
 
@@ -11,7 +11,7 @@ Result: PASS
 Γä╣ cancelled 0
 Γä╣ skipped 0
 Γä╣ todo 0
-Γä╣ duration_ms 152.246
+Γä╣ duration_ms 151.8944
 
 ## Test-harness parser
 
@@ -31,6 +31,8 @@ test_copbrain_pathing_forward.lua: PASS
 ok: CopBrain:clbk_pathing_results forwards the trailing argument
 test_copbrain_search_start.lua: PASS
 7 checks, copbrain search-start test passed
+test_coplogictravel_pending_jump.lua: PASS
+ok: pending coarse-path jump clamp (12 checks)
 test_corecode.lua: PASS
 corecode settings: 29 checks PASS
 test_diag.lua: PASS
@@ -77,10 +79,10 @@ Findings: 0
 
 Result: PASS
 
-unchanged dev/port-ledger.md
-unchanged dev/reports/port-ledger.json
-files=22 functions=117 errors=0 unhooked=7
-MOD_EDIT_CLEAN=31 MOD_ONLY=70 MOD_EDIT_VANILLA_CHANGED=6 MOD_ONLY_HOOK=10
+wrote dev/port-ledger.md
+wrote dev/reports/port-ledger.json
+files=22 functions=118 errors=0 unhooked=7
+MOD_EDIT_CLEAN=31 MOD_ONLY=71 MOD_EDIT_VANILLA_CHANGED=6 MOD_ONLY_HOOK=10
 
 ## API audit
 

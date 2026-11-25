@@ -1,3 +1,37 @@
+Revision 205.6 (a truncated follow path could leave a pending jump past its end):
+
+- `CopLogicTravel._chk_stop_for_follow_unit` truncates `my_data.coarse_path` to
+  `coarse_path_index + 1` when the followed unit enters the cop's own nav segment
+  (`lua/coplogictravel.lua:306-317`), and `CopLogicTravel.itr_simplify_coarse_path`
+  shortens the path too (the dedupe/shortcut removals and the `bad_from_index`
+  tail, `:153-284`). Neither updated `my_data.going_to_index`
+- that field belongs to LIES' travel logic, which on walk completion sets
+  `coarse_path_index = my_data.going_to_index` (LIES 8.57.36,
+  `lua/coplogics/coplogictravel.lua:1628-1629`). A stale jump past the new end made
+  that index over-range for the shortened path, which is the multiplayer crash path
+  reported against LIES' travel logic
+- fix: new local `itr_clamp_pending_jump(my_data)` (`lua/coplogictravel.lua:145`)
+  clamps `going_to_index` to `#my_data.coarse_path` when it exceeds it (and to `nil`
+  for an empty path); called at the end of `itr_simplify_coarse_path` and after both
+  truncation paths in `_chk_stop_for_follow_unit`. The truncation itself is
+  unchanged - only the stale pending jump moves
+- 205.4 and 205.5 are unchanged; this adds a guard, it does not alter the
+  logic-switch guard or the vararg forward
+- verification: new `dev/tests/lua/test_coplogictravel_pending_jump.lua` (12 checks)
+  loads the hook file with stubbed engine globals and pins both call sites: a
+  follow-path truncation to 2 entries moves a pending jump 5 -> 2, an in-range jump
+  is left alone, a simplified path of 2 entries moves 4 -> 2, and a path the
+  simplifier cannot shorten keeps its jump. Removing either clamp call fails it
+  (mutation-checked). `dev/tools/gates.ps1` all sections PASS
+- note: LIES 8.57.36 also drops an out-of-range path on its own (its
+  `action_complete_clbk` resets the path instead of walking it), so this is
+  defence in depth for the LIES builds without that guard and for the follow-path
+  case it does not cover
+
+Player notes: no gameplay change on a normal heist. Fixes a rare crash when the
+unit a cop is following walks into the cop's own nav segment while a longer walk is
+still in flight: the pending step is now kept inside the shortened path.
+
 Revision 205.5 (LIES suite compatibility - the pathing callback's trailing flag):
 
 - `CopBrain.clbk_pathing_results`: LIES (8.57.36, branch `feat/lies-249`) copies

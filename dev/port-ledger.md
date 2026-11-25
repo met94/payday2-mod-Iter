@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-11-25T12:00:55.942Z
+Generated: 2026-11-25T14:21:22.445Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -13,7 +13,7 @@ Scope: top-level function definitions only. Nested helpers are folded into their
 |---|---:|
 | MOD_EDIT_VANILLA_CHANGED | 6 |
 | MOD_ONLY_HOOK | 10 |
-| MOD_ONLY | 70 |
+| MOD_ONLY | 71 |
 | MOD_EDIT_CLEAN | 31 |
 
 ## lua/coreworldinstancemanager.lua
@@ -187,11 +187,12 @@ No function definitions (hook/overlay file).
 |---:|---|---|---:|---:|---:|---|
 | [ ] | audit | `_on_enemy_weapons_hot` | 3 | 0 | 0 |  |
 | [ ] | audit | `_update_destination` | 17 | 0 | 0 |  |
-| [ ] | audit | `CopLogicTravel.itr_simplify_coarse_path` | 131 | 0 | 0 |  |
+| [ ] | audit | `CopLogicTravel.itr_simplify_coarse_path` | 133 | 0 | 0 |  |
+| [ ] | audit | `itr_clamp_pending_jump` | 7 | 0 | 0 |  |
 | [ ] | keep | `CopLogicTravel._begin_coarse_pathing` | 8 | 19 | 19 |  |
 | [ ] | keep | `CopLogicTravel._check_start_path_ahead` | 41 | 26 | 26 |  |
 | [ ] | keep | `CopLogicTravel._chk_request_action_walk_to_advance_pos` | 13 | 31 | 31 |  |
-| [ ] | keep | `CopLogicTravel._chk_stop_for_follow_unit` | 50 | 25 | 25 |  |
+| [ ] | keep | `CopLogicTravel._chk_stop_for_follow_unit` | 52 | 25 | 25 |  |
 | [ ] | keep | `CopLogicTravel._get_allowed_travel_nav_segs` | 9 | 37 | 37 |  |
 | [ ] | keep | `CopLogicTravel._get_exact_move_pos` | 41 | 98 | 98 |  |
 | [ ] | keep | `CopLogicTravel._upd_pathing` | 29 | 44 | 44 |  |

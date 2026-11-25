@@ -5,7 +5,7 @@ queueing, direct-to-pos, path extension, and a set of per-level nav fixes. NPCs
 use ladders, doors and jumps without piling up on the same link, and levels
 whose nav data broke after U247 path again.
 
-- Version: `205.5`
+- Version: `205.6`
 - Target: PAYDAY 2 248.2 x64 (Diesel 3), SuperBLT
 
 ## Part of the AI suite
@@ -44,7 +44,7 @@ Tested as one stack and meant to run with it. One download for all four:
 
 1. Close PAYDAY 2.
 2. Remove or rename an older `Iter` folder in `...\PAYDAY 2\mods\`.
-3. Extract `Iter_v205.5.zip` so the result is exactly
+3. Extract `Iter_v205.6.zip` so the result is exactly
    `...\PAYDAY 2\mods\Iter\mod.txt`.
 4. Launch the game and open **Mod Options → Iter**.
 
@@ -59,7 +59,7 @@ If you download the GitHub source ZIP instead, rename the extracted
 `mod.txt` points SuperBLT's updater at
 `releases/latest/download/meta.json` in this repository; upstream's own update
 endpoint is not referenced (it only knows the upstream package). Versions are
-`<upstream revision>.<fork release>` and tags mirror them (`v205.5`).
+`<upstream revision>.<fork release>` and tags mirror them (`v205.6`).
 
 ## Compatibility
 
