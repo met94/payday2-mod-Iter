@@ -133,10 +133,10 @@ end
 
 local itr_original_copbrain_clbkpathingresults = CopBrain.clbk_pathing_results
 if Iter.settings.path_extender then
-function CopBrain:clbk_pathing_results(search_id, path)
+function CopBrain:clbk_pathing_results(search_id, path, ...)
 	local pre_my_data = self._logic_data and self._logic_data.internal_data
 
-	itr_original_copbrain_clbkpathingresults(self, search_id, path)
+	itr_original_copbrain_clbkpathingresults(self, search_id, path, ...)
 
 	-- LIES' eager pathing-complete callback can switch logic from inside the
 	-- original, which replaces _logic_data/internal_data. Anything written

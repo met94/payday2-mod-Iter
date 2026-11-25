@@ -1,7 +1,7 @@
 {
   "oldRev": "a3180fc",
   "newRev": "e3a8b616",
-  "generated": "2026-11-05T15:18:19.828Z",
+  "generated": "2026-11-25T12:00:55.942Z",
   "files": [
     {
       "file": "lua/coreworldinstancemanager.lua",
@@ -1223,10 +1223,10 @@
         {
           "name": "CopBrain.clbk_pathing_results",
           "category": "MOD_EDIT_CLEAN",
-          "modLines": 26,
+          "modLines": 41,
           "oldLines": 41,
           "newLines": 41,
-          "modParams": "search_id, path",
+          "modParams": "search_id, path, ...",
           "oldParams": "search_id, path",
           "newParams": "search_id, path",
           "isLocal": false,

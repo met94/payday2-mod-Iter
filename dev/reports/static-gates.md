@@ -1,6 +1,6 @@
 ﻿# Iter 248.2 full-nav static gates
 
-Generated: 2026-11-06 15:37:55Z
+Generated: 2026-11-25 12:56:07Z
 
 ## Node tool tests
 
@@ -11,7 +11,7 @@ Result: PASS
 Γä╣ cancelled 0
 Γä╣ skipped 0
 Γä╣ todo 0
-Γä╣ duration_ms 166.0493
+Γä╣ duration_ms 152.246
 
 ## Test-harness parser
 
@@ -27,6 +27,8 @@ test_coarse_path_slots.lua: PASS
 ok: coarse-path slot guard (7 checks)
 test_copbrain_follow_unit.lua: PASS
 ok: copbrain follow-unit guard (15 checks)
+test_copbrain_pathing_forward.lua: PASS
+ok: CopBrain:clbk_pathing_results forwards the trailing argument
 test_copbrain_search_start.lua: PASS
 7 checks, copbrain search-start test passed
 test_corecode.lua: PASS

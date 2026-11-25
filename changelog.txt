@@ -1,3 +1,36 @@
+Revision 205.5 (LIES suite compatibility - the pathing callback's trailing flag):
+
+- `CopBrain.clbk_pathing_results`: LIES (8.57.36, branch `feat/lies-249`) copies
+  the vanilla callback with a third parameter, `do_not_cache`, and skips its
+  cached-path write when it is set (`lua/copextensions/copbrain.lua:1317`, write
+  guarded at `:1359`). Iter's wrapper declared `(search_id, path)` and forwarded
+  only those two, so a third argument would have been dropped before the original
+  callback ever saw it
+- the wrapper now forwards the trailing varargs exactly (`...` -> `...`); the
+  205.4 logic-switch guard and its comment are unchanged
+- latent today: at Iter's target 248.2 the game registers this callback as
+  `callback(self, self, "clbk_pathing_results", search_id)`
+  (`lib/units/enemies/cop/copbrain.lua:487, 504, 523, 542`; 249 carries the same
+  four sites at `:435, 452, 471, 490`) and no caller passes a third argument, so
+  no runtime behaviour changes with this release
+- `clbk_coarse_pathing_results` checked for the same defect: the game takes
+  `(search_id, path)` with no trailing argument (249 `copbrain.lua:532`) and LIES
+  only registers it (`lua/copextensions/copbrain.lua:1434`) without copying it, so
+  there is no second wrapper to fix
+- verification: `dev/tools/gates.ps1` all sections PASS, including the new
+  `dev/tests/lua/test_copbrain_pathing_forward.lua`: it loads this hook file with
+  `path_extender = true` and an original callback that records `select('#', ...)`,
+  then pins 0 varargs for a two-argument call and exactly one vararg equal to
+  `true` for a three-argument call, with the same `search_id` and the same `path`
+  table by reference and the original run once per call; reverting the vararg
+  forward makes it fail
+- why now: the README's compatibility claim covers LIES' callback; a dropped
+  cache flag would silently defeat LIES' `cache_lookup = false` path
+
+Player notes: no gameplay change. Routing, streamlining and nav-link queueing are
+identical to 205.4; this only keeps a future LIES cache flag from being lost
+between the two mods.
+
 Revision 205.4 (LIES suite compatibility - pathing callback may switch logic):
 
 - `CopBrain.clbk_pathing_results`: LIES' `_add_pathing_result` post-hook calls the

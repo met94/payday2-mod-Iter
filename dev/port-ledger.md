@@ -1,6 +1,6 @@
 # ITER 248.2 port — function ledger
 
-Generated: 2026-11-05T15:07:48.034Z
+Generated: 2026-11-25T12:00:55.942Z
 Old baseline: `a3180fc`  Target: `e3a8b616`
 
 Status is the proposed action. `PORT` = port ITER intent onto 248.2; `audit` = ITER-only, check API calls; `delete` = stale 246.1 copy; `keep` = no port work; `drop/rewrite` = target function gone; `BLOCKED` = parse failure.
@@ -143,7 +143,7 @@ No function definitions (hook/overlay file).
 | done | status | function | mod L | old L | new L | note |
 |---:|---|---|---:|---:|---:|---|
 | [ ] | keep | `CopBrain.clbk_coarse_pathing_results` | 37 | 3 | 3 |  |
-| [ ] | keep | `CopBrain.clbk_pathing_results` | 26 | 41 | 41 |  |
+| [ ] | keep | `CopBrain.clbk_pathing_results` | 41 | 41 | 41 |  |
 | [ ] | keep | `CopBrain.search_for_coarse_path` | 40 | 20 | 20 |  |
 
 ## lua/copactionwalk.lua
