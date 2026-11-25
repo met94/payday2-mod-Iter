@@ -1,3 +1,25 @@
+Revision 205.4 (LIES suite compatibility - pathing callback may switch logic):
+
+- `CopBrain.clbk_pathing_results`: LIES' `_add_pathing_result` post-hook calls the
+  logic's `_pathing_complete_clbk` synchronously. That can switch logic and
+  replace `_logic_data`/`internal_data` before the original callback returns;
+  Iter's path extender then indexed the new table's missing `pathing_results`
+  (`attempt to index field 'pathing_results'`) and crashed. The wrapper now
+  captures `internal_data` before the original, returns when the logic changed,
+  and guards the `pathing_results` write
+- why now: LIES 8.57.36 adds the suite's standard load-once guard to its hook
+  scripts. Before that, LIES re-applied on every hook pass and overwrote Iter's
+  wrapper, leaving this path dormant
+- verification: test-rig soak with LIES (guarded) + Iter (this build) + Keepers +
+  Monkeepers + Goonmod, Useful Bots and The Fixes live: 70 s loud, 55 cops,
+  11 engaged, no crash; owner matrix restored (Keepers owns `coplogictravel`,
+  Iter's `upd_advance` hook active)
+- no behaviour change on the normal path: the early return only fires when the
+  logic was swapped inside the original callback
+
+Player notes: no gameplay change. Fixes a crash that could appear only when
+Iter's path extender was active together with LIES 8.57.36 or newer.
+
 Revision 205.3 (opaque-userdata shape audit - no gameplay change):
 - audited the five `type(x) == 'userdata'` probes in the nav core (`is_vec3`, `itr_alive`, `itr_alive_navpoint`, the coarse-path slot-2 check and the nav-link filter) plus the `nav_point.x` read in the path extender. All are rejection guards, not shape proofs: their value domains are pinned to the game writers (Vector3 positions, nav-link userdata, numeric patch ids) and to vanilla readers that already index the same values (`find_segment_doors`, `_sort_nav_segs_after_pos`, `CopLogicIdle._nav_point_pos`). No Lua logic changed
 - new static gate `dev/tools/test/userdata-shape.test.mjs`: parses the Lua AST, allowlists only those five probes by file + enclosing function + comparison direction, and fails on a copied probe, a changed direction, a stale entry, a duplicated match, `.type_name` / `["type_name"]` reads, wrapped multi-line comparisons and anonymous-function scope leaks
