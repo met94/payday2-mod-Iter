@@ -1,12 +1,11 @@
-# Iter — PAYDAY 2 248.2 x64 navigation port
+# Iter — navigation fixes for PAYDAY 2
 
-Iter improves NPC navigation: long-path weighting, path streamlining, nav-link
-queueing, direct-to-pos, path extension, and a set of per-level nav fixes. NPCs
-use ladders, doors and jumps without piling up on the same link, and levels
-whose nav data broke after U247 path again.
+Iter keeps NPCs moving. Ladders, doors, vaults and jumps are queued instead of
+piled onto one link, paths are streamlined and reused, and a few maps that lost
+their routing after U247 work again.
 
 - Version: `205.7`
-- Target: PAYDAY 2 248.2 x64 (Diesel 3), SuperBLT
+- Requires: PAYDAY 2 249 x64 (Diesel 3) and SuperBLT
 
 ## Part of the AI suite
 
@@ -15,10 +14,10 @@ Tested as one stack and meant to run with it. One download for all four:
 
 | Mod | Repo | Role |
 | --- | --- | --- |
-| **LIES** | [met94/Little-Intelligence-Enhancements-x64](https://github.com/met94/Little-Intelligence-Enhancements-x64) | enemy AI: detection, aim, cover, travel |
-| **Iter** (this mod) | [met94/payday2-mod-Iter](https://github.com/met94/payday2-mod-Iter) | navigation, coarse search, nav-link queue, level nav fixes |
-| **Keepers** | [met94/payday2-mod-Keepers](https://github.com/met94/payday2-mod-Keepers) | bot orders, revives, jokers |
-| **Monkeepers** | [met94/payday2-mod-Monkeepers](https://github.com/met94/payday2-mod-Monkeepers) | bot bag logistics |
+| **LIES** | [met94/Little-Intelligence-Enhancements-x64](https://github.com/met94/Little-Intelligence-Enhancements-x64) | enemy AI |
+| **Iter** (this mod) | [met94/payday2-mod-Iter](https://github.com/met94/payday2-mod-Iter) | navigation and pathing |
+| **Keepers** | [met94/payday2-mod-Keepers](https://github.com/met94/payday2-mod-Keepers) | bot orders and revives |
+| **Monkeepers** | [met94/payday2-mod-Monkeepers](https://github.com/met94/payday2-mod-Monkeepers) | bot bag handling |
 | **Useful Bots** 2.6.4 + HopLib 2.1.2 (by Hoppip, not part of this set) | [ModWorkshop #31221](https://modworkshop.net/mod/31221) | bot combat and utility |
 | The Fixes (optional) | [ModWorkshop #23732](https://modworkshop.net/mod/23732) | general game fixes |
 
@@ -26,17 +25,17 @@ Tested as one stack and meant to run with it. One download for all four:
 
 - Cops, bots and civilians queue for ladders, doors and vaults instead of
   clumping on one link.
-- Paths are streamlined and shortened where the nav mesh allows it, with cached
-  coarse searches so repeated pathing is cheaper.
-- Units can be sent directly to a position, and their path can be extended
-  ahead while they walk.
-- Per-level nav fixes restore routing on maps whose nav data changed after
-  U247 (Branch Bank, Firestarter day 1, Gallery/Framing Frame day 1, Met).
-- A watch digest (`[ITER-WATCH]`) can log queue health; off by default.
+- Paths are streamlined and reused, so repeated pathing is cheaper.
+- Units can be sent straight to a position and keep extending their path while
+  they walk.
+- Navigation is repaired on maps that broke after U247 (Branch Bank, Firestarter
+  day 1, Gallery/Framing Frame day 1, Met).
+- An optional watch log (`[ITER-WATCH]`) can help with bug reports; off by
+  default.
 
 ## Requirements
 
-- PAYDAY 2 248.2 x64 (Diesel 3)
+- PAYDAY 2 249 x64 (Diesel 3)
 - SuperBLT
 - No BeardLib requirement
 
@@ -44,7 +43,7 @@ Tested as one stack and meant to run with it. One download for all four:
 
 1. Close PAYDAY 2.
 2. Remove or rename an older `Iter` folder in `...\PAYDAY 2\mods\`.
-3. Extract `Iter_v205.6.zip` so the result is exactly
+3. Extract `Iter_v205.7.zip` so the result is exactly
    `...\PAYDAY 2\mods\Iter\mod.txt`.
 4. Launch the game and open **Mod Options → Iter**.
 
@@ -56,27 +55,21 @@ If you download the GitHub source ZIP instead, rename the extracted
 
 ## Auto-updates
 
-`mod.txt` points SuperBLT's updater at
-`releases/latest/download/meta.json` in this repository; upstream's own update
-endpoint is not referenced (it only knows the upstream package). Versions are
-`<upstream revision>.<fork release>` and tags mirror them (`v205.6`).
+Iter updates through SuperBLT: `mod.txt` points the updater at this repository's
+`releases/latest/download/meta.json`, not upstream's feed. Versions are
+`<upstream revision>.<fork release>` and tags match (`v205.7`).
 
 ## Compatibility
 
-- **LIES** — optional. LIES owns enemy AI; Iter owns navigation: congestion
-  control, the coarse search and the nav-link queue. LIES' squad push
-  coordination still runs, and its navlink-delay setting feeds Iter's queue.
-- **Keepers**, **Monkeepers** — compatible; they run after LIES and do not
-  touch Iter's navigation functions.
-- **Useful Bots** — compatible. Iter publishes the legacy `streamline_path`
-  runtime mirror (`nav_overlay and nav_streamline`), so Useful Bots 2.6.4's
-  load-time guard recognises Iter's streamliner and skips its own path
-  re-check. `Iter:save()` recomputes the mirror from the live switches and
-  persists the result, so a menu toggle only reaches Useful Bots after a game
-  restart.
-- **The Fixes** — optional and compatible; it loads last and owns the cop
-  walk-action initialisation, and Iter re-wraps the winning function so path
-  expansion and nav-link preparation still run.
+- **LIES** — recommended together. LIES does enemy AI, Iter does navigation;
+  they split the work and run fine side by side.
+- **Keepers**, **Monkeepers** — compatible; neither touches navigation.
+- **Useful Bots** — compatible. Iter keeps the legacy `streamline_path`
+  setting Useful Bots reads, and that mirror is recomputed and saved when Iter
+  saves its settings. Useful Bots only reads it at load, so a menu toggle
+  reaches it after a game restart.
+- **The Fixes** — optional and compatible; it patches narrow game bugs and Iter
+  keeps working with its walk-action changes.
 
 Function-level matrix and the acceptance log: [`MAINTAINING.md`](MAINTAINING.md).
 
@@ -89,7 +82,7 @@ subsystem flags are troubleshooting switches and default on.
 ## Credits
 
 - Original mod and AI design: TdlQ
-- 248.2 x64 navigation port: workspace
+- 248.2 x64 navigation port and maintenance: met94
 - Decompiled game reference: steam-test1/Payday-2-LuaJIT-Complete
 
 ## License
