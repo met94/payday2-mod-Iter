@@ -1,3 +1,56 @@
+Revision 205.7 (the follow-unit check crashed when travel had no objective):
+
+- `CopLogicTravel._chk_stop_for_follow_unit` (`lua/coplogictravel.lua:287`) is a
+  rewrite of the game function, not a copy: it keeps vanilla's unguarded first
+  line (`objective.type`) and replaces the nav-seg tail with the truncation,
+  door-between rewrite, `itr_clamp_pending_jump` and `data.itr_follow_unit_nav_seg`
+  state write. The missing nil guard goes back to the pristine r200 import
+  (`98940fb`), not to 205.x
+- LIES replaces `CopLogicTravel.upd_advance` and calls this helper
+  unconditionally (LIES 8.57.36, `lua/coplogics/coplogictravel.lua:829`; blame:
+  upstream `15c25c6`, 2022). LIES' own copy of the helper guards a nil objective
+  (`:1859`), so LIES alone is safe. SuperBLT loads by descending priority (LIES
+  100, Iter 40), so with both installed Iter's definition is the live one and
+  that call hit `objective.type` on nil
+- crash: `attempt to index local 'objective' (a nil value)`, game 249.1,
+  LIES 8.57.36 + Iter 205.6 + Keepers 239.3 (+deps) + Monkeepers 87.4, Safe
+  House Raid. Reproduced 2/2 (`job-101601-474`, `job-101913-735`). That config
+  is also the only 2/2 case tested without Useful Bots, whose wrapper swallows
+  the nil case (below), so the subset is not evidence that Keepers/Monkeepers
+  clear objectives wrongly. LIES+Iter alone passed one job, which leaves
+  objective churn as a suspect, not a proven cause
+- fix: `not objective or` in the guard, matching the contract of the function
+  LIES calls. Every Iter feature in this function and every later use of
+  `objective` is behind that line, so a non-nil objective takes exactly the old
+  path. Callers: vanilla `:242` (inside the `advancing` branch), LIES `:829`,
+  and Useful Bots, which wraps the helper and delegates only when `objective`,
+  a live `follow_unit`, `coarse_path_index` and the next path entry all exist
+  (`Useful Bots\lua\coplogictravel.lua:54-59`). UB's wrapper is why the full
+  stack passed: with UB installed the nil case returns in UB's wrapper and never
+  reaches Iter's function. Iter itself does not call the helper
+- verification: new `dev/tests/lua/test_coplogictravel_nil_objective.lua`
+  (6 checks) fails on 205.6 with the same `:289` error and passes after the
+  guard; `dev/tools/gates.ps1` PASS (120 node tests, all 14 Lua tests); rig
+  rerun of the crashing config passed twice (`job-105459-517`, `job-105725-105`).
+  An independent read-only verification confirmed the load order, the
+  Iter-vs-vanilla diff and that no Iter feature is skipped on the nil path
+- the nil state is legitimate, not a mod clearing objectives wrongly: a
+  diagnostic run (`job-111417-079`) logged a nil tick as
+  `adv=false old=false warp=false cpi=nil path=nil` - travel with nothing to do.
+  Vanilla `upd_advance` falls through every branch to
+  `elseif objective and (...)` and exits to idle from exactly that state; only
+  LIES' unconditional helper call turns it into a crash. One tick is consistent
+  with clean callers, not proof of it: another objective-clearing bug would need
+  more ticks (or a different state: `advancing`/`warp_pos` set) to surface
+- note: LIES' `my_data.warp_pos` branch (`lua/coplogics/coplogictravel.lua:869-889`)
+  still dereferences `objective.pos` before its own `if objective then`; same
+  crash class, warp-style travel objectives only, not observed. Tracked as a
+  separate LIES follow-up, not changed here
+
+Player notes: fixes a rare crash with LIES' travel logic installed: a cop whose
+travel objective had been cleared could crash the game during an assault.
+Movement, pathing and follow behaviour are unchanged on every normal objective.
+
 Revision 205.6 (a truncated follow path could leave a pending jump past its end):
 
 - `CopLogicTravel._chk_stop_for_follow_unit` truncates `my_data.coarse_path` to

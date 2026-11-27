@@ -5,7 +5,7 @@ queueing, direct-to-pos, path extension, and a set of per-level nav fixes. NPCs
 use ladders, doors and jumps without piling up on the same link, and levels
 whose nav data broke after U247 path again.
 
-- Version: `205.6`
+- Version: `205.7`
 - Target: PAYDAY 2 248.2 x64 (Diesel 3), SuperBLT
 
 ## Part of the AI suite

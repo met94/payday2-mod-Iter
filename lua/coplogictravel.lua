@@ -286,7 +286,7 @@ end
 
 function CopLogicTravel._chk_stop_for_follow_unit(data, my_data)
 	local objective = data.objective
-	if objective.type ~= 'follow' or data.unit:movement():chk_action_forbidden('walk') or data.unit:anim_data().act_idle then
+	if not objective or objective.type ~= 'follow' or data.unit:movement():chk_action_forbidden('walk') or data.unit:anim_data().act_idle then
 		return
 	end
 	if not my_data.coarse_path_index then
