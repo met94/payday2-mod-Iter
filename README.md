@@ -19,7 +19,7 @@ Tested as one stack and meant to run with it. One download for all four:
 | **Iter** (this mod) | [met94/payday2-mod-Iter](https://github.com/met94/payday2-mod-Iter) | navigation, coarse search, nav-link queue, level nav fixes |
 | **Keepers** | [met94/payday2-mod-Keepers](https://github.com/met94/payday2-mod-Keepers) | bot orders, revives, jokers |
 | **Monkeepers** | [met94/payday2-mod-Monkeepers](https://github.com/met94/payday2-mod-Monkeepers) | bot bag logistics |
-| **Useful Bots** 2.6.3 (by Hoppip, not part of this set) | [ModWorkshop #31221](https://modworkshop.net/mod/31221) | bot combat and utility; requires HopLib |
+| **Useful Bots** 2.6.4 + HopLib 2.1.2 (by Hoppip, not part of this set) | [ModWorkshop #31221](https://modworkshop.net/mod/31221) | bot combat and utility |
 | The Fixes (optional) | [ModWorkshop #23732](https://modworkshop.net/mod/23732) | general game fixes |
 
 ## What it changes in-game
@@ -69,7 +69,7 @@ endpoint is not referenced (it only knows the upstream package). Versions are
 - **Keepers**, **Monkeepers** — compatible; they run after LIES and do not
   touch Iter's navigation functions.
 - **Useful Bots** — compatible. Iter publishes the legacy `streamline_path`
-  runtime mirror (`nav_overlay and nav_streamline`), so Useful Bots 2.6.3's
+  runtime mirror (`nav_overlay and nav_streamline`), so Useful Bots 2.6.4's
   load-time guard recognises Iter's streamliner and skips its own path
   re-check. `Iter:save()` recomputes the mirror from the live switches and
   persists the result, so a menu toggle only reaches Useful Bots after a game
