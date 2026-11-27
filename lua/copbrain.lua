@@ -133,8 +133,18 @@ end
 
 local itr_original_copbrain_clbkpathingresults = CopBrain.clbk_pathing_results
 if Iter.settings.path_extender then
-function CopBrain:clbk_pathing_results(search_id, path)
-	itr_original_copbrain_clbkpathingresults(self, search_id, path)
+function CopBrain:clbk_pathing_results(search_id, path, ...)
+	local pre_my_data = self._logic_data and self._logic_data.internal_data
+
+	itr_original_copbrain_clbkpathingresults(self, search_id, path, ...)
+
+	-- LIES' eager pathing-complete callback can switch logic from inside the
+	-- original, which replaces _logic_data/internal_data. Anything written
+	-- against the old tables (or their missing `pathing_results`) is stale.
+	if not self._logic_data or self._logic_data.internal_data ~= pre_my_data then
+		return
+	end
+
 	if path then
 		local my_data = self._logic_data.internal_data
 		if my_data.coarse_path then
@@ -142,7 +152,12 @@ function CopBrain:clbk_pathing_results(search_id, path)
 			if walk_action then
 				if walk_action:itr_append_next_step(path) then
 					Iter.diag.count('path_extend_ok')
-					self._logic_data.pathing_results[search_id] = nil
+					local pathing_results = self._logic_data.pathing_results
+
+					if pathing_results then
+						pathing_results[search_id] = nil
+					end
+
 					my_data.processing_advance_path = nil
 					if my_data.coarse_path_index >= #my_data.coarse_path - 2 then
 						if self._logic_data.objective then

@@ -136,6 +136,20 @@ local function _update_destination(my_data, follow_unit_nav_seg, pos_rsrv_id)
 end
 
 local table_remove = table.remove
+
+-- A truncation can leave a pending jump past the new end of the path: the
+-- follow-path truncation below and the simplify passes rewrite my_data.coarse_path
+-- without touching my_data.going_to_index. LIES' travel logic then sets
+-- coarse_path_index = going_to_index on walk completion, which is an over-range
+-- index into the shortened path. Clamp the pending jump to what is actually left.
+local function itr_clamp_pending_jump(my_data)
+	local nr = my_data.coarse_path and #my_data.coarse_path or 0
+
+	if my_data.going_to_index and my_data.going_to_index > nr then
+		my_data.going_to_index = nr > 0 and nr or nil
+	end
+end
+
 function CopLogicTravel.itr_simplify_coarse_path(data, my_data)
 	local coarse_path = my_data.coarse_path
 	local coarse_path_nr = #coarse_path
@@ -265,12 +279,14 @@ function CopLogicTravel.itr_simplify_coarse_path(data, my_data)
 		end
 	end
 
+	itr_clamp_pending_jump(my_data)
+
 	return original_coarse_path_nr ~= coarse_path_nr
 end
 
 function CopLogicTravel._chk_stop_for_follow_unit(data, my_data)
 	local objective = data.objective
-	if objective.type ~= 'follow' or data.unit:movement():chk_action_forbidden('walk') or data.unit:anim_data().act_idle then
+	if not objective or objective.type ~= 'follow' or data.unit:movement():chk_action_forbidden('walk') or data.unit:anim_data().act_idle then
 		return
 	end
 	if not my_data.coarse_path_index then
@@ -298,6 +314,7 @@ function CopLogicTravel._chk_stop_for_follow_unit(data, my_data)
 			[2] = _update_destination(my_data, follow_unit_nav_seg, data.pos_rsrv_id)
 		}
 		data.logic.on_new_objective(data)
+		itr_clamp_pending_jump(my_data)
 
 	elseif data.itr_follow_unit_nav_seg and data.itr_follow_unit_nav_seg ~= follow_unit_nav_seg and coarse_path[coarse_path_nr][1] ~= follow_unit_nav_seg then
 		local nav = managers.navigation
@@ -313,6 +330,7 @@ function CopLogicTravel._chk_stop_for_follow_unit(data, my_data)
 			coarse_path_nr = coarse_path_nr + 1
 
 			CopLogicTravel.itr_simplify_coarse_path(data, my_data)
+			itr_clamp_pending_jump(my_data)
 		end
 	end
 

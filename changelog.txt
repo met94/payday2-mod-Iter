@@ -1,3 +1,145 @@
+Revision 205.7 (the follow-unit check crashed when travel had no objective):
+
+- `CopLogicTravel._chk_stop_for_follow_unit` (`lua/coplogictravel.lua:287`) is a
+  rewrite of the game function, not a copy: it keeps vanilla's unguarded first
+  line (`objective.type`) and replaces the nav-seg tail with the truncation,
+  door-between rewrite, `itr_clamp_pending_jump` and `data.itr_follow_unit_nav_seg`
+  state write. The missing nil guard goes back to the pristine r200 import
+  (`98940fb`), not to 205.x
+- LIES replaces `CopLogicTravel.upd_advance` and calls this helper
+  unconditionally (LIES 8.57.36, `lua/coplogics/coplogictravel.lua:829`; blame:
+  upstream `15c25c6`, 2022). LIES' own copy of the helper guards a nil objective
+  (`:1859`), so LIES alone is safe. SuperBLT loads by descending priority (LIES
+  100, Iter 40), so with both installed Iter's definition is the live one and
+  that call hit `objective.type` on nil
+- crash: `attempt to index local 'objective' (a nil value)`, game 249.1,
+  LIES 8.57.36 + Iter 205.6 + Keepers 239.3 (+deps) + Monkeepers 87.4, Safe
+  House Raid. Reproduced 2/2 (`job-101601-474`, `job-101913-735`). That config
+  is also the only 2/2 case tested without Useful Bots, whose wrapper swallows
+  the nil case (below), so the subset is not evidence that Keepers/Monkeepers
+  clear objectives wrongly. LIES+Iter alone passed one job, which leaves
+  objective churn as a suspect, not a proven cause
+- fix: `not objective or` in the guard, matching the contract of the function
+  LIES calls. Every Iter feature in this function and every later use of
+  `objective` is behind that line, so a non-nil objective takes exactly the old
+  path. Callers: vanilla `:242` (inside the `advancing` branch), LIES `:829`,
+  and Useful Bots, which wraps the helper and delegates only when `objective`,
+  a live `follow_unit`, `coarse_path_index` and the next path entry all exist
+  (`Useful Bots\lua\coplogictravel.lua:54-59`). UB's wrapper is why the full
+  stack passed: with UB installed the nil case returns in UB's wrapper and never
+  reaches Iter's function. Iter itself does not call the helper
+- verification: new `dev/tests/lua/test_coplogictravel_nil_objective.lua`
+  (6 checks) fails on 205.6 with the same `:289` error and passes after the
+  guard; `dev/tools/gates.ps1` PASS (120 node tests, all 14 Lua tests); rig
+  rerun of the crashing config passed twice (`job-105459-517`, `job-105725-105`).
+  An independent read-only verification confirmed the load order, the
+  Iter-vs-vanilla diff and that no Iter feature is skipped on the nil path
+- the nil state is legitimate, not a mod clearing objectives wrongly: a
+  diagnostic run (`job-111417-079`) logged a nil tick as
+  `adv=false old=false warp=false cpi=nil path=nil` - travel with nothing to do.
+  Vanilla `upd_advance` falls through every branch to
+  `elseif objective and (...)` and exits to idle from exactly that state; only
+  LIES' unconditional helper call turns it into a crash. One tick is consistent
+  with clean callers, not proof of it: another objective-clearing bug would need
+  more ticks (or a different state: `advancing`/`warp_pos` set) to surface
+- note: LIES' `my_data.warp_pos` branch (`lua/coplogics/coplogictravel.lua:869-889`)
+  still dereferences `objective.pos` before its own `if objective then`; same
+  crash class, warp-style travel objectives only, not observed. Tracked as a
+  separate LIES follow-up, not changed here
+
+Player notes: fixes a rare crash with LIES' travel logic installed: a cop whose
+travel objective had been cleared could crash the game during an assault.
+Movement, pathing and follow behaviour are unchanged on every normal objective.
+
+Revision 205.6 (a truncated follow path could leave a pending jump past its end):
+
+- `CopLogicTravel._chk_stop_for_follow_unit` truncates `my_data.coarse_path` to
+  `coarse_path_index + 1` when the followed unit enters the cop's own nav segment
+  (`lua/coplogictravel.lua:306-317`), and `CopLogicTravel.itr_simplify_coarse_path`
+  shortens the path too (the dedupe/shortcut removals and the `bad_from_index`
+  tail, `:153-284`). Neither updated `my_data.going_to_index`
+- that field belongs to LIES' travel logic, which on walk completion sets
+  `coarse_path_index = my_data.going_to_index` (LIES 8.57.36,
+  `lua/coplogics/coplogictravel.lua:1628-1629`). A stale jump past the new end made
+  that index over-range for the shortened path, which is the multiplayer crash path
+  reported against LIES' travel logic
+- fix: new local `itr_clamp_pending_jump(my_data)` (`lua/coplogictravel.lua:145`)
+  clamps `going_to_index` to `#my_data.coarse_path` when it exceeds it (and to `nil`
+  for an empty path); called at the end of `itr_simplify_coarse_path` and after both
+  truncation paths in `_chk_stop_for_follow_unit`. The truncation itself is
+  unchanged - only the stale pending jump moves
+- 205.4 and 205.5 are unchanged; this adds a guard, it does not alter the
+  logic-switch guard or the vararg forward
+- verification: new `dev/tests/lua/test_coplogictravel_pending_jump.lua` (12 checks)
+  loads the hook file with stubbed engine globals and pins both call sites: a
+  follow-path truncation to 2 entries moves a pending jump 5 -> 2, an in-range jump
+  is left alone, a simplified path of 2 entries moves 4 -> 2, and a path the
+  simplifier cannot shorten keeps its jump. Removing either clamp call fails it
+  (mutation-checked). `dev/tools/gates.ps1` all sections PASS
+- note: LIES 8.57.36 also drops an out-of-range path on its own (its
+  `action_complete_clbk` resets the path instead of walking it), so this is
+  defence in depth for the LIES builds without that guard and for the follow-path
+  case it does not cover
+
+Player notes: no gameplay change on a normal heist. Fixes a rare crash when the
+unit a cop is following walks into the cop's own nav segment while a longer walk is
+still in flight: the pending step is now kept inside the shortened path.
+
+Revision 205.5 (LIES suite compatibility - the pathing callback's trailing flag):
+
+- `CopBrain.clbk_pathing_results`: LIES (8.57.36, branch `feat/lies-249`) copies
+  the vanilla callback with a third parameter, `do_not_cache`, and skips its
+  cached-path write when it is set (`lua/copextensions/copbrain.lua:1317`, write
+  guarded at `:1359`). Iter's wrapper declared `(search_id, path)` and forwarded
+  only those two, so a third argument would have been dropped before the original
+  callback ever saw it
+- the wrapper now forwards the trailing varargs exactly (`...` -> `...`); the
+  205.4 logic-switch guard and its comment are unchanged
+- latent today: at Iter's target 248.2 the game registers this callback as
+  `callback(self, self, "clbk_pathing_results", search_id)`
+  (`lib/units/enemies/cop/copbrain.lua:487, 504, 523, 542`; 249 carries the same
+  four sites at `:435, 452, 471, 490`) and no caller passes a third argument, so
+  no runtime behaviour changes with this release
+- `clbk_coarse_pathing_results` checked for the same defect: the game takes
+  `(search_id, path)` with no trailing argument (249 `copbrain.lua:532`) and LIES
+  only registers it (`lua/copextensions/copbrain.lua:1434`) without copying it, so
+  there is no second wrapper to fix
+- verification: `dev/tools/gates.ps1` all sections PASS, including the new
+  `dev/tests/lua/test_copbrain_pathing_forward.lua`: it loads this hook file with
+  `path_extender = true` and an original callback that records `select('#', ...)`,
+  then pins 0 varargs for a two-argument call and exactly one vararg equal to
+  `true` for a three-argument call, with the same `search_id` and the same `path`
+  table by reference and the original run once per call; reverting the vararg
+  forward makes it fail
+- why now: the README's compatibility claim covers LIES' callback; a dropped
+  cache flag would silently defeat LIES' `cache_lookup = false` path
+
+Player notes: no gameplay change. Routing, streamlining and nav-link queueing are
+identical to 205.4; this only keeps a future LIES cache flag from being lost
+between the two mods.
+
+Revision 205.4 (LIES suite compatibility - pathing callback may switch logic):
+
+- `CopBrain.clbk_pathing_results`: LIES' `_add_pathing_result` post-hook calls the
+  logic's `_pathing_complete_clbk` synchronously. That can switch logic and
+  replace `_logic_data`/`internal_data` before the original callback returns;
+  Iter's path extender then indexed the new table's missing `pathing_results`
+  (`attempt to index field 'pathing_results'`) and crashed. The wrapper now
+  captures `internal_data` before the original, returns when the logic changed,
+  and guards the `pathing_results` write
+- why now: LIES 8.57.36 adds the suite's standard load-once guard to its hook
+  scripts. Before that, LIES re-applied on every hook pass and overwrote Iter's
+  wrapper, leaving this path dormant
+- verification: test-rig soak with LIES (guarded) + Iter (this build) + Keepers +
+  Monkeepers + Goonmod, Useful Bots and The Fixes live: 70 s loud, 55 cops,
+  11 engaged, no crash; owner matrix restored (Keepers owns `coplogictravel`,
+  Iter's `upd_advance` hook active)
+- no behaviour change on the normal path: the early return only fires when the
+  logic was swapped inside the original callback
+
+Player notes: no gameplay change. Fixes a crash that could appear only when
+Iter's path extender was active together with LIES 8.57.36 or newer.
+
 Revision 205.3 (opaque-userdata shape audit - no gameplay change):
 - audited the five `type(x) == 'userdata'` probes in the nav core (`is_vec3`, `itr_alive`, `itr_alive_navpoint`, the coarse-path slot-2 check and the nav-link filter) plus the `nav_point.x` read in the path extender. All are rejection guards, not shape proofs: their value domains are pinned to the game writers (Vector3 positions, nav-link userdata, numeric patch ids) and to vanilla readers that already index the same values (`find_segment_doors`, `_sort_nav_segs_after_pos`, `CopLogicIdle._nav_point_pos`). No Lua logic changed
 - new static gate `dev/tools/test/userdata-shape.test.mjs`: parses the Lua AST, allowlists only those five probes by file + enclosing function + comparison direction, and fails on a copied probe, a changed direction, a stale entry, a duplicated match, `.type_name` / `["type_name"]` reads, wrapped multi-line comparisons and anonymous-function scope leaks
